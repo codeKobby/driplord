@@ -1,0 +1,49 @@
+# DripLord - Task List
+
+- [x] Planning
+  - [x] Create implementation plan <!-- id: 0 -->
+  - [x] Get user approval <!-- id: 1 -->
+- [x] Project Setup
+  - [x] Initialize Flutter project <!-- id: 2 -->
+  - [x] Initialize Supabase project <!-- id: 3 -->
+  - [x] Configure Supabase in Flutter (Auth, Storage, Database) <!-- id: 4 -->
+  - [ ] Configure Gemini API <!-- id: 5 -->
+  - [x] **Design System Foundation**
+    - [x] Define Theme Tokens (Colors, Typography, Spacing, Radius) <!-- id: 24 -->
+    - [x] Use `AppTheme.darkTheme` in `main.dart` <!-- id: 27 -->
+    - [x] Create Core Components (Buttons, GlassCard) <!-- id: 25 -->
+    - [x] Setup Motion/Animation utilities <!-- id: 26 -->
+    - [x] **Luxury Dark Mode Implementation**
+      - [x] Update color palette to midnight blue (#0B121C) and white CTAs
+      - [x] Switch typography to Inter font family
+      - [x] Implement advanced glassmorphism with 20px blur
+      - [x] Create floating navigation bar with glass effect
+      - [x] Update all button variants (Primary, Secondary, Follow)
+      - [x] Redesign auth screen with luxury aesthetic
+- [ ] MVP Implementation
+  - [ ] **Onboarding (Pre-Auth)**
+    - [x] Create Welcome Carousel <!-- id: 22 -->
+    - [x] Create Style Preference Selection screen <!-- id: 23 -->
+    - [x] Implement Body Measurements input (Manual) <!-- id: 8 -->
+  - [ ] **Authentication**
+    - [ ] Implement Sign Up / Login with Supabase (Post-onboarding) <!-- id: 6 -->
+  - [ ] **Profile**
+    - [ ] Create User Profile screen (Edit Mode) <!-- id: 7 -->
+  - [ ] **Digital Wardrobe**
+    - [ ] Implement Camera/Gallery picker <!-- id: 9 -->
+    - [ ] Create Image Upload service (Supabase Storage) <!-- id: 10 -->
+    - [ ] Create Clothing Item model & database table <!-- id: 11 -->
+    - [ ] Implement Wardrobe Grid View <!-- id: 12 -->
+  - [ ] **AI Integration**
+    - [ ] Create Gemini Service for Image Analysis (Categorization) <!-- id: 13 -->
+    - [ ] Implement Auto-tagging for uploaded clothes <!-- id: 14 -->
+  - [ ] **Outfit Recommendation**
+    - [ ] Design Recommendation UI <!-- id: 15 -->
+    - [ ] Implement Logic/Prompting for Outfit suggestions <!-- id: 16 -->
+  - [ ] **Virtual Try-on (Basic)**
+    - [ ] Create Try-on Request UI <!-- id: 17 -->
+    - [ ] Integrate Vision model for basic overlay/preview <!-- id: 18 -->
+- [ ] Verification
+  - [ ] Manual walkthrough of all features <!-- id: 19 -->
+  - [ ] Verify Supabase data persistence <!-- id: 20 -->
+  - [ ] Verify AI response quality <!-- id: 21 -->
