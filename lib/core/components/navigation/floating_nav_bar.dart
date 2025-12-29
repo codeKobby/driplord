@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
-import '../../theme/app_colors.dart';
-import '../../constants/app_dimensions.dart';
 import '../cards/glass_card.dart';
 
-/// Floating bottom navigation bar with glassmorphism effect
-/// Detached from bottom edge for a modern, premium feel
 class FloatingNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -15,34 +10,25 @@ class FloatingNavBar extends StatelessWidget {
     super.key,
     required this.currentIndex,
     required this.onTap,
-    this.items = const [
-      NavItem(icon: LucideIcons.home, label: 'Home'),
-      NavItem(icon: LucideIcons.search, label: 'Explore'),
-      NavItem(icon: LucideIcons.shoppingBag, label: 'Shop'),
-      NavItem(icon: LucideIcons.heart, label: 'Saved'),
-      NavItem(icon: LucideIcons.user, label: 'Profile'),
-    ],
+    required this.items,
   });
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      left: AppDimensions.paddingLg,
-      right: AppDimensions.paddingLg,
-      bottom: AppDimensions.paddingXl,
-      child: GlassSurface(
-        includeTopRadius: true,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppDimensions.paddingMd,
-          vertical: AppDimensions.paddingSm,
-        ),
+      left: 32,
+      right: 32,
+      bottom: 32,
+      child: GlassCard(
+        borderRadius: 100, // Pill shape
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: items.asMap().entries.map((entry) {
             final index = entry.key;
             final item = entry.value;
             final isSelected = index == currentIndex;
-            
+
             return _NavBarItem(
               item: item,
               isSelected: isSelected,
@@ -59,10 +45,7 @@ class NavItem {
   final IconData icon;
   final String label;
 
-  const NavItem({
-    required this.icon,
-    required this.label,
-  });
+  const NavItem({required this.icon, required this.label});
 }
 
 class _NavBarItem extends StatelessWidget {
@@ -78,102 +61,39 @@ class _NavBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppDimensions.paddingMd,
-            vertical: AppDimensions.paddingSm,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Icon with animated selection state
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOut,
-                padding: EdgeInsets.all(isSelected ? 4 : 0),
-                decoration: BoxDecoration(
-                  color: isSelected 
-                      ? AppColors.primary.withValues(alpha: 0.15)
-                      : Colors.transparent,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  item.icon,
-                  size: isSelected ? 24 : 22,
-                  color: isSelected 
-                      ? AppColors.primary 
-                      : AppColors.textSecondary,
-                ),
-              ),
-              
-              const SizedBox(height: 4),
-              
-              // Label with animated opacity
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 200),
-                opacity: isSelected ? 1.0 : 0.7,
-                child: Text(
-                  item.label,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected 
-                        ? AppColors.primary 
-                        : AppColors.textSecondary,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Minimal icon button with circular background
-class CircleIconButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-  final Color? backgroundColor;
-  final Color? iconColor;
-  final double size;
-
-  const CircleIconButton({
-    super.key,
-    required this.icon,
-    required this.onTap,
-    this.backgroundColor,
-    this.iconColor,
-    this.size = 40,
-  });
-
-  @override
-  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: backgroundColor ?? AppColors.surface,
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: AppColors.glassBorder,
-            width: 1,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isSelected ? Colors.white : Colors.transparent,
+              shape: BoxShape.circle,
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: Colors.white.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 0),
+                      ),
+                    ]
+                  : [],
+            ),
+            child: Icon(
+              item.icon,
+              size: 24,
+              color: isSelected ? Colors.black : Colors.white.withOpacity(0.5),
+            ),
           ),
-        ),
-        child: Icon(
-          icon,
-          size: size * 0.45,
-          color: iconColor ?? AppColors.textPrimary,
-        ),
+          if (isSelected)
+            const SizedBox(height: 4)
+          else
+            const SizedBox.shrink(),
+        ],
       ),
     );
   }

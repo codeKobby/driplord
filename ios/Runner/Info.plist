@@ -45,5 +45,25 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- Google Sign-In Configuration -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.252629221538-pobam808idlc9c76jcmnk5nbrf2q3150</string>
+			</array>
+		</dict>
+	</array>
+	<key>GIDClientID</key>
+	<!-- TODO: Replace with your actual iOS client ID from GoogleService-Info.plist -->
+	<string>YOUR_IOS_CLIENT_ID</string>
+
+	<!-- Apple Sign-In Configuration -->
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 </dict>
 </plist>
