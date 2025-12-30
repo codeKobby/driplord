@@ -126,18 +126,33 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
                     _onboardingData.length,
-                    (index) => AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      height: 4,
-                      width: _currentPage == index
-                          ? 32
-                          : 12, // More refined pill shape
-                      decoration: BoxDecoration(
-                        color: _currentPage == index
-                            ? AppColors.primary
-                            : AppColors.primary.withValues(alpha: 0.2),
+                    (index) => Semantics(
+                      label:
+                          'Go to page ${index + 1} of ${_onboardingData.length}',
+                      button: true,
+                      child: InkWell(
+                        onTap: () {
+                          _pageController.animateToPage(
+                            index,
+                            duration: const Duration(milliseconds: 400),
+                            curve: Curves.easeInOutCubic,
+                          );
+                        },
                         borderRadius: BorderRadius.circular(2),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          height: 4,
+                          width: _currentPage == index
+                              ? 32
+                              : 12, // More refined pill shape
+                          decoration: BoxDecoration(
+                            color: _currentPage == index
+                                ? AppColors.primary
+                                : AppColors.primary.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
                       ),
                     ),
                   ),
