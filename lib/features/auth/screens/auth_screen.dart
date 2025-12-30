@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../core/components/common/driplord_scaffold.dart';
 import '../services/auth_service.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -122,26 +123,39 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft, color: Colors.black),
-          onPressed: () {
-            if (_showEmailForm) {
-              setState(() => _showEmailForm = false);
-            } else {
-              Navigator.pop(context);
-            }
-          },
-        ),
-      ),
+    return DripLordScaffold(
       body: SafeArea(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: _showEmailForm ? _buildEmailForm() : _buildWelcomeVariant(),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      LucideIcons.arrowLeft,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      if (_showEmailForm) {
+                        setState(() => _showEmailForm = false);
+                      } else {
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: _showEmailForm
+                    ? _buildEmailForm()
+                    : _buildWelcomeVariant(),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -155,41 +169,42 @@ class _AuthScreenState extends State<AuthScreen> {
         children: [
           const SizedBox(height: 20),
 
-          // Image / Illustration
+          // Icon Group
           Center(
             child: Container(
-              height: 200,
-              width: 200,
+              height: 180,
+              width: 180,
               decoration: BoxDecoration(
-                color: Colors.grey.shade50,
+                color: Colors.white.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
+                border: Border.all(color: Colors.white10),
               ),
-              child: Icon(
-                LucideIcons.userCircle,
-                size: 160,
-                color: Colors.grey.shade200,
+              child: const Icon(
+                LucideIcons.lock,
+                size: 80,
+                color: Colors.white,
               ),
             ),
           ).animate().fadeIn(duration: 600.ms).scale(),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 48),
 
           Text(
-            "Let's you in",
-            style: GoogleFonts.inter(
-              fontSize: 44,
+            "Access Your Style",
+            style: GoogleFonts.outfit(
+              fontSize: 32,
               fontWeight: FontWeight.w800,
-              color: Colors.black,
+              color: Colors.white,
             ),
           ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 48),
 
-          // Social Buttons - Refined with shadows and outlines
+          // Social Buttons
           _buildSocialButton(
             icon: FontAwesomeIcons.google,
             label: "Continue with Google",
-            color: Colors.red,
+            iconColor: Colors.red,
             isLoading: _isGoogleLoading,
             onTap: _handleGoogleSignIn,
           ).animate().fadeIn(delay: 400.ms),
@@ -199,7 +214,7 @@ class _AuthScreenState extends State<AuthScreen> {
           _buildSocialButton(
             icon: FontAwesomeIcons.apple,
             label: "Continue with Apple",
-            color: Colors.black,
+            iconColor: Colors.white,
             isLoading: _isAppleLoading,
             onTap: _handleAppleSignIn,
           ).animate().fadeIn(delay: 500.ms),
@@ -208,29 +223,25 @@ class _AuthScreenState extends State<AuthScreen> {
 
           Row(
             children: [
-              Expanded(
-                child: Divider(color: Colors.grey.shade200, thickness: 1),
-              ),
+              Expanded(child: Divider(color: Colors.white10, thickness: 1)),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  "or",
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w500,
+                  "OR",
+                  style: GoogleFonts.outfit(
+                    fontSize: 14,
+                    color: Colors.white38,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 2,
                   ),
                 ),
               ),
-              Expanded(
-                child: Divider(color: Colors.grey.shade200, thickness: 1),
-              ),
+              Expanded(child: Divider(color: Colors.white10, thickness: 1)),
             ],
           ).animate().fadeIn(delay: 600.ms),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 48),
 
-          // Primary Button for Password
           _buildPrimaryButton(
             onPressed: () => setState(() {
               _isLogin = true;
@@ -242,8 +253,6 @@ class _AuthScreenState extends State<AuthScreen> {
           const SizedBox(height: 40),
 
           _buildAuthToggleLink(),
-
-          const SizedBox(height: 24),
         ],
       ),
     );
@@ -258,10 +267,11 @@ class _AuthScreenState extends State<AuthScreen> {
         children: [
           const SizedBox(height: 16),
           Text(
-            _isLogin ? "Login to your\nAccount" : "Create your\nAccount",
-            style: GoogleFonts.inter(
+            _isLogin ? "Welcome\nBack" : "Create\nAccount",
+            style: GoogleFonts.outfit(
               fontSize: 38,
               fontWeight: FontWeight.w800,
+              color: Colors.white,
               height: 1.1,
             ),
           ).animate().fadeIn().slideX(begin: -0.1),
@@ -297,14 +307,16 @@ class _AuthScreenState extends State<AuthScreen> {
               Checkbox(
                 value: _rememberMe,
                 onChanged: (v) => setState(() => _rememberMe = v ?? false),
-                activeColor: Colors.black,
+                activeColor: Colors.white,
+                checkColor: Colors.black,
+                side: const BorderSide(color: Colors.white38),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
               Text(
                 "Remember me",
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                style: GoogleFonts.outfit(color: Colors.white70),
               ),
             ],
           ),
@@ -325,8 +337,8 @@ class _AuthScreenState extends State<AuthScreen> {
                     Navigator.pushNamed(context, '/auth/forgot-password'),
                 child: Text(
                   "Forgot the password?",
-                  style: GoogleFonts.inter(
-                    color: Colors.black,
+                  style: GoogleFonts.outfit(
+                    color: Colors.white70,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -336,53 +348,59 @@ class _AuthScreenState extends State<AuthScreen> {
 
           const SizedBox(height: 40),
 
-          Row(
-            children: [
-              Expanded(child: Divider(color: Colors.grey.shade200)),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  "or continue with",
-                  style: GoogleFonts.inter(color: Colors.grey.shade500),
-                ),
-              ),
-              Expanded(child: Divider(color: Colors.grey.shade200)),
-            ],
-          ),
-
-          const SizedBox(height: 32),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildSmallSocialButton(
-                FontAwesomeIcons.google,
-                Colors.red,
-                onTap: _handleGoogleSignIn,
-                isLoading: _isGoogleLoading,
-              ),
-              _buildSmallSocialButton(
-                FontAwesomeIcons.apple,
-                Colors.black,
-                onTap: _handleAppleSignIn,
-                isLoading: _isAppleLoading,
-              ),
-            ],
-          ),
+          _buildSocialToggleRow(),
 
           const SizedBox(height: 48),
 
           _buildAuthToggleLink(),
-          const SizedBox(height: 32),
         ],
       ),
+    );
+  }
+
+  Widget _buildSocialToggleRow() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(child: Divider(color: Colors.white10)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                "social join",
+                style: GoogleFonts.outfit(color: Colors.white24, fontSize: 12),
+              ),
+            ),
+            Expanded(child: Divider(color: Colors.white10)),
+          ],
+        ),
+        const SizedBox(height: 24),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildSmallSocialButton(
+              FontAwesomeIcons.google,
+              Colors.red,
+              onTap: _handleGoogleSignIn,
+              isLoading: _isGoogleLoading,
+            ),
+            const SizedBox(width: 24),
+            _buildSmallSocialButton(
+              FontAwesomeIcons.apple,
+              Colors.white,
+              onTap: _handleAppleSignIn,
+              isLoading: _isAppleLoading,
+            ),
+          ],
+        ),
+      ],
     );
   }
 
   Widget _buildSocialButton({
     required IconData icon,
     required String label,
-    required Color color,
+    required Color iconColor,
     required bool isLoading,
     required VoidCallback onTap,
   }) {
@@ -392,34 +410,30 @@ class _AuthScreenState extends State<AuthScreen> {
         width: double.infinity,
         height: 60,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade100, width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          border: Border.all(color: Colors.white10, width: 1),
         ),
         child: isLoading
             ? const Center(
                 child: SizedBox(
                   height: 24,
                   width: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
                 ),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  FaIcon(icon, color: color, size: 24),
+                  FaIcon(icon, color: iconColor, size: 20),
                   const SizedBox(width: 12),
                   Text(
                     label,
-                    style: GoogleFonts.inter(
-                      color: Colors.black,
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -439,26 +453,22 @@ class _AuthScreenState extends State<AuthScreen> {
     return GestureDetector(
       onTap: isLoading ? null : onTap,
       child: Container(
-        width: 100,
+        width: 80,
         height: 64,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade100, width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          color: Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white10, width: 1),
         ),
         child: isLoading
             ? const Center(
                 child: SizedBox(
                   height: 20,
                   width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
                 ),
               )
             : Center(child: FaIcon(icon, color: color, size: 24)),
@@ -471,37 +481,27 @@ class _AuthScreenState extends State<AuthScreen> {
     required String text,
     bool isLoading = false,
   }) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: 60,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(100),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.black,
-          foregroundColor: Colors.white,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(100),
           ),
           elevation: 0,
         ),
         child: isLoading
-            ? const CircularProgressIndicator(color: Colors.white)
+            ? const CircularProgressIndicator(color: Colors.black)
             : Text(
                 text,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.outfit(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
+                  letterSpacing: 1,
                 ),
               ),
       ),
@@ -519,14 +519,11 @@ class _AuthScreenState extends State<AuthScreen> {
       controller: controller,
       obscureText: isPassword && _obscurePassword,
       keyboardType: keyboardType,
-      style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+      style: GoogleFonts.outfit(color: Colors.white),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.inter(
-          color: Colors.grey.shade400,
-          fontWeight: FontWeight.normal,
-        ),
-        prefixIcon: Icon(icon, color: Colors.grey.shade400, size: 20),
+        hintStyle: GoogleFonts.outfit(color: Colors.white38),
+        prefixIcon: Icon(icon, color: Colors.white38, size: 20),
         suffixIcon: isPassword
             ? IconButton(
                 icon: Icon(
@@ -534,23 +531,23 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
                 onPressed: () =>
                     setState(() => _obscurePassword = !_obscurePassword),
-                color: Colors.grey.shade400,
+                color: Colors.white38,
               )
             : null,
         filled: true,
-        fillColor: Colors.grey.shade50,
-        contentPadding: const EdgeInsets.all(20),
+        fillColor: Colors.white.withValues(alpha: 0.05),
+        contentPadding: const EdgeInsets.all(22),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Colors.black, width: 1.5),
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: Colors.white, width: 1),
         ),
       ),
     );
@@ -574,12 +571,12 @@ class _AuthScreenState extends State<AuthScreen> {
             text: _isLogin
                 ? "Don't have an account? "
                 : "Already have an account? ",
-            style: GoogleFonts.inter(color: Colors.grey.shade500, fontSize: 16),
+            style: GoogleFonts.outfit(color: Colors.white54, fontSize: 16),
             children: [
               TextSpan(
                 text: _isLogin ? "Sign up" : "Sign in",
-                style: GoogleFonts.inter(
-                  color: Colors.black,
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
                   fontWeight: FontWeight.w800,
                 ),
               ),

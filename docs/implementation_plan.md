@@ -13,57 +13,59 @@ Build the MVP for **DripLord**, an AI-powered personal fashion assistant. The go
 
 ### ✅ What's Working
 
-- __Luxury Dark Mode Design System__: Complete theme overhaul with deep midnight blue background (#0B121C), pure white CTAs, and Inter typography
-- __Enhanced Glassmorphism__: Advanced GlassCard with configurable blur (20px sigma), gradient overlays, and GlassSurface for navigation
-- __Modern Button System__: Primary (white pill), Secondary (glass outline), and Follow buttons with consistent styling
-- __Floating Navigation__: Glassmorphism bottom navigation bar with animated selection states
-- __Updated Auth Screen__: Luxury layout with decorative gradients, improved form controls, and smooth animations
-- __Onboarding Flow__: 3-screen carousel with animations (using `flutter_animate`)
-- __Body Measurements__: Manual input with sliders + gender selection
+- **Luxury Dual-Theme System**: Complete theme support with "Luxury Dark" (Midnight Blue) and "Luxury Light" (Warm Cream).
+- **Iconography Refresh**: Custom-tailored icons for Home, Closet, Outfits, and Profile.
+- **Enhanced Glassmorphism**: Advanced GlassCard with configurable blur (20px sigma) and optimized performance.
+- **Theme Management**: Riverpod-based `themeProvider` using the `Notifier` pattern.
+- **Home Hub Improvements**: Vibe Selectors (Chill, Bold, etc.) and Digital Closet Stats.
+- **Modern Navigation**: Glassmorphism floating nav-bar and "Stylist" FAB.
+- **Auth Screen**: Fully themed with support for Google/Apple sign-in UI.
 
 ### ❌ Critical Gaps
 
-| Area | Issue | Impact |
-|------|-------|--------|
-| __Components__ | Missing glass dialogs, bottom sheets | Limited UI patterns |
-| __Empty States__ | No visual feedback for empty wardrobe | Poor user guidance |
-| __Digital Wardrobe__ | No implementation yet | Core MVP feature missing |
+| Area                 | Issue                                 | Impact                   |
+| -------------------- | ------------------------------------- | ------------------------ |
+| **Components**       | Missing glass dialogs, bottom sheets  | Limited UI patterns      |
+| **Empty States**     | No visual feedback for empty wardrobe | Poor user guidance       |
+| **Digital Wardrobe** | No implementation yet                 | Core MVP feature missing |
 
 ## 🎨 UI/UX Issues by Priority
 
 ### P0 - Blocking Issues (Fix Immediately)
 
-#### 1. __Broken User Journey__ - ✅ FIXED
+#### 1. **Broken User Journey** - ✅ FIXED
+
 - Redirects to Home after Auth
 - Navigation flow established
 
-#### 2. __No OAuth Authentication__ - ✅ IMPLEMENTED
+#### 2. **No OAuth Authentication** - ✅ IMPLEMENTED
+
 - Google Sign-In added (requires client IDs)
 - Apple Sign-In added
 - UI updated with OAuth buttons
 
 ### P1 - Essential Improvements
 
-#### 3. __Missing Design System Components__
+#### 3. **Missing Design System Components**
 
-| Component | Status | Purpose |
-|-----------|--------|---------|
-| `AppGradients` | ❌ Missing | Reusable gradient presets |
-| `GlassButton` | ❌ Missing | Glass-morphic button variant |
+| Component          | Status     | Purpose                        |
+| ------------------ | ---------- | ------------------------------ |
+| `AppGradients`     | ❌ Missing | Reusable gradient presets      |
+| `GlassButton`      | ❌ Missing | Glass-morphic button variant   |
 | `GlassBottomSheet` | ❌ Missing | Bottom sheet with glass effect |
-| `GlassDialog` | ❌ Missing | Alert/confirm dialogs |
-| `OAuthButton` | ❌ Missing | Google/Apple sign-in buttons |
-| `AuthDivider` | ❌ Missing | "Or continue with" divider |
-| `ShimmerLoading` | ❌ Missing | Loading skeleton states |
+| `GlassDialog`      | ❌ Missing | Alert/confirm dialogs          |
+| `OAuthButton`      | ❌ Missing | Google/Apple sign-in buttons   |
+| `AuthDivider`      | ❌ Missing | "Or continue with" divider     |
+| `ShimmerLoading`   | ❌ Missing | Loading skeleton states        |
 
-#### 4. __Glass Card System Complete__
+#### 4. **Glass Card System Complete**
 
 - ✅ Configurable blur intensity (20px sigma default)
 - ✅ GlassSurface component for navigation bars
 - ✅ Gradient overlays and subtle borders
 - ✅ Enhanced with proper tileMode for better performance
 
-#### 5. __Design Tokens Complete__
+#### 5. **Design Tokens Complete**
 
 - ✅ Luxury dark mode color palette implemented
 - ✅ Gradient colors added to `AppColors` class
@@ -72,19 +74,19 @@ Build the MVP for **DripLord**, an AI-powered personal fashion assistant. The go
 
 ### P2 - UX Polish
 
-#### 6. __Missing User Guidance__
+#### 6. **Missing User Guidance**
 
 - No "Skip" button on onboarding
 - No empty state illustrations
 - No success/error animations
 
-#### 7. __Accessibility__
+#### 7. **Accessibility**
 
 - Text contrast may fail WCAG AA
 - No haptic feedback configuration
 - Missing keyboard actions (Done/Next)
 
-#### 8. __Performance__
+#### 8. **Performance**
 
 - 10px blur can be heavy on low-end devices
 - No shimmer loading states (causes layout shift)
@@ -112,35 +114,38 @@ Build the MVP for **DripLord**, an AI-powered personal fashion assistant. The go
 2. Create `AuthService` for OAuth handling
 3. Update AuthScreen with OAuth buttons
 
-### Phase 4: Home Screen & Navigation
+### Phase 4: Core Navigation & Screens
 
-1. Create HomeScreen with bottom navigation (Wardrobe, AI, Profile)
-2. Update AuthScreen to redirect to Home when authenticated
-3. Add logout functionality
+1. **Refactor Navigation**:
 
-### Phase 5: Polish & Accessibility
+   - ✅ Updated `FloatingNavBar` items to: Home, Closet, Outfits, Profile.
+   - ✅ Implemented `HomeScreen` shell.
+   - ✅ Implemented context-aware **Floating Action Button (FAB)** with "Stylist" label.
 
-1. Add skip button to onboarding
-2. Add empty state widgets
-3. Configure haptic feedback
-4. Add keyboard actions
+2. **Home Screen (Daily Hub)**:
 
-## 🎯 Recommended Execution Order
+   - ✅ AI outfit suggestion with weather context.
+   - ✅ **Vibe Selectors** (Chill, Bold, Work, Hype).
+   - ✅ Actions: Try this look, Regenerate, Heart (Save).
+   - ✅ **Closet Insights** card added.
 
-```javascript
-Phase 1 (Design Foundation) → Phase 2 (Components) →
-Phase 3 (OAuth) → Phase 4 (Home/Nav) → Phase 5 (Polish)
-```
+3. **Closet Screen**:
 
-__Total Estimated Time__: 4-6 hours for all improvements
+   - ✅ Digital inventory categorized grid.
+   - FAB: Add clothing item (Camera/Gallery).
 
-## Proposed Changes
+4. **Outfits Screen**:
 
-### Tech Stack
+   - ✅ History of won and saved looks.
+   - FAB: Create new combination.
 
-- **Frontend**: Flutter (Mobile)
-- **Backend**: Supabase (Auth, PostgreSQL, Storage)
-- **AI**: Gemini (Vision & Text)
+5. **Profile Screen**:
+
+   - ✅ Added **Theme Toggle** (Light/Dark).
+   - ✅ Added Profile Stat cards.
+
+6. **Contextual Flow: Try-On / Mirror**:
+   - ✅ Integration from Home, Closet, and Outfits.
 
 ### Design Strategy: "Luxury Dark Mode"
 

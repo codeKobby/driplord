@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../theme/app_colors.dart';
 
 class DripLordScaffold extends StatelessWidget {
   final Widget body;
   final PreferredSizeWidget? appBar;
   final Widget? bottomNavigationBar;
   final bool showAbstractShapes;
+  final bool useSafeArea;
 
   const DripLordScaffold({
     super.key,
@@ -14,6 +14,7 @@ class DripLordScaffold extends StatelessWidget {
     this.appBar,
     this.bottomNavigationBar,
     this.showAbstractShapes = true,
+    this.useSafeArea = true,
   });
 
   @override
@@ -25,7 +26,7 @@ class DripLordScaffold extends StatelessWidget {
       body: Stack(
         children: [
           // Base Background
-          Container(color: AppColors.background),
+          Container(color: Theme.of(context).scaffoldBackgroundColor),
 
           // Abstract Luxury Orbs
           if (showAbstractShapes) ...[
@@ -41,9 +42,10 @@ class DripLordScaffold extends StatelessWidget {
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              const Color(
-                                0xFFF5F0E8,
-                              ).withOpacity(0.08), // Soft Beige
+                              (Theme.of(context).brightness == Brightness.dark
+                                      ? const Color(0xFFF5F0E8)
+                                      : Theme.of(context).colorScheme.primary)
+                                  .withValues(alpha: 0.08),
                               Colors.transparent,
                             ],
                           ),
@@ -72,7 +74,10 @@ class DripLordScaffold extends StatelessWidget {
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              const Color(0xFF1C1C1C).withOpacity(0.3),
+                              (Theme.of(context).brightness == Brightness.dark
+                                      ? const Color(0xFF1C1C1C)
+                                      : Theme.of(context).colorScheme.secondary)
+                                  .withValues(alpha: 0.2),
                               Colors.transparent,
                             ],
                           ),
@@ -91,7 +96,7 @@ class DripLordScaffold extends StatelessWidget {
           ],
 
           // Main Content
-          SafeArea(child: body),
+          useSafeArea ? SafeArea(child: body) : body,
         ],
       ),
     );

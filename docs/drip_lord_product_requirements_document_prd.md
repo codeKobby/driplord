@@ -1,9 +1,11 @@
 # Product Requirements Document (PRD)
 
 ## Product Name
+
 DripLord
 
 ## Product Summary
+
 DripLord is an AI-powered personal fashion assistant that helps users decide what to wear, preview outfits on themselves, and make better clothing purchase decisions. The app builds a digital wardrobe by analyzing user photos and uses AI to generate outfit recommendations, virtual try-ons, and size guidance for both owned and online clothing.
 
 The core goal is to reduce outfit uncertainty, improve fashion confidence, and minimize wrong-size purchases.
@@ -11,7 +13,9 @@ The core goal is to reduce outfit uncertainty, improve fashion confidence, and m
 ---
 
 ## Problem Statement
+
 Users struggle with:
+
 - Deciding what to wear for different occasions
 - Remembering or organizing what clothes they already own
 - Knowing how an outfit will actually look on their body
@@ -23,6 +27,7 @@ Existing fashion apps either lack personalization, accurate body fit, or real wa
 ---
 
 ## Target Users
+
 - Fashion-conscious individuals
 - Casual users who struggle with outfit choices
 - Online shoppers who want better fit confidence
@@ -34,6 +39,7 @@ Existing fashion apps either lack personalization, accurate body fit, or real wa
 ## Core Features
 
 ### 1. User Profile & Body Data
+
 - User account with cloud-based data sync
 - Two body data input methods:
   - AI-assisted body scan using camera
@@ -44,6 +50,7 @@ Existing fashion apps either lack personalization, accurate body fit, or real wa
 ---
 
 ### 2. Digital Wardrobe Creation
+
 - Gallery sync to detect clothing images
 - In-app camera for taking outfit photos
 - AI detects and categorizes clothing items
@@ -54,17 +61,21 @@ Existing fashion apps either lack personalization, accurate body fit, or real wa
 ---
 
 ### 3. Outfit Recommendation Engine
+
 - Outfit suggestions based on:
   - Occasion
-  - Weather (optional future enhancement)
+  - Weather (Daily Hub context)
+  - **Vibe Selectors** (Chill, Bold, Work, Hype) for instant context switching
   - User preferences
   - Available wardrobe items
 - Mix-and-match recommendations using existing clothes
-- Ability to save, favorite, or discard suggested outfits
+- Ability to save, favorite (Heart icon), or discard suggested outfits
+- **Digital Closet Insights**: Proactive notifications about unworn items or wardrobe stats.
 
 ---
 
 ### 4. Virtual Try-On & Visualization
+
 - AI-generated outfit previews applied to the user’s body
 - Try-on using:
   - Existing wardrobe items
@@ -76,6 +87,7 @@ Existing fashion apps either lack personalization, accurate body fit, or real wa
 ---
 
 ### 5. Online Shopping Assistance
+
 - Upload product images from online stores
 - AI estimates how items will fit on the user
 - Size recommendation based on brand measurements
@@ -85,6 +97,7 @@ Existing fashion apps either lack personalization, accurate body fit, or real wa
 ---
 
 ### 6. In-Store Shopping Mode
+
 - Camera-based scanning of clothing items
 - Real-time fit and style suggestions
 - Outfit pairing with existing wardrobe items
@@ -92,7 +105,16 @@ Existing fashion apps either lack personalization, accurate body fit, or real wa
 
 ---
 
-### 7. AI Agent System
+### 7. Dual-Theme Support
+
+- **Luxury Dark Mode**: Premium midnight blue and glassmorphism.
+- **Luxury Light Mode**: Warm cream, gold accents, and sophisticated light-mode glassmorphism.
+- Manual toggle in user preferences.
+
+---
+
+### 8. AI Agent System
+
 - Gemini-powered agentic system
 - Specialized agents for:
   - Wardrobe analysis
@@ -106,16 +128,19 @@ Existing fashion apps either lack personalization, accurate body fit, or real wa
 ## Non-Functional Requirements
 
 ### Performance
+
 - Fast image processing feedback
 - Smooth preview rendering
 - Low-latency AI responses
 
 ### Reliability
+
 - Cloud data persistence
 - Cross-device sync
 - Offline access to saved wardrobe data (limited mode)
 
 ### Privacy & Security
+
 - Explicit user consent for gallery access
 - Secure storage of images and measurements
 - Ability to delete data permanently
@@ -125,16 +150,20 @@ Existing fashion apps either lack personalization, accurate body fit, or real wa
 ## Tech Stack (High-Level)
 
 ### Frontend
+
 - Flutter (Android, iOS, Web)
 
 ### Backend
+
 - Supabase (authentication, database, storage)
 
 ### AI & ML
+
 - Gemini models for reasoning, vision, and agent orchestration
 - On-device lightweight processing where applicable
 
 ### Storage
+
 - Cloud-based image and metadata storage
 - Structured wardrobe and measurement database
 
@@ -143,15 +172,18 @@ Existing fashion apps either lack personalization, accurate body fit, or real wa
 ## MVP Scope
 
 ### Included
+
 - User profiles
 - Gallery sync + manual photo capture
 - Digital wardrobe creation
-- Basic outfit recommendations
+- Basic outfit recommendations with Vibe Selectors
 - Virtual try-on previews
 - Online size recommendation
 - Cloud sync across devices
+- Dual-theme (Light/Dark) support
 
 ### Excluded (Future Versions)
+
 - Social sharing
 - Marketplace integrations
 - Brand partnerships
@@ -161,6 +193,7 @@ Existing fashion apps either lack personalization, accurate body fit, or real wa
 ---
 
 ## Success Metrics
+
 - User retention
 - Outfit recommendation usage
 - Virtual try-on engagement
@@ -170,6 +203,7 @@ Existing fashion apps either lack personalization, accurate body fit, or real wa
 ---
 
 ## Risks & Considerations
+
 - Accuracy of body measurement estimation
 - User trust in AI-generated previews
 - Performance constraints on low-end devices
@@ -178,5 +212,5 @@ Existing fashion apps either lack personalization, accurate body fit, or real wa
 ---
 
 ## Long-Term Vision
-DripLord becomes a personal fashion intelligence system that understands the user’s body, style, wardrobe, and lifestyle—serving as a trusted daily decision-maker for what to wear and what to buy.
 
+DripLord becomes a personal fashion intelligence system that understands the user’s body, style, wardrobe, and lifestyle—serving as a trusted daily decision-maker for what to wear and what to buy.

@@ -7,15 +7,26 @@ DripLord implements a **Luxury Dark Mode** design system inspired by high-end fa
 ## 🎨 Color Palette
 
 ### Primary Colors
+
 - **Background**: `#0B121C` (Deep Midnight Blue) - Richer than pure black for reduced eye strain
 - **Primary**: `#FFFFFF` (Pure White) - High contrast CTAs with black text
 - **Secondary**: `#A0A0A0` (Light Gray) - Subtle descriptions and metadata
 
+### Luxury Light Mode
+
+- **Background**: `#FBF9F6` (Warm Cream White)
+- **Primary**: `#000000` (Pure Black)
+- **Secondary**: `#8C8C8C` (Soft Gray)
+- **Surface**: `#FFFFFF` (White)
+- **Accents**: Gold/Cream highlights
+
 ### Glassmorphism
-- **Glass Surface**: `Color(0x40151D2B)` - Semi-transparent overlay
-- **Glass Border**: `Color(0x1AFFFFFF)` - Subtle white border
+
+- **Glass Surface**: `Color(0x40151D2B)` (Dark Mode) / `Color(0x0D000000)` (Light Mode)
+- **Glass Border**: `Color(0x1AFFFFFF)` (Dark Mode) / `Color(0x0D000000)` (Light Mode)
 
 ### Supporting Colors
+
 - **Surface**: `#151D2B` - Card backgrounds
 - **Surface Light**: `#1E2A3D` - Lighter surface variants
 - **Text Primary**: `#FFFFFF` - Main text
@@ -27,6 +38,7 @@ DripLord implements a **Luxury Dark Mode** design system inspired by high-end fa
 **Font Family**: Inter (Google Fonts)
 
 ### Scale
+
 - **Display Large**: 40px, 700 weight, -0.5 letter spacing
 - **Display Medium**: 32px, 700 weight, -0.3 letter spacing
 - **Display Small**: 28px, 600 weight, -0.2 letter spacing
@@ -42,6 +54,7 @@ DripLord implements a **Luxury Dark Mode** design system inspired by high-end fa
 ### Buttons
 
 #### Primary Button
+
 - **Background**: White (`#FFFFFF`)
 - **Foreground**: Black text (`#0B121C`)
 - **Shape**: Pill (100% border radius)
@@ -49,24 +62,28 @@ DripLord implements a **Luxury Dark Mode** design system inspired by high-end fa
 - **Typography**: Inter 14px, 600 weight
 
 #### Secondary Button
+
 - **Background**: Transparent
 - **Border**: Glass border (`#1AFFFFFF`)
 - **Foreground**: White text
 - **Shape**: Pill (100% border radius)
 
 #### Follow Button
+
 - **States**: Following (outlined) / Follow (filled)
 - **Size**: Compact (36px height)
 
 ### Cards
 
 #### GlassCard
+
 - **Blur**: 20px sigma (configurable)
 - **Background**: Gradient overlay (80% → 60% opacity)
 - **Border**: Subtle white border
 - **Shadow**: Inner shadow for depth
 
 #### GlassSurface
+
 - **Use**: Full-width navigation and bottom sheets
 - **Blur**: 30px sigma for stronger effect
 - **Border**: Top border only
@@ -74,26 +91,35 @@ DripLord implements a **Luxury Dark Mode** design system inspired by high-end fa
 ### Navigation
 
 #### FloatingNavBar
+
 - **Position**: Detached from bottom edge (16px margin)
 - **Background**: Glass surface with blur
 - **Animation**: Smooth state transitions
-- **Icons**: Lucide icons with animated selection
+- **Icons**:
+  - Home: `LucideIcons.home`
+  - Closet: `LucideIcons.shirt`
+  - Outfits: `LucideIcons.bookmark`
+  - Profile: `LucideIcons.user`
+- **Active State**: Glowing active item with capsule background
 
 ## 🎯 Design Principles
 
 ### Luxury Dark Mode
+
 - **Depth**: Avoid pure black, use rich midnight blue
 - **Contrast**: White CTAs with black text for accessibility
 - **Glassmorphism**: Frosted blur effects for modern feel
 - **Typography**: Clean Inter font throughout
 
 ### Editorial Layout
+
 - **Whitespace**: Generous padding and margins
 - **Hierarchy**: Clear visual hierarchy with typography
 - **Focus**: Content as hero, UI as supporting element
 - **Consistency**: Pill shapes and glass effects throughout
 
 ### Interaction Design
+
 - **Animation**: Smooth 200ms transitions
 - **Feedback**: Visual state changes and micro-interactions
 - **Accessibility**: High contrast ratios, proper touch targets
@@ -101,16 +127,19 @@ DripLord implements a **Luxury Dark Mode** design system inspired by high-end fa
 ## 📱 Implementation Notes
 
 ### Performance
+
 - Glass effects use `tileMode: TileMode.decal` for better performance
 - Blur radius optimized (20-30px) for mobile devices
 - Colors defined as const for compile-time optimization
 
 ### Accessibility
+
 - Text contrast meets WCAG AA standards
 - Touch targets minimum 44px
 - Focus indicators for keyboard navigation
 
 ### Maintenance
+
 - Colors centralized in `AppColors` class
 - Components use theme values for consistency
 - Documentation updated with design changes
@@ -118,6 +147,7 @@ DripLord implements a **Luxury Dark Mode** design system inspired by high-end fa
 ## 🚀 Usage Examples
 
 ### Basic Glass Card
+
 ```dart
 GlassCard(
   child: Text('Content'),
@@ -125,6 +155,7 @@ GlassCard(
 ```
 
 ### Primary Button
+
 ```dart
 PrimaryButton(
   text: 'Continue',
@@ -133,6 +164,7 @@ PrimaryButton(
 ```
 
 ### Navigation
+
 ```dart
 FloatingNavBar(
   currentIndex: 0,
@@ -154,10 +186,11 @@ FloatingNavBar(
 
 ## 🔄 Updates
 
-**Latest**: Luxury dark mode implementation complete
-- Midnight blue background (#0B121C)
-- White CTAs with black text
-- Inter typography system
-- Advanced glassmorphism
-- Floating navigation bar
-- Updated auth screen design
+**Latest**: Dual-theme support & iconography refresh complete
+
+- Luxury Light mode implemented (#FBF9F6)
+- Luxury Dark mode refined
+- Updated Navigation Icons (Home, Shirt, Bookmark, User)
+- New "Stylist" FAB with FontAwesome shirt icon
+- Added Vibe Selectors and Closet Info cards
+- Full Riverpod theme management

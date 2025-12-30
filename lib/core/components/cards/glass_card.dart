@@ -28,7 +28,7 @@ class GlassCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final borderRadiusValue = borderRadius ?? AppDimensions.radiusLg;
-    
+
     return Container(
       width: width,
       height: height,
@@ -77,7 +77,7 @@ class GlassEffect extends StatelessWidget {
           onTap: onTap,
           child: Container(
             padding: padding ?? const EdgeInsets.all(AppDimensions.paddingLg),
-            decoration: _buildDecoration(),
+            decoration: _buildDecoration(context),
             child: child,
           ),
         ),
@@ -85,28 +85,35 @@ class GlassEffect extends StatelessWidget {
     );
   }
 
-  BoxDecoration _buildDecoration() {
+  BoxDecoration _buildDecoration(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final glassColor = isDark
+        ? AppColors.glassSurface
+        : Colors.white; // Or a specific light glass color
+
     return BoxDecoration(
       // Gradient for subtle depth
       gradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          AppColors.glassSurface.withValues(alpha: 0.8),
-          AppColors.glassSurface.withValues(alpha: 0.6),
+          glassColor.withValues(alpha: isDark ? 0.8 : 0.7),
+          glassColor.withValues(alpha: isDark ? 0.6 : 0.4),
         ],
         stops: const [0.0, 1.0],
       ),
       border: showBorder
           ? Border.all(
-              color: AppColors.glassBorder,
+              color: isDark
+                  ? AppColors.glassBorder
+                  : Colors.black.withValues(alpha: 0.05),
               width: 1,
             )
           : null,
       // Subtle inner glow effect
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.2),
+          color: (isDark ? Colors.black : Colors.grey).withValues(alpha: 0.2),
           blurRadius: 30,
           spreadRadius: -5,
           offset: const Offset(0, 10),
@@ -150,13 +157,21 @@ class GlassSurface extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppColors.glassSurface.withValues(alpha: 0.85),
-                AppColors.glassSurface.withValues(alpha: 0.7),
+                (Theme.of(context).brightness == Brightness.dark
+                        ? AppColors.glassSurface
+                        : Colors.white)
+                    .withValues(alpha: 0.85),
+                (Theme.of(context).brightness == Brightness.dark
+                        ? AppColors.glassSurface
+                        : Colors.white)
+                    .withValues(alpha: 0.7),
               ],
             ),
             border: Border(
               top: BorderSide(
-                color: AppColors.glassBorder,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.glassBorder
+                    : Colors.black.withValues(alpha: 0.05),
                 width: 0.5,
               ),
             ),

@@ -7,6 +7,7 @@ import 'features/onboarding/screens/welcome_screen.dart';
 import 'features/auth/screens/auth_screen.dart';
 import 'features/auth/screens/forgot_password_screen.dart';
 import 'features/home/screens/home_screen.dart';
+import 'core/providers/theme_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,15 +20,19 @@ Future<void> main() async {
   runApp(const ProviderScope(child: DripLordApp()));
 }
 
-class DripLordApp extends StatelessWidget {
+class DripLordApp extends ConsumerWidget {
   const DripLordApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeProvider);
+
     return MaterialApp(
       title: 'DripLord',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode,
       initialRoute: '/',
       routes: {
         '/': (context) => const WelcomeScreen(),
