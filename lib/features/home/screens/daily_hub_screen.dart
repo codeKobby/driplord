@@ -8,6 +8,8 @@ import 'notification_screen.dart';
 import '../providers/recommendation_provider.dart';
 import '../providers/saved_outfits_provider.dart';
 import '../../try_on/providers/mirror_provider.dart';
+import '../../closet/providers/closet_provider.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DailyHubScreen extends ConsumerWidget {
@@ -16,6 +18,7 @@ class DailyHubScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final recommendation = ref.watch(recommendationProvider);
+    final closetItems = ref.watch(closetProvider);
 
     return CustomScrollView(
       slivers: [
@@ -32,17 +35,6 @@ class DailyHubScreen extends ConsumerWidget {
             ),
           ),
           actions: [
-            IconButton(
-              icon: const Icon(LucideIcons.bell),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const NotificationScreen(),
-                  ),
-                );
-              },
-            ),
             IconButton(
               icon: const Icon(LucideIcons.bell),
               onPressed: () {
@@ -77,7 +69,7 @@ class DailyHubScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 _buildMainOutfitCard(context, recommendation, ref),
                 const SizedBox(height: 32),
-                _buildInsightsSection(context),
+                _buildInsightsSection(context, closetItems),
                 const SizedBox(height: 120), // Space for FAB and Nav
               ],
             ),
@@ -215,6 +207,7 @@ class DailyHubScreen extends ConsumerWidget {
                         child: const Text("Try this look"),
                       ),
                     ),
+                    const SizedBox(width: 12),
                     _buildCircleAction(
                       icon:
                           ref
@@ -271,7 +264,10 @@ class DailyHubScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildInsightsSection(BuildContext context) {
+  Widget _buildInsightsSection(BuildContext context, List<ClothingItem> items) {
+    final firstItemImage = items.isNotEmpty ? items.first.imageUrl : null;
+    final gridItems = items.take(4).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -288,12 +284,25 @@ class DailyHubScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Icon(
-                LucideIcons.calendar,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
+              if (firstItemImage != null)
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    image: DecorationImage(
+                      image: NetworkImage(firstItemImage),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                )
+              else
+                Icon(
+                  LucideIcons.calendar,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
@@ -313,12 +322,15 @@ class DailyHubScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Icon(
-                LucideIcons.shirt,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
+              if (items.length >= 2)
+                _buildItemGrid(gridItems)
+              else
+                Icon(
+                  LucideIcons.shirt,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -332,7 +344,7 @@ class DailyHubScreen extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      "12 new items added this month",
+                      "${items.length} items in your closet",
                       style: GoogleFonts.outfit(
                         color: Theme.of(
                           context,
@@ -343,10 +355,62 @@ class DailyHubScreen extends ConsumerWidget {
                   ],
                 ),
               ),
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(FontAwesomeIcons.shirt, size: 14),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Stylist",
+                      style: GoogleFonts.outfit(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildItemGrid(List<ClothingItem> items) {
+    return SizedBox(
+      width: 40,
+      height: 40,
+      child: GridView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 2,
+          mainAxisSpacing: 2,
+        ),
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          return Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(2),
+              image: DecorationImage(
+                image: NetworkImage(items[index].imageUrl),
+                fit: BoxFit.cover,
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 

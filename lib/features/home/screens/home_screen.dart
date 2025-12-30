@@ -59,59 +59,76 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
 
-          // Context-aware FAB
-          _buildContextAwareFAB(),
-
           FloatingNavBar(
             currentIndex: _currentIndex,
             onTap: _onNavTap,
             items: _navItems,
+            centerAction: _buildCenterAction(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildContextAwareFAB() {
+  Widget? _buildCenterAction() {
     IconData icon;
-    String label;
     VoidCallback onPressed;
 
     switch (_currentIndex) {
       case 0:
         icon = FontAwesomeIcons.shirt;
-        label = "Stylist";
         onPressed = () => _showGenerateOptions();
         break;
       case 1:
         icon = LucideIcons.plus;
-        label = "Add Item";
         onPressed = () => _showAddItemOptions();
         break;
       case 2:
         icon = LucideIcons.plusCircle;
-        label = "New Outfit";
         onPressed = () => _showCreateOutfitOptions();
         break;
+      case 3:
+        icon = LucideIcons.user;
+        onPressed = () {}; // Profile actions?
+        break;
       default:
-        return const SizedBox.shrink();
+        return null;
     }
 
-    return Positioned(
-      right: 32,
-      bottom: 120, // Positioned above the Nav Bar
-      child:
-          FloatingActionButton.extended(
-                onPressed: onPressed,
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                icon: Icon(icon),
-                label: Text(label),
-              )
-              .animate(key: ValueKey(_currentIndex))
-              .fadeIn()
-              .slideY(begin: 1.0, end: 0.0),
-    );
+    return GestureDetector(
+          onTap: onPressed,
+          child: Container(
+            width: 52, // Reduced from 64
+            height: 52, // Reduced from 64
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.4),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+              border: Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onPrimary.withValues(alpha: 0.2),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: Theme.of(context).colorScheme.onPrimary,
+              size: 24, // Reduced from 28
+            ),
+          ),
+        )
+        .animate(key: ValueKey(_currentIndex))
+        .scale(begin: const Offset(0.9, 0.9), end: const Offset(1.0, 1.0))
+        .fadeIn();
   }
 
   void _showGenerateOptions() {
