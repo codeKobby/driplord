@@ -83,7 +83,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             style: Theme.of(context).textTheme.displayMedium
                                 ?.copyWith(
                                   height: 1.1,
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                   letterSpacing: -0.5,
                                 ),
                             textAlign: TextAlign.center,
@@ -98,7 +100,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             item["subtitle"] ?? "",
                             style: Theme.of(context).textTheme.bodyLarge
                                 ?.copyWith(
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.7),
                                   height: 1.6,
                                   fontSize: 16,
                                 ),
@@ -135,8 +138,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           : 12, // More refined pill shape
                       decoration: BoxDecoration(
                         color: _currentPage == index
-                            ? AppColors.primary
-                            : AppColors.primary.withValues(alpha: 0.2),
+                            ? Theme.of(context).colorScheme.onSurface
+                            : Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -219,13 +224,7 @@ class _OnboardingGraphic extends StatelessWidget {
             ),
 
             // Center Card
-            const _GlassCardPreview(
-                  child: Icon(
-                    LucideIcons.shirt,
-                    size: 64,
-                    color: AppColors.textPrimary,
-                  ),
-                )
+            const _GlassCardPreview(child: Icon(LucideIcons.shirt, size: 64))
                 .animate()
                 .scale(duration: 800.ms, curve: Curves.easeOutBack)
                 .shimmer(delay: 1.seconds, duration: 2.seconds),
@@ -274,10 +273,12 @@ class _OnboardingGraphic extends StatelessWidget {
             ).animate().fadeIn(),
 
             // Center Icon
-            const Icon(
+            Icon(
               LucideIcons.user,
               size: 80,
-              color: AppColors.textSecondary,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.54),
             ).animate().fadeIn(),
           ],
         );
@@ -322,7 +323,9 @@ class _OnboardingGraphic extends StatelessWidget {
                   Icon(
                         LucideIcons.star,
                         size: 16,
-                        color: AppColors.textSecondary,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.54),
                       )
                       .animate(onPlay: (c) => c.repeat(reverse: true))
                       .scale(begin: const Offset(0.8, 0.8), delay: 500.ms),
@@ -345,7 +348,7 @@ class _OnboardingGraphic extends StatelessWidget {
               child: Icon(
                 LucideIcons.bot,
                 size: 64,
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ).animate().scale(curve: Curves.easeOutBack, duration: 600.ms),
           ],
@@ -371,7 +374,7 @@ class _GlassCardPreview extends StatelessWidget {
         border: Border.all(color: AppColors.glassBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),

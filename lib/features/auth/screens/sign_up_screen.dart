@@ -60,7 +60,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Account created successfully! Please check your email."),
+            content: Text(
+              "Account created successfully! Please check your email.",
+            ),
             backgroundColor: AppColors.success,
           ),
         );
@@ -69,10 +71,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Sign up failed: ${e.toString()}"),
-          backgroundColor: AppColors.error,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Sign up failed: ${e.toString()}"),
+            backgroundColor: AppColors.error,
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -85,10 +89,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
       // TODO: Implement Google sign-in
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Google sign-in failed: ${e.toString()}"),
-          backgroundColor: AppColors.error,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Google sign-in failed: ${e.toString()}"),
+            backgroundColor: AppColors.error,
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isGoogleLoading = false);
@@ -101,10 +107,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
       // TODO: Implement Apple sign-in
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Apple sign-in failed: ${e.toString()}"),
-          backgroundColor: AppColors.error,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Apple sign-in failed: ${e.toString()}"),
+            backgroundColor: AppColors.error,
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isAppleLoading = false);
@@ -114,12 +122,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft, color: AppColors.textPrimary),
+          icon: Icon(
+            LucideIcons.arrowLeft,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -140,7 +151,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     style: Theme.of(context).textTheme.displaySmall?.copyWith(
                       fontWeight: FontWeight.w700,
                       letterSpacing: -0.5,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ).animate().fadeIn(delay: 100.ms),
 
@@ -149,7 +160,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   Text(
                     "Join the fashion revolution",
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                       fontWeight: FontWeight.w400,
                     ),
                   ).animate().fadeIn(delay: 200.ms),
@@ -263,19 +276,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           onChanged: (value) {
                             setState(() => _acceptTerms = value ?? false);
                           },
-                          activeColor: AppColors.primary,
-                          checkColor: AppColors.textOnPrimary,
-                          side: const BorderSide(
-                            color: AppColors.textSecondary,
+                          activeColor: Theme.of(context).colorScheme.primary,
+                          checkColor: Theme.of(context).colorScheme.onPrimary,
+                          side: BorderSide(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
                             width: 1.5,
                           ),
                         ),
                         Expanded(
                           child: Text(
                             "I agree to the Terms of Service and Privacy Policy",
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.6),
+                                ),
                           ),
                         ),
                       ],
@@ -302,19 +319,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     Navigator.pushReplacementNamed(context, '/auth/signin');
                   },
                   style: TextButton.styleFrom(
-                    foregroundColor: AppColors.textSecondary,
+                    foregroundColor: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                   child: RichText(
                     text: TextSpan(
                       text: "Already have an account? ",
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
-                      children: const [
+                      children: [
                         TextSpan(
                           text: "Sign In",
                           style: TextStyle(
-                            color: AppColors.primary,
+                            color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

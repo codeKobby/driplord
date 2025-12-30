@@ -3,12 +3,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/components/cards/glass_card.dart';
+import '../providers/mirror_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TryOnMirrorScreen extends StatelessWidget {
+class TryOnMirrorScreen extends ConsumerWidget {
   const TryOnMirrorScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mirrorItem = ref.watch(mirrorProvider);
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
@@ -16,10 +19,11 @@ class TryOnMirrorScreen extends StatelessWidget {
           // Camera/Mirror Placeholder
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 image: DecorationImage(
                   image: NetworkImage(
-                    "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop",
+                    mirrorItem?.imageUrl ??
+                        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop",
                   ),
                   fit: BoxFit.cover,
                 ),
@@ -40,7 +44,7 @@ class TryOnMirrorScreen extends StatelessWidget {
                     () => Navigator.pop(context),
                   ),
                   Text(
-                    "Virtual Mirror",
+                    mirrorItem?.name ?? "Virtual Mirror",
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 18,

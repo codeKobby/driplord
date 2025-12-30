@@ -4,12 +4,20 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/components/cards/glass_card.dart';
 import '../../try_on/screens/try_on_mirror_screen.dart';
+import '../providers/history_provider.dart';
+import '../../home/providers/saved_outfits_provider.dart';
+import '../../home/providers/recommendation_provider.dart';
+import '../../try_on/providers/mirror_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
-class OutfitsScreen extends StatelessWidget {
+class OutfitsScreen extends ConsumerWidget {
   const OutfitsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favorites = ref.watch(savedOutfitsProvider);
+    final history = ref.watch(historyProvider);
     return CustomScrollView(
       slivers: [
         SliverAppBar(
@@ -38,11 +46,11 @@ class OutfitsScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 _buildSectionHeader(context, "Favorite Looks"),
                 const SizedBox(height: 16),
-                _buildOutfitCarousel(),
+                _buildOutfitCarousel(favorites, ref),
                 const SizedBox(height: 32),
                 _buildSectionHeader(context, "Recently Worn"),
                 const SizedBox(height: 16),
-                _buildHistoryList(context),
+                _buildHistoryList(context, history, ref),
                 const SizedBox(height: 120),
               ],
             ),
@@ -73,17 +81,42 @@ class OutfitsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOutfitCarousel() {
+  Widget _buildOutfitCarousel(List<Recommendation> favorites, WidgetRef ref) {
+    if (favorites.isEmpty) {
+      return GlassCard(
+        padding: const EdgeInsets.symmetric(vertical: 40),
+        child: Center(
+          child: Column(
+            children: [
+              Icon(
+                LucideIcons.heart,
+                color: Colors.white.withValues(alpha: 0.2),
+                size: 48,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "No favorites yet",
+                style: GoogleFonts.outfit(color: Colors.white70),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return SizedBox(
       height: 250,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: 3,
+        itemCount: favorites.length,
         itemBuilder: (context, index) {
+          final outfit = favorites[index];
           return Padding(
             padding: const EdgeInsets.only(right: 16),
             child: GestureDetector(
               onTap: () {
+                ref
+                    .read(mirrorProvider.notifier)
+                    .setItemFromRecommendation(outfit);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -95,10 +128,8 @@ class OutfitsScreen extends StatelessWidget {
                 width: 200,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24),
-                  image: const DecorationImage(
-                    image: NetworkImage(
-                      "https://images.unsplash.com/photo-1539109132382-381bb3f1c2b3?q=80&w=500&auto=format&fit=crop",
-                    ),
+                  image: DecorationImage(
+                    image: NetworkImage(outfit.imageUrl),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -108,7 +139,7 @@ class OutfitsScreen extends StatelessWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(24),
-                          gradient: LinearGradient(
+                          gradient: const LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [Colors.transparent, Colors.black54],
@@ -120,10 +151,9 @@ class OutfitsScreen extends StatelessWidget {
                       bottom: 16,
                       left: 16,
                       child: Text(
-                        "Summer Night",
+                        outfit.title,
                         style: GoogleFonts.outfit(
-                          color: Colors
-                              .white, // Keep absolute white on dark gradient
+                          color: Colors.white,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -138,16 +168,33 @@ class OutfitsScreen extends StatelessWidget {
     ).animate().fadeIn().slideX();
   }
 
-  Widget _buildHistoryList(BuildContext context) {
+  Widget _buildHistoryList(
+    BuildContext context,
+    List<HistoryEntry> history,
+    WidgetRef ref,
+  ) {
+    if (history.isEmpty) {
+      return Center(
+        child: Text(
+          "No history available",
+          style: GoogleFonts.outfit(color: Colors.grey),
+        ),
+      );
+    }
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: 4,
+      itemCount: history.length,
       itemBuilder: (context, index) {
+        final entry = history[index];
+        final timeAgo = DateFormat.yMMMd().format(entry.wornAt);
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
           child: GestureDetector(
             onTap: () {
+              ref
+                  .read(mirrorProvider.notifier)
+                  .setItemFromRecommendation(entry.outfit);
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -164,10 +211,8 @@ class OutfitsScreen extends StatelessWidget {
                     height: 60,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      image: const DecorationImage(
-                        image: NetworkImage(
-                          "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=500&auto=format&fit=crop",
-                        ),
+                      image: DecorationImage(
+                        image: NetworkImage(entry.outfit.imageUrl),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -178,13 +223,13 @@ class OutfitsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Evening Gala Look",
+                          entry.outfit.title,
                           style: GoogleFonts.outfit(
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         Text(
-                          "Worn 2 days ago",
+                          "Worn $timeAgo",
                           style: GoogleFonts.outfit(
                             fontSize: 12,
                             color: Theme.of(

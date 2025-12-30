@@ -6,7 +6,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/components/navigation/floating_nav_bar.dart';
 import 'daily_hub_screen.dart';
 import '../../closet/screens/closet_screen.dart';
+import '../../closet/screens/add_item_screen.dart';
 import '../../outfits/screens/outfits_screen.dart';
+import '../../outfits/screens/outfit_builder_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 
 import '../../../core/components/common/driplord_scaffold.dart';
@@ -119,9 +121,23 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context) => _buildGlassBottomSheet(
         title: "Generate New Look",
         options: [
-          _BottomSheetOption(LucideIcons.sparkles, "AI Recommendation"),
-          _BottomSheetOption(LucideIcons.calendar, "For an Event"),
-          _BottomSheetOption(LucideIcons.cloud, "Weather Based"),
+          _BottomSheetOption(LucideIcons.sparkles, "AI Recommendation", () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("AI Recommendation coming soon...")),
+            );
+          }),
+          _BottomSheetOption(LucideIcons.calendar, "For an Event", () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Event-based looks coming soon...")),
+            );
+          }),
+          _BottomSheetOption(LucideIcons.cloud, "Weather Based", () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Weather integration coming soon..."),
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -134,9 +150,24 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context) => _buildGlassBottomSheet(
         title: "Add Clothing",
         options: [
-          _BottomSheetOption(LucideIcons.camera, "Take Photo"),
-          _BottomSheetOption(LucideIcons.image, "Upload from Gallery"),
-          _BottomSheetOption(LucideIcons.link, "Import from URL"),
+          _BottomSheetOption(LucideIcons.camera, "Take Photo", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddItemScreen()),
+            );
+          }),
+          _BottomSheetOption(LucideIcons.image, "Upload from Gallery", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddItemScreen()),
+            );
+          }),
+          _BottomSheetOption(LucideIcons.link, "Import from URL", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddItemScreen()),
+            );
+          }),
         ],
       ),
     );
@@ -149,8 +180,19 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context) => _buildGlassBottomSheet(
         title: "Create Outfit",
         options: [
-          _BottomSheetOption(LucideIcons.plusCircle, "Manual Builder"),
-          _BottomSheetOption(LucideIcons.wand2, "AI Auto-Composer"),
+          _BottomSheetOption(LucideIcons.plusCircle, "Manual Builder", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const OutfitBuilderScreen(),
+              ),
+            );
+          }),
+          _BottomSheetOption(LucideIcons.wand2, "AI Auto-Composer", () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("AI Auto-Composer coming soon...")),
+            );
+          }),
         ],
       ),
     );
@@ -206,7 +248,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Navigator.pop(context);
+                opt.onTap();
+              },
             ),
           ),
           const SizedBox(height: 24),
@@ -219,5 +264,6 @@ class _HomeScreenState extends State<HomeScreen> {
 class _BottomSheetOption {
   final IconData icon;
   final String label;
-  _BottomSheetOption(this.icon, this.label);
+  final VoidCallback onTap;
+  _BottomSheetOption(this.icon, this.label, this.onTap);
 }

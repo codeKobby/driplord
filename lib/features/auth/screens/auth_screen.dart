@@ -60,7 +60,7 @@ class _AuthScreenState extends State<AuthScreen> {
       }
 
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
     } catch (e) {
       if (mounted) {
@@ -82,7 +82,7 @@ class _AuthScreenState extends State<AuthScreen> {
     try {
       await _authService.signInWithGoogle();
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
     } catch (e) {
       if (mounted) {
@@ -104,7 +104,7 @@ class _AuthScreenState extends State<AuthScreen> {
     try {
       await _authService.signInWithApple();
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
     } catch (e) {
       if (mounted) {
@@ -132,9 +132,9 @@ class _AuthScreenState extends State<AuthScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       LucideIcons.arrowLeft,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     onPressed: () {
                       if (_showEmailForm) {
@@ -175,14 +175,20 @@ class _AuthScreenState extends State<AuthScreen> {
               height: 180,
               width: 180,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white10),
+                border: Border.all(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.1),
+                ),
               ),
-              child: const Icon(
+              child: Icon(
                 LucideIcons.lock,
                 size: 80,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ).animate().fadeIn(duration: 600.ms).scale(),
@@ -194,7 +200,7 @@ class _AuthScreenState extends State<AuthScreen> {
             style: GoogleFonts.outfit(
               fontSize: 32,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
 
@@ -214,7 +220,7 @@ class _AuthScreenState extends State<AuthScreen> {
           _buildSocialButton(
             icon: FontAwesomeIcons.apple,
             label: "Continue with Apple",
-            iconColor: Colors.white,
+            iconColor: Theme.of(context).colorScheme.onSurface,
             isLoading: _isAppleLoading,
             onTap: _handleAppleSignIn,
           ).animate().fadeIn(delay: 500.ms),
@@ -223,20 +229,36 @@ class _AuthScreenState extends State<AuthScreen> {
 
           Row(
             children: [
-              Expanded(child: Divider(color: Colors.white10, thickness: 1)),
+              Expanded(
+                child: Divider(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.1),
+                  thickness: 1,
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
                   "OR",
                   style: GoogleFonts.outfit(
                     fontSize: 14,
-                    color: Colors.white38,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.38),
                     fontWeight: FontWeight.w600,
                     letterSpacing: 2,
                   ),
                 ),
               ),
-              Expanded(child: Divider(color: Colors.white10, thickness: 1)),
+              Expanded(
+                child: Divider(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.1),
+                  thickness: 1,
+                ),
+              ),
             ],
           ).animate().fadeIn(delay: 600.ms),
 
@@ -271,7 +293,7 @@ class _AuthScreenState extends State<AuthScreen> {
             style: GoogleFonts.outfit(
               fontSize: 38,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSurface,
               height: 1.1,
             ),
           ).animate().fadeIn().slideX(begin: -0.1),
@@ -307,16 +329,24 @@ class _AuthScreenState extends State<AuthScreen> {
               Checkbox(
                 value: _rememberMe,
                 onChanged: (v) => setState(() => _rememberMe = v ?? false),
-                activeColor: Colors.white,
-                checkColor: Colors.black,
-                side: const BorderSide(color: Colors.white38),
+                activeColor: Theme.of(context).colorScheme.onSurface,
+                checkColor: Theme.of(context).colorScheme.surface,
+                side: BorderSide(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.38),
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
               Text(
                 "Remember me",
-                style: GoogleFonts.outfit(color: Colors.white70),
+                style: GoogleFonts.outfit(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
               ),
             ],
           ),
@@ -338,7 +368,9 @@ class _AuthScreenState extends State<AuthScreen> {
                 child: Text(
                   "Forgot the password?",
                   style: GoogleFonts.outfit(
-                    color: Colors.white70,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -363,15 +395,32 @@ class _AuthScreenState extends State<AuthScreen> {
       children: [
         Row(
           children: [
-            Expanded(child: Divider(color: Colors.white10)),
+            Expanded(
+              child: Divider(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.1),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 "social join",
-                style: GoogleFonts.outfit(color: Colors.white24, fontSize: 12),
+                style: GoogleFonts.outfit(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.24),
+                  fontSize: 12,
+                ),
               ),
             ),
-            Expanded(child: Divider(color: Colors.white10)),
+            Expanded(
+              child: Divider(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.1),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 24),
@@ -387,7 +436,7 @@ class _AuthScreenState extends State<AuthScreen> {
             const SizedBox(width: 24),
             _buildSmallSocialButton(
               FontAwesomeIcons.apple,
-              Colors.white,
+              Theme.of(context).colorScheme.onSurface,
               onTap: _handleAppleSignIn,
               isLoading: _isAppleLoading,
             ),
@@ -410,18 +459,25 @@ class _AuthScreenState extends State<AuthScreen> {
         width: double.infinity,
         height: 60,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white10, width: 1),
+          border: Border.all(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.1),
+            width: 1,
+          ),
         ),
         child: isLoading
-            ? const Center(
+            ? Center(
                 child: SizedBox(
                   height: 24,
                   width: 24,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               )
@@ -433,7 +489,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   Text(
                     label,
                     style: GoogleFonts.outfit(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -456,18 +512,25 @@ class _AuthScreenState extends State<AuthScreen> {
         width: 80,
         height: 64,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white10, width: 1),
+          border: Border.all(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.1),
+            width: 1,
+          ),
         ),
         child: isLoading
-            ? const Center(
+            ? Center(
                 child: SizedBox(
                   height: 20,
                   width: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               )
@@ -487,15 +550,17 @@ class _AuthScreenState extends State<AuthScreen> {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
+          backgroundColor: Theme.of(context).colorScheme.onSurface,
+          foregroundColor: Theme.of(context).colorScheme.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(100),
           ),
           elevation: 0,
         ),
         child: isLoading
-            ? const CircularProgressIndicator(color: Colors.black)
+            ? CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.surface,
+              )
             : Text(
                 text,
                 style: GoogleFonts.outfit(
@@ -519,11 +584,21 @@ class _AuthScreenState extends State<AuthScreen> {
       controller: controller,
       obscureText: isPassword && _obscurePassword,
       keyboardType: keyboardType,
-      style: GoogleFonts.outfit(color: Colors.white),
+      style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.outfit(color: Colors.white38),
-        prefixIcon: Icon(icon, color: Colors.white38, size: 20),
+        hintStyle: GoogleFonts.outfit(
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.38),
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.38),
+          size: 20,
+        ),
         suffixIcon: isPassword
             ? IconButton(
                 icon: Icon(
@@ -531,11 +606,15 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
                 onPressed: () =>
                     setState(() => _obscurePassword = !_obscurePassword),
-                color: Colors.white38,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.38),
               )
             : null,
         filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.05),
+        fillColor: Theme.of(
+          context,
+        ).colorScheme.onSurface.withValues(alpha: 0.05),
         contentPadding: const EdgeInsets.all(22),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
@@ -547,7 +626,10 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
-          borderSide: const BorderSide(color: Colors.white, width: 1),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.onSurface,
+            width: 1,
+          ),
         ),
       ),
     );
@@ -571,12 +653,17 @@ class _AuthScreenState extends State<AuthScreen> {
             text: _isLogin
                 ? "Don't have an account? "
                 : "Already have an account? ",
-            style: GoogleFonts.outfit(color: Colors.white54, fontSize: 16),
+            style: GoogleFonts.outfit(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.54),
+              fontSize: 16,
+            ),
             children: [
               TextSpan(
                 text: _isLogin ? "Sign up" : "Sign in",
                 style: GoogleFonts.outfit(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w800,
                 ),
               ),

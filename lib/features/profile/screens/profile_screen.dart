@@ -7,6 +7,7 @@ import '../../../core/components/cards/glass_card.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/theme_provider.dart';
+import '../providers/preferences_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -15,6 +16,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);
     final isDark = themeMode == ThemeMode.dark;
+    final prefs = ref.watch(preferencesProvider);
 
     return CustomScrollView(
       slivers: [
@@ -66,21 +68,44 @@ class ProfileScreen extends ConsumerWidget {
                   _MenuItem(
                     LucideIcons.ruler,
                     "Body Measurements",
-                    "Updated 2 weeks ago",
+                    "${prefs.height}, ${prefs.weight}",
                   ),
                   _MenuItem(
                     LucideIcons.palette,
                     "Style Preferences",
-                    "Streetwear, Minimalist",
+                    prefs.styles.join(", "),
                   ),
                 ]),
                 const SizedBox(height: 24),
-                _buildMenuSection(context, "Account", [
-                  _MenuItem(LucideIcons.shield, "Privacy & Data", null),
-                  _MenuItem(LucideIcons.bell, "Notifications", "All enabled"),
+                // App Settings Section (Merged from Settings)
+                _buildMenuSection(context, "App Settings", [
+                  _MenuItem(LucideIcons.globe, "Language", "English (US)"),
+                  _MenuItem(LucideIcons.database, "Cloud Sync", "Enabled"),
+                ]),
+                const SizedBox(height: 24),
+
+                _buildMenuSection(context, "Privacy & Security", [
+                  _MenuItem(LucideIcons.shield, "Privacy Policy", null),
+                  _MenuItem(
+                    LucideIcons.camera,
+                    "Camera Permissions",
+                    "Authorized",
+                  ),
+                  _MenuItem(
+                    LucideIcons.image,
+                    "Gallery Access",
+                    "Always Allow",
+                  ),
+                ]),
+                const SizedBox(height: 24),
+
+                _buildMenuSection(context, "Support", [
+                  _MenuItem(LucideIcons.helpCircle, "Help Center", null),
+                  _MenuItem(LucideIcons.mail, "Contact Stylist", null),
+                  _MenuItem(LucideIcons.info, "About DripLord v1.0.0", null),
                 ]),
                 const SizedBox(height: 40),
-                _buildSignOutButton(context),
+                _buildSignOutButton(context, ref),
                 const SizedBox(height: 120),
               ],
             ),
@@ -278,13 +303,15 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSignOutButton(BuildContext context) {
+  Widget _buildSignOutButton(BuildContext context, WidgetRef ref) {
     return SizedBox(
       width: double.infinity,
       child: TextButton(
         onPressed: () async {
           await Supabase.instance.client.auth.signOut();
-          if (context.mounted) Navigator.pushReplacementNamed(context, '/');
+          if (context.mounted) {
+            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+          }
         },
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),

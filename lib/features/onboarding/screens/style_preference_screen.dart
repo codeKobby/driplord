@@ -47,7 +47,10 @@ class _StylePreferenceScreenState extends State<StylePreferenceScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               IconButton(
-                icon: const Icon(LucideIcons.arrowLeft, color: Colors.white),
+                icon: Icon(
+                  LucideIcons.arrowLeft,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 onPressed: () => Navigator.pop(context),
               ),
               const SizedBox(height: 24),
@@ -56,13 +59,18 @@ class _StylePreferenceScreenState extends State<StylePreferenceScreen> {
                 style: GoogleFonts.outfit(
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ).animate().fadeIn().slideX(),
               const SizedBox(height: 8),
               Text(
                 "Select styles tailored to you.",
-                style: GoogleFonts.outfit(fontSize: 16, color: Colors.white70),
+                style: GoogleFonts.outfit(
+                  fontSize: 16,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
               ).animate().fadeIn(delay: 100.ms),
 
               const SizedBox(height: 32),
@@ -86,19 +94,25 @@ class _StylePreferenceScreenState extends State<StylePreferenceScreen> {
                         duration: const Duration(milliseconds: 300),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? Colors.white
-                              : Colors.white.withValues(alpha: 0.05),
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
                             color: isSelected
-                                ? Colors.white
-                                : Colors.white.withValues(alpha: 0.1),
+                                ? Theme.of(context).colorScheme.onSurface
+                                : Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.1),
                             width: 1,
                           ),
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: Colors.white.withValues(alpha: 0.2),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.2),
                                     blurRadius: 15,
                                     spreadRadius: 2,
                                   ),
@@ -113,7 +127,10 @@ class _StylePreferenceScreenState extends State<StylePreferenceScreen> {
                                   ? FontWeight.w800
                                   : FontWeight.w500,
                               fontSize: 16,
-                              color: isSelected ? Colors.black : Colors.white70,
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.surface
+                                  : Theme.of(context).colorScheme.onSurface
+                                        .withValues(alpha: 0.7),
                             ),
                           ),
                         ),
@@ -141,9 +158,11 @@ class _StylePreferenceScreenState extends State<StylePreferenceScreen> {
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    disabledBackgroundColor: Colors.white24,
+                    backgroundColor: Theme.of(context).colorScheme.onSurface,
+                    foregroundColor: Theme.of(context).colorScheme.surface,
+                    disabledBackgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.24),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(100),
                     ),

@@ -4,12 +4,16 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/components/cards/glass_card.dart';
 import '../../try_on/screens/try_on_mirror_screen.dart';
+import '../providers/closet_provider.dart';
+import '../../try_on/providers/mirror_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ClosetScreen extends StatelessWidget {
+class ClosetScreen extends ConsumerWidget {
   const ClosetScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filteredItems = ref.watch(filteredClosetProvider);
     return CustomScrollView(
       slivers: [
         SliverAppBar(
@@ -34,9 +38,9 @@ class ClosetScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 16),
-                _buildCategorySelector(),
+                _buildCategorySelector(context, ref),
                 const SizedBox(height: 32),
-                _buildItemsGrid(),
+                _buildItemsGrid(filteredItems, ref),
                 const SizedBox(height: 120),
               ],
             ),
@@ -46,12 +50,13 @@ class ClosetScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategorySelector() {
+  Widget _buildCategorySelector(BuildContext context, WidgetRef ref) {
+    final selectedCategory = ref.watch(selectedCategoryProvider);
     final categories = [
       "All",
       "Tops",
       "Bottoms",
-      "Footwear",
+      "Shoes",
       "Outerwear",
       "Accessories",
     ];
@@ -61,35 +66,47 @@ class ClosetScreen extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         itemCount: categories.length,
         itemBuilder: (context, index) {
-          final isSelected = index == 0;
+          final category = categories[index];
+          final isSelected = selectedCategory == category;
           return Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(100),
-                border: Border.all(
+            child: InkWell(
+              onTap: () {
+                ref
+                    .read(selectedCategoryProvider.notifier)
+                    .setCategory(category);
+              },
+              borderRadius: BorderRadius.circular(100),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
                   color: isSelected
                       ? Theme.of(context).colorScheme.primary
                       : Theme.of(
                           context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.1),
+                        ).colorScheme.onSurface.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(100),
+                  border: Border.all(
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.1),
+                  ),
                 ),
-              ),
-              child: Text(
-                categories[index],
-                style: GoogleFonts.outfit(
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.7),
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                child: Text(
+                  category,
+                  style: GoogleFonts.outfit(
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  ),
                 ),
               ),
             ),
@@ -99,7 +116,18 @@ class ClosetScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildItemsGrid() {
+  Widget _buildItemsGrid(List<ClothingItem> items, WidgetRef ref) {
+    if (items.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40),
+          child: Text(
+            "No items found in this category",
+            style: GoogleFonts.outfit(color: Colors.grey),
+          ),
+        ),
+      );
+    }
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -109,16 +137,22 @@ class ClosetScreen extends StatelessWidget {
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
       ),
-      itemCount: 6,
+      itemCount: items.length,
       itemBuilder: (context, index) {
-        return _buildItemCard(index, context);
+        return _buildItemCard(items[index], context, index, ref);
       },
     );
   }
 
-  Widget _buildItemCard(int index, BuildContext context) {
+  Widget _buildItemCard(
+    ClothingItem item,
+    BuildContext context,
+    int index,
+    WidgetRef ref,
+  ) {
     return GestureDetector(
       onTap: () {
+        ref.read(mirrorProvider.notifier).setItemFromClothingItem(item);
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const TryOnMirrorScreen()),
@@ -135,10 +169,8 @@ class ClosetScreen extends StatelessWidget {
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(24),
                   ),
-                  image: const DecorationImage(
-                    image: NetworkImage(
-                      "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=500&auto=format&fit=crop",
-                    ),
+                  image: DecorationImage(
+                    image: NetworkImage(item.imageUrl),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -150,7 +182,7 @@ class ClosetScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Essential Bomber",
+                    item.name,
                     style: GoogleFonts.outfit(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -159,7 +191,7 @@ class ClosetScreen extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    "ZARA • Outerwear",
+                    item.category,
                     style: GoogleFonts.outfit(
                       fontSize: 12,
                       color: Theme.of(

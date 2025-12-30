@@ -27,7 +27,10 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             IconButton(
-              icon: const Icon(LucideIcons.arrowLeft, color: Colors.white),
+              icon: Icon(
+                LucideIcons.arrowLeft,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
             const SizedBox(height: 24),
@@ -36,13 +39,18 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
               style: GoogleFonts.outfit(
                 fontSize: 32,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ).animate().fadeIn().slideX(),
             const SizedBox(height: 8),
             Text(
               "This helps AI predict how clothes fit.",
-              style: GoogleFonts.outfit(fontSize: 16, color: Colors.white70),
+              style: GoogleFonts.outfit(
+                fontSize: 16,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
             ).animate().fadeIn(delay: 100.ms),
 
             const SizedBox(height: 48),
@@ -51,9 +59,15 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(100),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                border: Border.all(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.1),
+                ),
               ),
               child: Row(
                 children: ['Male', 'Female', 'Other'].map((gender) {
@@ -65,12 +79,17 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
                         duration: const Duration(milliseconds: 300),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
-                          color: isSelected ? Colors.white : Colors.transparent,
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(100),
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: Colors.white.withValues(alpha: 0.2),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.2),
                                     blurRadius: 10,
                                   ),
                                 ]
@@ -83,7 +102,10 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
                               fontWeight: isSelected
                                   ? FontWeight.w800
                                   : FontWeight.w500,
-                              color: isSelected ? Colors.black : Colors.white70,
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.surface
+                                  : Theme.of(context).colorScheme.onSurface
+                                        .withValues(alpha: 0.7),
                             ),
                           ),
                         ),
@@ -103,8 +125,10 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
                 value: _height,
                 min: 140,
                 max: 220,
-                activeColor: Colors.white,
-                inactiveColor: Colors.white10,
+                activeColor: Theme.of(context).colorScheme.onSurface,
+                inactiveColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.1),
                 onChanged: (val) => setState(() => _height = val),
               ),
             ).animate().fadeIn(delay: 300.ms),
@@ -118,8 +142,10 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
                 value: _weight,
                 min: 40,
                 max: 150,
-                activeColor: Colors.white,
-                inactiveColor: Colors.white10,
+                activeColor: Theme.of(context).colorScheme.onSurface,
+                inactiveColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.1),
                 onChanged: (val) => setState(() => _weight = val),
               ),
             ).animate().fadeIn(delay: 400.ms),
@@ -137,8 +163,8 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
+                  backgroundColor: Theme.of(context).colorScheme.onSurface,
+                  foregroundColor: Theme.of(context).colorScheme.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(100),
                   ),
@@ -166,9 +192,11 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+        ),
       ),
       child: Column(
         children: [
@@ -180,7 +208,7 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
                 style: GoogleFonts.outfit(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               Text(
@@ -188,7 +216,7 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
                 style: GoogleFonts.outfit(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
