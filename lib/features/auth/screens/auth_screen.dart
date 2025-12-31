@@ -453,49 +453,54 @@ class _AuthScreenState extends State<AuthScreen> {
     required bool isLoading,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: isLoading ? null : onTap,
-      child: Container(
-        width: double.infinity,
-        height: 60,
-        decoration: BoxDecoration(
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
+    return Semantics(
+      button: true,
+      label: label,
+      child: InkWell(
+        onTap: isLoading ? null : onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: double.infinity,
+          height: 60,
+          decoration: BoxDecoration(
             color: Theme.of(
               context,
-            ).colorScheme.onSurface.withValues(alpha: 0.1),
-            width: 1,
+            ).colorScheme.onSurface.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.1),
+              width: 1,
+            ),
           ),
-        ),
-        child: isLoading
-            ? Center(
-                child: SizedBox(
-                  height: 24,
-                  width: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  FaIcon(icon, color: iconColor, size: 20),
-                  const SizedBox(width: 12),
-                  Text(
-                    label,
-                    style: GoogleFonts.outfit(
+          child: isLoading
+              ? Center(
+                  child: SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
                       color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ],
-              ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FaIcon(icon, color: iconColor, size: 20),
+                    const SizedBox(width: 12),
+                    Text(
+                      label,
+                      style: GoogleFonts.outfit(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+        ),
       ),
     );
   }
@@ -506,35 +511,43 @@ class _AuthScreenState extends State<AuthScreen> {
     required VoidCallback? onTap,
     bool isLoading = false,
   }) {
-    return GestureDetector(
-      onTap: isLoading ? null : onTap,
-      child: Container(
-        width: 80,
-        height: 64,
-        decoration: BoxDecoration(
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
+    final String label = icon == FontAwesomeIcons.google
+        ? 'Continue with Google'
+        : 'Continue with Apple';
+    return Semantics(
+      button: true,
+      label: label,
+      child: InkWell(
+        onTap: isLoading ? null : onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: 80,
+          height: 64,
+          decoration: BoxDecoration(
             color: Theme.of(
               context,
-            ).colorScheme.onSurface.withValues(alpha: 0.1),
-            width: 1,
+            ).colorScheme.onSurface.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.1),
+              width: 1,
+            ),
           ),
-        ),
-        child: isLoading
-            ? Center(
-                child: SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Theme.of(context).colorScheme.onSurface,
+          child: isLoading
+              ? Center(
+                  child: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
-                ),
-              )
-            : Center(child: FaIcon(icon, color: color, size: 24)),
+                )
+              : Center(child: FaIcon(icon, color: color, size: 24)),
+        ),
       ),
     );
   }
@@ -637,37 +650,44 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Widget _buildAuthToggleLink() {
     return Center(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            if (_showEmailForm) {
-              _isLogin = !_isLogin;
-            } else {
-              _isLogin = false;
-              _showEmailForm = true;
-            }
-          });
-        },
-        child: RichText(
-          text: TextSpan(
-            text: _isLogin
-                ? "Don't have an account? "
-                : "Already have an account? ",
-            style: GoogleFonts.outfit(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.54),
-              fontSize: 16,
-            ),
-            children: [
-              TextSpan(
-                text: _isLogin ? "Sign up" : "Sign in",
+      child: Semantics(
+        button: true,
+        label: _isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in",
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              if (_showEmailForm) {
+                _isLogin = !_isLogin;
+              } else {
+                _isLogin = false;
+                _showEmailForm = true;
+              }
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: RichText(
+              text: TextSpan(
+                text: _isLogin
+                    ? "Don't have an account? "
+                    : "Already have an account? ",
                 style: GoogleFonts.outfit(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.w800,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.54),
+                  fontSize: 16,
                 ),
+                children: [
+                  TextSpan(
+                    text: _isLogin ? "Sign up" : "Sign in",
+                    style: GoogleFonts.outfit(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
