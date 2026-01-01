@@ -19,31 +19,31 @@ class AppTheme {
       ),
 
       textTheme: TextTheme(
-        displayLarge: GoogleFonts.outfit(
+        displayLarge: GoogleFonts.inter(
           fontSize: 40,
           fontWeight: FontWeight.w700,
           color: Colors.black,
           height: 1.1,
           letterSpacing: -1.0,
         ),
-        displayMedium: GoogleFonts.outfit(
+        displayMedium: GoogleFonts.inter(
           fontSize: 32,
           fontWeight: FontWeight.w700,
           color: Colors.black,
           height: 1.1,
           letterSpacing: -0.5,
         ),
-        headlineLarge: GoogleFonts.outfit(
+        headlineLarge: GoogleFonts.inter(
           fontSize: 24,
           fontWeight: FontWeight.w600,
           color: Colors.black,
         ),
-        bodyLarge: GoogleFonts.outfit(
+        bodyLarge: GoogleFonts.inter(
           fontSize: 16,
           fontWeight: FontWeight.w400,
           color: Colors.black,
         ),
-        bodyMedium: GoogleFonts.outfit(
+        bodyMedium: GoogleFonts.inter(
           fontSize: 14,
           fontWeight: FontWeight.w400,
           color: Colors.black54,
@@ -57,10 +57,10 @@ class AppTheme {
           elevation: 4,
           shadowColor: Colors.black.withValues(alpha: 0.1),
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
-          textStyle: GoogleFonts.outfit(
+          textStyle: GoogleFonts.inter(
             fontSize: 15,
             fontWeight: FontWeight.w700,
-            letterSpacing: 1.2,
+            letterSpacing: 0.5, // Design system letter spacing
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(100),
@@ -104,48 +104,48 @@ class AppTheme {
         error: AppColors.error,
       ),
 
-      // Text Theme - Premium Luxury (Outfit font)
+      // Text Theme - Premium Luxury (Inter font - Design System compliant)
       textTheme: TextTheme(
-        displayLarge: GoogleFonts.outfit(
+        displayLarge: GoogleFonts.inter(
           fontSize: 40,
           fontWeight: FontWeight.w700,
           color: AppColors.textPrimary,
           height: 1.1,
           letterSpacing: -1.0,
         ),
-        displayMedium: GoogleFonts.outfit(
+        displayMedium: GoogleFonts.inter(
           fontSize: 32,
           fontWeight: FontWeight.w700,
           color: AppColors.textPrimary,
           height: 1.1,
           letterSpacing: -0.5,
         ),
-        displaySmall: GoogleFonts.outfit(
+        displaySmall: GoogleFonts.inter(
           fontSize: 28,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
           height: 1.2,
         ),
-        headlineLarge: GoogleFonts.outfit(
+        headlineLarge: GoogleFonts.inter(
           fontSize: 24,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
         ),
-        bodyLarge: GoogleFonts.outfit(
+        bodyLarge: GoogleFonts.inter(
           fontSize: 16,
           fontWeight: FontWeight.w400,
           color: AppColors.textPrimary,
         ),
-        bodyMedium: GoogleFonts.outfit(
+        bodyMedium: GoogleFonts.inter(
           fontSize: 14,
           fontWeight: FontWeight.w400,
           color: AppColors.textSecondary,
         ),
-        labelLarge: GoogleFonts.outfit(
+        labelLarge: GoogleFonts.inter(
           fontSize: 14,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
-          letterSpacing: 1.0, // Luxury tracking
+          letterSpacing: 0.5, // Design system letter spacing
         ),
       ),
 
@@ -165,10 +165,10 @@ class AppTheme {
           elevation: 10,
           shadowColor: Colors.white.withValues(alpha: 0.2),
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
-          textStyle: GoogleFonts.outfit(
+          textStyle: GoogleFonts.inter(
             fontSize: 15,
             fontWeight: FontWeight.w700,
-            letterSpacing: 1.2,
+            letterSpacing: 0.5, // Design system letter spacing
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(100),

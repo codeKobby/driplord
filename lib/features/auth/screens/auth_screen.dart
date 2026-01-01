@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -60,7 +61,7 @@ class _AuthScreenState extends State<AuthScreen> {
       }
 
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+        context.go('/home');
       }
     } catch (e) {
       if (mounted) {
@@ -82,7 +83,7 @@ class _AuthScreenState extends State<AuthScreen> {
     try {
       await _authService.signInWithGoogle();
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+        context.go('/home');
       }
     } catch (e) {
       if (mounted) {
@@ -104,7 +105,7 @@ class _AuthScreenState extends State<AuthScreen> {
     try {
       await _authService.signInWithApple();
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+        context.go('/home');
       }
     } catch (e) {
       if (mounted) {
@@ -140,7 +141,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       if (_showEmailForm) {
                         setState(() => _showEmailForm = false);
                       } else {
-                        Navigator.pop(context);
+                        context.pop();
                       }
                     },
                   ),
@@ -363,8 +364,7 @@ class _AuthScreenState extends State<AuthScreen> {
             const SizedBox(height: 16),
             Center(
               child: TextButton(
-                onPressed: () =>
-                    Navigator.pushNamed(context, '/auth/forgot-password'),
+                onPressed: () => context.go('/auth/forgot-password'),
                 child: Text(
                   "Forgot the password?",
                   style: GoogleFonts.outfit(

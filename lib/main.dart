@@ -3,10 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
-import 'features/onboarding/screens/welcome_screen.dart';
-import 'features/auth/screens/auth_screen.dart';
-import 'features/auth/screens/forgot_password_screen.dart';
-import 'features/home/screens/home_screen.dart';
+import 'core/router/app_router.dart';
 import 'core/providers/theme_provider.dart';
 
 Future<void> main() async {
@@ -27,20 +24,13 @@ class DripLordApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);
 
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'DripLord',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const WelcomeScreen(),
-        '/auth/signin': (context) => const AuthScreen(initialIsLogin: true),
-        '/auth/signup': (context) => const AuthScreen(initialIsLogin: false),
-        '/auth/forgot-password': (context) => const ForgotPasswordScreen(),
-        '/home': (context) => const HomeScreen(),
-      },
+      routerConfig: appRouter,
     );
   }
 }

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/components/navigation/floating_nav_bar.dart';
 import 'daily_hub_screen.dart';
 import '../../closet/screens/closet_screen.dart';
-import '../../closet/screens/add_item_screen.dart';
 import '../../outfits/screens/outfits_screen.dart';
-import '../../outfits/screens/outfit_builder_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 
 import '../../../core/components/common/driplord_scaffold.dart';
@@ -59,6 +58,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
 
+          // Floating buttons for pages other than home
+          if (_currentIndex != 0) _buildFloatingButton(),
+
           FloatingNavBar(
             currentIndex: _currentIndex,
             onTap: _onNavTap,
@@ -70,15 +72,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget? _buildCenterAction() {
+  Widget _buildFloatingButton() {
     IconData icon;
     VoidCallback onPressed;
 
     switch (_currentIndex) {
-      case 0:
-        icon = FontAwesomeIcons.shirt;
-        onPressed = () => _showGenerateOptions();
-        break;
       case 1:
         icon = LucideIcons.plus;
         onPressed = () => _showAddItemOptions();
@@ -89,46 +87,93 @@ class _HomeScreenState extends State<HomeScreen> {
         break;
       case 3:
         icon = LucideIcons.user;
-        onPressed = () {}; // Profile actions?
+        onPressed = () {}; // Profile actions
         break;
       default:
-        return null;
+        return const SizedBox.shrink();
     }
 
-    return GestureDetector(
-          onTap: onPressed,
-          child: Container(
-            width: 52, // Reduced from 64
-            height: 52, // Reduced from 64
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.4),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-              border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onPrimary.withValues(alpha: 0.2),
-                width: 1.5,
+    return Positioned(
+      right: 32,
+      bottom: 120, // Position above the nav bar
+      child: GestureDetector(
+        onTap: onPressed,
+        child: Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
-            ),
-            child: Icon(
-              icon,
-              color: Theme.of(context).colorScheme.onPrimary,
-              size: 24, // Reduced from 28
+            ],
+            border: Border.all(
+              color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.2),
+              width: 1.5,
             ),
           ),
-        )
-        .animate(key: ValueKey(_currentIndex))
-        .scale(begin: const Offset(0.9, 0.9), end: const Offset(1.0, 1.0))
-        .fadeIn();
+          child: Icon(
+            icon,
+            color: Theme.of(context).colorScheme.onPrimary,
+            size: 28,
+          ),
+        ),
+      )
+      .animate(key: ValueKey(_currentIndex))
+      .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0))
+      .fadeIn(),
+    );
+  }
+
+  Widget? _buildCenterAction() {
+    // Always show stylist button inline in nav bar for all pages
+    return GestureDetector(
+      onTap: () {
+        switch (_currentIndex) {
+          case 0:
+            _showGenerateOptions();
+            break;
+          case 1:
+            _showAddItemOptions();
+            break;
+          case 2:
+            _showCreateOutfitOptions();
+            break;
+          case 3:
+            // Profile actions
+            break;
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: _currentIndex == 0
+              ? Theme.of(context).colorScheme.primary
+              : Colors.transparent,
+          shape: BoxShape.circle,
+          boxShadow: _currentIndex == 0
+              ? [
+                  BoxShadow(
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 0),
+                  ),
+                ]
+              : [],
+        ),
+        child: Icon(
+          FontAwesomeIcons.shirt,
+          color: _currentIndex == 0
+              ? Theme.of(context).colorScheme.onPrimary
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+          size: 24,
+        ),
+      ),
+    );
   }
 
   void _showGenerateOptions() {
@@ -168,22 +213,13 @@ class _HomeScreenState extends State<HomeScreen> {
         title: "Add Clothing",
         options: [
           _BottomSheetOption(LucideIcons.camera, "Take Photo", () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const AddItemScreen()),
-            );
+            context.go('/closet/add/camera');
           }),
           _BottomSheetOption(LucideIcons.image, "Upload from Gallery", () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const AddItemScreen()),
-            );
+            context.go('/closet/add/gallery');
           }),
           _BottomSheetOption(LucideIcons.link, "Import from URL", () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const AddItemScreen()),
-            );
+            context.go('/closet/add/url');
           }),
         ],
       ),
@@ -198,12 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: "Create Outfit",
         options: [
           _BottomSheetOption(LucideIcons.plusCircle, "Manual Builder", () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const OutfitBuilderScreen(),
-              ),
-            );
+            context.go('/outfits/create');
           }),
           _BottomSheetOption(LucideIcons.wand2, "AI Auto-Composer", () {
             ScaffoldMessenger.of(context).showSnackBar(

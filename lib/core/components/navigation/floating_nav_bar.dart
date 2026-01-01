@@ -21,55 +21,43 @@ class FloatingNavBar extends StatelessWidget {
       left: 32,
       right: 32,
       bottom: 32,
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.bottomCenter,
-        children: [
-          GlassCard(
-            borderRadius: 100, // Pill shape
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ...items
-                    .sublist(0, (items.length / 2).floor())
-                    .asMap()
-                    .entries
-                    .map((entry) {
-                      final index = entry.key;
-                      final item = entry.value;
-                      final isSelected = index == currentIndex;
-                      return _NavBarItem(
-                        item: item,
-                        isSelected: isSelected,
-                        onTap: () => onTap(index),
-                      );
-                    }),
-                if (centerAction != null)
-                  const SizedBox(width: 60), // Space for center action
-                ...items
-                    .sublist((items.length / 2).floor())
-                    .asMap()
-                    .entries
-                    .map((entry) {
-                      final index = entry.key + (items.length / 2).floor();
-                      final item = entry.value;
-                      final isSelected = index == currentIndex;
-                      return _NavBarItem(
-                        item: item,
-                        isSelected: isSelected,
-                        onTap: () => onTap(index),
-                      );
-                    }),
-              ],
-            ),
-          ),
-          if (centerAction != null)
-            Positioned(
-              top: -24, // Adjusted for smaller button size
-              child: centerAction!,
-            ),
-        ],
+      child: GlassCard(
+        borderRadius: 100, // Pill shape
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            ...items
+                .sublist(0, (items.length / 2).floor())
+                .asMap()
+                .entries
+                .map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
+                  final isSelected = index == currentIndex;
+                  return _NavBarItem(
+                    item: item,
+                    isSelected: isSelected,
+                    onTap: () => onTap(index),
+                  );
+                }),
+            if (centerAction != null) centerAction!,
+            ...items
+                .sublist((items.length / 2).floor())
+                .asMap()
+                .entries
+                .map((entry) {
+                  final index = entry.key + (items.length / 2).floor();
+                  final item = entry.value;
+                  final isSelected = index == currentIndex;
+                  return _NavBarItem(
+                    item: item,
+                    isSelected: isSelected,
+                    onTap: () => onTap(index),
+                  );
+                }),
+          ],
+        ),
       ),
     );
   }

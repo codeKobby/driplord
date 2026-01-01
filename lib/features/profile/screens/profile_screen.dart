@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -310,7 +311,7 @@ class ProfileScreen extends ConsumerWidget {
         onPressed: () async {
           await Supabase.instance.client.auth.signOut();
           if (context.mounted) {
-            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+            context.go('/');
           }
         },
         style: TextButton.styleFrom(

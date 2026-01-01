@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
@@ -67,7 +68,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
         );
         // Navigate back to sign in
-        Navigator.pushReplacementNamed(context, '/auth/signin');
+        context.pushReplacement('/auth/signin');
       }
     } catch (e) {
       if (mounted) {
@@ -316,7 +317,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               Center(
                 child: TextButton(
                   onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/auth/signin');
+                    context.pushReplacement('/auth/signin');
                   },
                   style: TextButton.styleFrom(
                     foregroundColor: Theme.of(

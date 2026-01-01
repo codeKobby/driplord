@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/components/cards/glass_card.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../try_on/screens/try_on_mirror_screen.dart';
-import 'notification_screen.dart';
 import '../providers/recommendation_provider.dart';
 import '../providers/saved_outfits_provider.dart';
+import '../providers/weather_provider.dart';
 import '../../try_on/providers/mirror_provider.dart';
 import '../../closet/providers/closet_provider.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DailyHubScreen extends ConsumerWidget {
@@ -18,7 +19,6 @@ class DailyHubScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final recommendation = ref.watch(recommendationProvider);
-    final closetItems = ref.watch(closetProvider);
 
     return CustomScrollView(
       slivers: [
@@ -27,7 +27,7 @@ class DailyHubScreen extends ConsumerWidget {
           floating: true,
           title: Text(
             "DripLord",
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.inter(
               fontWeight: FontWeight.w800,
               fontSize: 24,
               letterSpacing: 2,
@@ -37,14 +37,7 @@ class DailyHubScreen extends ConsumerWidget {
           actions: [
             IconButton(
               icon: const Icon(LucideIcons.bell),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const NotificationScreen(),
-                  ),
-                );
-              },
+                onPressed: () => context.go('/home/notifications'),
             ),
           ],
         ),
@@ -55,13 +48,13 @@ class DailyHubScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 16),
-                _buildWeatherWidget(context),
+                _buildWeatherWidget(context, ref),
                 const SizedBox(height: 16),
                 _buildVibeSelectors(context, ref),
                 const SizedBox(height: 32),
                 Text(
                   "Today's Recommendation",
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.inter(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                   ),
@@ -69,7 +62,7 @@ class DailyHubScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 _buildMainOutfitCard(context, recommendation, ref),
                 const SizedBox(height: 32),
-                _buildInsightsSection(context, closetItems),
+                _buildInsightsSection(context, ref),
                 const SizedBox(height: 120), // Space for FAB and Nav
               ],
             ),
@@ -79,39 +72,224 @@ class DailyHubScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildWeatherWidget(BuildContext context) {
+  Widget _buildWeatherWidget(BuildContext context, WidgetRef ref) {
+    final weatherAsync = ref.watch(weatherProvider);
+
     return GlassCard(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Icon(
-            LucideIcons.cloudRain,
-            size: 32,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.all(20),
+      child: weatherAsync.when(
+        data: (weather) {
+          if (weather == null) {
+            return Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(
+                    LucideIcons.cloudRain,
+                    size: 32,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Weather unavailable",
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      Text(
+                        "Check location permissions",
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }
+
+          // Weather icon based on condition
+          IconData weatherIcon;
+          if (weather.isRainy) {
+            weatherIcon = LucideIcons.cloudRain;
+          } else if (weather.isSunny) {
+            weatherIcon = LucideIcons.sun;
+          } else if (weather.conditionCode >= 801) {
+            weatherIcon = LucideIcons.cloud;
+          } else {
+            weatherIcon = LucideIcons.cloudRain;
+          }
+
+          return Row(
             children: [
-              Text(
-                "Rainy • 18°C",
-                style: GoogleFonts.outfit(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+              // Large temperature display
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      weather.temperatureString,
+                      style: GoogleFonts.inter(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w800,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        height: 1.0,
+                      ),
+                    ),
+                    Text(
+                      weather.weatherDescription,
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Text(
-                "Evening will be colder — consider layering",
-                style: GoogleFonts.outfit(
-                  fontSize: 12,
+              // Weather icon with background
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ).colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(
+                  weatherIcon,
+                  size: 36,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              const SizedBox(width: 16),
+              // Clothing suggestion
+              Expanded(
+                flex: 4,
+                child: Text(
+                  weather.clothingSuggestion,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    fontWeight: FontWeight.w500,
+                    height: 1.4,
+                  ),
                 ),
               ),
             ],
-          ),
-        ],
+          );
+        },
+        loading: () => Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const SizedBox(
+                width: 32,
+                height: 32,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Loading weather...",
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  Text(
+                    "Getting location data",
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        error: (_, __) => Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(
+                  context,
+                ).colorScheme.error.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(
+                LucideIcons.alertCircle,
+                size: 32,
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Weather unavailable",
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  Text(
+                    "Using default recommendations",
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     ).animate().fadeIn().slideX();
   }
@@ -142,8 +320,45 @@ class DailyHubScreen extends ConsumerWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withValues(alpha: 0.8),
+                    AppColors.pureBlack.withValues(alpha: 0.8),
                   ],
+                ),
+              ),
+            ),
+          ),
+          // Heart icon in top-right corner (Instagram-style)
+          Positioned(
+            top: 24,
+            right: 24,
+            child: GestureDetector(
+              onTap: () {
+                ref
+                    .read(savedOutfitsProvider.notifier)
+                    .toggleFavorite(recommendation);
+              },
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.pureWhite.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppColors.whiteOverlay.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Icon(
+                  ref
+                          .watch(savedOutfitsProvider)
+                          .any((item) => item.title == recommendation.title)
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  color:
+                      ref
+                          .watch(savedOutfitsProvider)
+                          .any((item) => item.title == recommendation.title)
+                      ? AppColors.favoriteRed
+                      : AppColors.pureWhite,
+                  size: 24,
                 ),
               ),
             ),
@@ -153,79 +368,62 @@ class DailyHubScreen extends ConsumerWidget {
             left: 24,
             right: 24,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
                   recommendation.title,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.inter(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white,
+                    color: AppColors.pureWhite,
                   ),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  children: [
-                    ...recommendation.tags.map(
-                      (tag) => Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: Text(
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 12,
+                  children: recommendation.tags
+                      .map(
+                        (tag) => Text(
                           "#$tag",
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.inter(
                             fontSize: 14,
-                            color: Colors.white.withValues(alpha: 0.7),
+                            color: AppColors.pureWhite.withValues(alpha: 0.7),
                           ),
                         ),
-                      ),
-                    ),
-                  ],
+                      )
+                      .toList(),
                 ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          ref
-                              .read(mirrorProvider.notifier)
-                              .setItemFromRecommendation(recommendation);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const TryOnMirrorScreen(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                const SizedBox(height: 24),
+                // Centered "Try this look" button
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      ref
+                          .read(mirrorProvider.notifier)
+                          .setItemFromRecommendation(recommendation);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const TryOnMirrorScreen(),
                         ),
-                        child: const Text("Try this look"),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.pureWhite,
+                      foregroundColor: AppColors.pureBlack,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(100),
                       ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
+                      elevation: 4,
                     ),
-                    const SizedBox(width: 12),
-                    _buildCircleAction(
-                      icon:
-                          ref
-                              .watch(savedOutfitsProvider)
-                              .any((item) => item.title == recommendation.title)
-                          ? LucideIcons.heart
-                          : LucideIcons
-                                .heart, // Ideally one of these would be different if using a fill/outline icon font
-                      isActive: ref
-                          .watch(savedOutfitsProvider)
-                          .any((item) => item.title == recommendation.title),
-                      onTap: () {
-                        ref
-                            .read(savedOutfitsProvider.notifier)
-                            .toggleFavorite(recommendation);
-                      },
-                    ),
-                  ],
+                    child: const Text("Try this look"),
+                  ),
                 ),
               ],
             ),
@@ -235,179 +433,318 @@ class DailyHubScreen extends ConsumerWidget {
     ).animate().fadeIn().scale();
   }
 
-  Widget _buildCircleAction({
-    required IconData icon,
-    bool isActive = false,
-    VoidCallback? onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isActive
-              ? Colors.red.withValues(alpha: 0.2)
-              : Colors.white.withValues(alpha: 0.1),
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: isActive
-                ? Colors.red.withValues(alpha: 0.4)
-                : Colors.white24,
-          ),
-        ),
-        child: Icon(
-          icon,
-          color: isActive ? Colors.red : Colors.white,
-          size: 20,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInsightsSection(BuildContext context, List<ClothingItem> items) {
-    final firstItemImage = items.isNotEmpty ? items.first.imageUrl : null;
-    final gridItems = items.take(4).toList();
+  Widget _buildInsightsSection(BuildContext context, WidgetRef ref) {
+    final unwornItems = ref.watch(unwornItemsProvider);
+    final recentlyAddedItems = ref.watch(recentlyAddedItemsProvider);
+    final autoAddedItems = ref.watch(autoAddedItemsProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Quick Insights",
-          style: GoogleFonts.outfit(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onSurface,
+        Row(
+          children: [
+            Icon(
+              LucideIcons.barChart3,
+              size: 20,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              "Quick Insights",
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Theme.of(context).colorScheme.onSurface,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+
+        // Haven't Worn Card
+        GestureDetector(
+          onTap: () {
+            // Navigate to outfits screen to suggest using these unworn items
+            context.go('/outfits');
+          },
+          child: GlassCard(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        LucideIcons.archive,
+                        size: 24,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Haven't Worn",
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "${unwornItems.length} items gathering dust",
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      LucideIcons.chevronRight,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                    ),
+                  ],
+                ),
+                if (unwornItems.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  _buildSmartGrid(unwornItems),
+                ],
+              ],
+            ),
           ),
         ),
+
         const SizedBox(height: 16),
-        GlassCard(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              if (firstItemImage != null)
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    image: DecorationImage(
-                      image: NetworkImage(firstItemImage),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                )
-              else
-                Icon(
-                  LucideIcons.calendar,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  "You haven't worn this in a while",
-                  style: GoogleFonts.outfit(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        GlassCard(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              if (items.length >= 2)
-                _buildItemGrid(gridItems)
-              else
-                Icon(
-                  LucideIcons.shirt,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+
+        // Recently Added Card
+        GestureDetector(
+          onTap: () {
+            // Navigate to closet to see recent additions
+            context.go('/closet');
+          },
+          child: GlassCard(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Text(
-                      "Digital Closet Info",
-                      style: GoogleFonts.outfit(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontWeight: FontWeight.w600,
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        LucideIcons.sparkles,
+                        size: 24,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                    Text(
-                      "${items.length} items in your closet",
-                      style: GoogleFonts.outfit(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.4),
-                        fontSize: 12,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                "Recently Added",
+                                style: GoogleFonts.inter(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                              ),
+                              if (autoAddedItems.isNotEmpty) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    "Auto",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "${recentlyAddedItems.length} new items • Mix them in!",
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
+                    ),
+                    Icon(
+                      LucideIcons.chevronRight,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                     ),
                   ],
                 ),
-              ),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(FontAwesomeIcons.shirt, size: 14),
-                    const SizedBox(width: 8),
-                    Text(
-                      "Stylist",
-                      style: GoogleFonts.outfit(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                if (recentlyAddedItems.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  _buildSmartGrid(recentlyAddedItems, showAutoBadge: true),
+                ],
+              ],
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildItemGrid(List<ClothingItem> items) {
+
+
+  Widget _buildSmartGrid(List<ClothingItem> items, {bool showAutoBadge = false}) {
+    // Smart grid that adapts based on item count - increased sizes for better visibility
+    if (items.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final itemCount = items.length > 9 ? 9 : items.length;
+    final crossAxisCount = itemCount <= 3
+        ? 1
+        : itemCount <= 6
+        ? 2
+        : 3;
+    final aspectRatio = crossAxisCount == 1
+        ? 2.5
+        : crossAxisCount == 2
+        ? 1.0
+        : 0.85;
+
     return SizedBox(
-      width: 40,
-      height: 40,
+      height: crossAxisCount == 1
+          ? 120
+          : crossAxisCount == 2
+          ? 200
+          : 180,
       child: GridView.builder(
         physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 2,
-          mainAxisSpacing: 2,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: aspectRatio,
         ),
-        itemCount: items.length,
+        itemCount: itemCount,
         itemBuilder: (context, index) {
-          return Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(2),
-              image: DecorationImage(
-                image: NetworkImage(items[index].imageUrl),
-                fit: BoxFit.cover,
+          final item = items[index];
+          return Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  image: DecorationImage(
+                    image: NetworkImage(item.imageUrl),
+                    fit: BoxFit.cover,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.blackOverlayLight,
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.transparent,
+                        AppColors.blackOverlayMedium.withValues(alpha: 0.7),
+                      ],
+                    ),
+                  ),
+                  child: Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        item.name.length > 15
+                            ? '${item.name.substring(0, 15)}...'
+                            : item.name,
+                        style: GoogleFonts.inter(
+                          fontSize: crossAxisCount == 1 ? 14 : 12,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withValues(alpha: 0.5),
+                              offset: const Offset(0, 1),
+                              blurRadius: 2,
+                            ),
+                          ],
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ),
+              // Auto-added badge
+              if (showAutoBadge && item.isAutoAdded) ...[
+                Positioned(
+                  top: 6,
+                  right: 6,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      "Auto",
+                      style: GoogleFonts.inter(
+                        fontSize: 8,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
           );
         },
       ),
@@ -458,7 +795,7 @@ class DailyHubScreen extends ConsumerWidget {
                 ),
                 child: Text(
                   vibe.$1,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                     color: isSelected
