@@ -77,9 +77,9 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
           const SizedBox(height: 8),
           Text(
             "Add your first clothing item to get started",
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: AppColors.textSecondary,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 40),
@@ -110,18 +110,24 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Filter buttons
-          Row(
-            children: [
-              _buildFilterChip("All", isSelected: ref.watch(selectedCategoryProvider) == "All"),
-              const SizedBox(width: 8),
-              _buildFilterChip("Tops"),
-              const SizedBox(width: 8),
-              _buildFilterChip("Bottoms"),
-              const SizedBox(width: 8),
-              _buildFilterChip("Shoes"),
-              const SizedBox(width: 8),
-              _buildFilterChip("Outerwear"),
-            ],
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildFilterChip(
+                  "All",
+                  isSelected: ref.watch(selectedCategoryProvider) == "All",
+                ),
+                const SizedBox(width: 8),
+                _buildFilterChip("Tops"),
+                const SizedBox(width: 8),
+                _buildFilterChip("Bottoms"),
+                const SizedBox(width: 8),
+                _buildFilterChip("Shoes"),
+                const SizedBox(width: 8),
+                _buildFilterChip("Outerwear"),
+              ],
+            ),
           ),
           const SizedBox(height: 24),
 
@@ -179,7 +185,7 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
     return GestureDetector(
       onTap: () {
         ref.read(mirrorProvider.notifier).setItemFromClothingItem(item);
-        context.go('/try-on/item/${item.id}');
+        context.push('/try-on/item/${item.id}');
       },
       child: GlassCard(
         padding: EdgeInsets.zero,
@@ -204,7 +210,10 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
                 top: 8,
                 left: 8,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.success,
                     borderRadius: BorderRadius.circular(8),
@@ -296,14 +305,16 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
                         Expanded(
                           child: Text(
                             item.brand ?? 'Unknown Brand',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: AppColors.textSecondary),
                           ),
                         ),
                         if (item.isAutoAdded)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 1,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.warning.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(4),
@@ -367,10 +378,12 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Failed to pick image: ${e.toString()}"),
-          backgroundColor: AppColors.error,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to pick image: ${e.toString()}"),
+            backgroundColor: AppColors.error,
+          ),
+        );
       }
     }
   }
@@ -391,10 +404,12 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Failed to take photo: ${e.toString()}"),
-          backgroundColor: AppColors.error,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to take photo: ${e.toString()}"),
+            backgroundColor: AppColors.error,
+          ),
+        );
       }
     }
   }

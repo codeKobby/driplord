@@ -39,7 +39,9 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
           "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
       color: "White",
       brand: "Uniqlo",
-      lastWornDate: DateTime.now().subtract(const Duration(days: 45)), // Haven't worn in 45 days
+      lastWornDate: DateTime.now().subtract(
+        const Duration(days: 45),
+      ), // Haven't worn in 45 days
       addedDate: DateTime.now().subtract(const Duration(days: 120)),
       isAutoAdded: false,
     ),
@@ -51,7 +53,9 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
           "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400",
       color: "Black",
       brand: "Nike",
-      lastWornDate: DateTime.now().subtract(const Duration(days: 60)), // Haven't worn in 60 days
+      lastWornDate: DateTime.now().subtract(
+        const Duration(days: 60),
+      ), // Haven't worn in 60 days
       addedDate: DateTime.now().subtract(const Duration(days: 90)),
       isAutoAdded: false,
     ),
@@ -63,7 +67,9 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
           "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400",
       color: "Blue",
       brand: "Levi's",
-      lastWornDate: DateTime.now().subtract(const Duration(days: 5)), // Recently worn
+      lastWornDate: DateTime.now().subtract(
+        const Duration(days: 5),
+      ), // Recently worn
       addedDate: DateTime.now().subtract(const Duration(days: 60)),
       isAutoAdded: false,
     ),
@@ -72,10 +78,12 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
       name: "Leather Jacket",
       category: "Outerwear",
       imageUrl:
-          "https://images.unsplash.com/photo-1551028711-131da507bd89?w=400",
+          "https://images.unsplash.com/photo-1520975661595-6453be3f7070?w=400",
       color: "Black",
       brand: "Zara",
-      lastWornDate: DateTime.now().subtract(const Duration(days: 35)), // Haven't worn in 35 days
+      lastWornDate: DateTime.now().subtract(
+        const Duration(days: 35),
+      ), // Haven't worn in 35 days
       addedDate: DateTime.now().subtract(const Duration(days: 80)),
       isAutoAdded: false,
     ),
@@ -87,8 +95,12 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
           "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400",
       color: "White",
       brand: "Adidas",
-      lastWornDate: DateTime.now().subtract(const Duration(days: 2)), // Recently worn
-      addedDate: DateTime.now().subtract(const Duration(days: 3)), // Recently added
+      lastWornDate: DateTime.now().subtract(
+        const Duration(days: 2),
+      ), // Recently worn
+      addedDate: DateTime.now().subtract(
+        const Duration(days: 3),
+      ), // Recently added
       isAutoAdded: true, // Auto-added by app
     ),
     ClothingItem(
@@ -96,11 +108,15 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
       name: "Oversized Flannel",
       category: "Tops",
       imageUrl:
-          "https://images.unsplash.com/photo-1481325544415-bc49418e662c?w=400",
+          "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400",
       color: "Red",
       brand: "H&M",
-      lastWornDate: DateTime.now().subtract(const Duration(days: 50)), // Haven't worn in 50 days
-      addedDate: DateTime.now().subtract(const Duration(days: 25)), // Recently added but manually
+      lastWornDate: DateTime.now().subtract(
+        const Duration(days: 50),
+      ), // Haven't worn in 50 days
+      addedDate: DateTime.now().subtract(
+        const Duration(days: 25),
+      ), // Recently added but manually
       isAutoAdded: false,
     ),
     ClothingItem(
@@ -112,7 +128,9 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
       color: "Blue",
       brand: "Levi's",
       lastWornDate: null, // Never worn
-      addedDate: DateTime.now().subtract(const Duration(days: 2)), // Recently added
+      addedDate: DateTime.now().subtract(
+        const Duration(days: 2),
+      ), // Recently added
       isAutoAdded: true, // Auto-added by app
     ),
     ClothingItem(
@@ -124,7 +142,9 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
       color: "Blue",
       brand: "Uniqlo",
       lastWornDate: null, // Never worn
-      addedDate: DateTime.now().subtract(const Duration(days: 5)), // Recently added
+      addedDate: DateTime.now().subtract(
+        const Duration(days: 5),
+      ), // Recently added
       isAutoAdded: false, // Manually added
     ),
   ];

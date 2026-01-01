@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/components/cards/glass_card.dart';
 import '../../../core/components/common/fixed_app_bar.dart';
 import '../../../core/theme/app_colors.dart';
 
@@ -10,7 +9,8 @@ class NotificationItem {
   final String id;
   final String title;
   final String message;
-  final String type; // 'outfit_suggestion', 'wardrobe_update', 'style_tip', etc.
+  final String
+  type; // 'outfit_suggestion', 'wardrobe_update', 'style_tip', etc.
   final DateTime timestamp;
   final bool isRead;
   final String? actionUrl; // Route to navigate to when tapped
@@ -86,7 +86,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     NotificationItem(
       id: '1',
       title: 'Perfect outfit for your meeting',
-      message: 'Based on your calendar, we suggest this professional look for your 2 PM meeting.',
+      message:
+          'Based on your calendar, we suggest this professional look for your 2 PM meeting.',
       type: 'outfit_suggestion',
       timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
       actionUrl: '/try-on/outfit/123',
@@ -95,7 +96,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     NotificationItem(
       id: '2',
       title: 'New items added to your closet',
-      message: '5 new clothing items have been detected and added to your wardrobe.',
+      message:
+          '5 new clothing items have been detected and added to your wardrobe.',
       type: 'wardrobe_update',
       timestamp: DateTime.now().subtract(const Duration(hours: 2)),
       actionUrl: '/closet/insights/recent',
@@ -104,7 +106,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     NotificationItem(
       id: '3',
       title: 'Style tip: Layering for fall',
-      message: 'Learn how to combine light layers for the perfect autumn outfit.',
+      message:
+          'Learn how to combine light layers for the perfect autumn outfit.',
       type: 'style_tip',
       timestamp: DateTime.now().subtract(const Duration(hours: 5)),
       actionUrl: '/home/vibes',
@@ -113,7 +116,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     NotificationItem(
       id: '4',
       title: 'Weather alert: Rain expected',
-      message: 'Light rain expected this afternoon. Consider bringing an umbrella.',
+      message:
+          'Light rain expected this afternoon. Consider bringing an umbrella.',
       type: 'weather_alert',
       timestamp: DateTime.now().subtract(const Duration(hours: 6)),
       actionUrl: '/home/weather',
@@ -131,7 +135,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     NotificationItem(
       id: '6',
       title: 'Style tip: Color coordination',
-      message: 'Master the art of mixing colors that complement your skin tone.',
+      message:
+          'Master the art of mixing colors that complement your skin tone.',
       type: 'style_tip',
       timestamp: DateTime.now().subtract(const Duration(days: 2)),
       isRead: true,
@@ -204,6 +209,363 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
+  void _showInsightsBottomSheet(String actionUrl) {
+    if (actionUrl.contains('/closet/insights/recent')) {
+      _showRecentItemsBottomSheet();
+    } else if (actionUrl.contains('/closet/insights/unworn')) {
+      _showUnwornItemsBottomSheet();
+    } else {
+      _showGeneralInsightsBottomSheet();
+    }
+  }
+
+  void _showRecentItemsBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => _buildInsightsBottomSheet(
+        title: 'Recently Added Items',
+        content: _buildRecentItemsContent(),
+      ),
+    );
+  }
+
+  void _showUnwornItemsBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => _buildInsightsBottomSheet(
+        title: 'Unworn Items',
+        content: _buildUnwornItemsContent(),
+      ),
+    );
+  }
+
+  void _showGeneralInsightsBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => _buildInsightsBottomSheet(
+        title: 'Closet Insights',
+        content: _buildGeneralInsightsContent(),
+      ),
+    );
+  }
+
+  Widget _buildInsightsBottomSheet({
+    required String title,
+    required Widget content,
+  }) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.8,
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Column(
+        children: [
+          // Handle and title
+          Container(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  title,
+                  style: GoogleFonts.outfit(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Content
+          Expanded(child: content),
+
+          // Close button
+          Container(
+            padding: const EdgeInsets.all(24),
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.textOnPrimary,
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+              ),
+              child: Text(
+                'Close',
+                style: GoogleFonts.outfit(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecentItemsContent() {
+    // Mock recent items - in real app this would come from provider
+    final recentItems = [
+      {
+        'name': 'Blue Denim Jacket',
+        'date': '2 days ago',
+        'image': 'placeholder',
+      },
+      {'name': 'White Sneakers', 'date': '1 week ago', 'image': 'placeholder'},
+      {'name': 'Black T-Shirt', 'date': '3 days ago', 'image': 'placeholder'},
+    ];
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      itemCount: recentItems.length,
+      itemBuilder: (context, index) {
+        final item = recentItems[index];
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.glassBorder),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(LucideIcons.shirt, color: AppColors.primary),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item['name'] as String,
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      'Added ${item['date']}',
+                      style: GoogleFonts.outfit(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildUnwornItemsContent() {
+    // Mock unworn items - in real app this would come from provider
+    final unwornItems = [
+      {'name': 'Red Dress', 'lastWorn': '45 days ago', 'image': 'placeholder'},
+      {
+        'name': 'Brown Boots',
+        'lastWorn': '30 days ago',
+        'image': 'placeholder',
+      },
+      {
+        'name': 'Green Scarf',
+        'lastWorn': '60 days ago',
+        'image': 'placeholder',
+      },
+    ];
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      itemCount: unwornItems.length,
+      itemBuilder: (context, index) {
+        final item = unwornItems[index];
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.glassBorder),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppColors.warning.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(LucideIcons.shirt, color: AppColors.warning),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item['name'] as String,
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      'Last worn ${item['lastWorn']}',
+                      style: GoogleFonts.outfit(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGeneralInsightsContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: [
+          // Stats cards
+          Row(
+            children: [
+              Expanded(
+                child: _buildInsightStatCard(
+                  title: 'Total Items',
+                  value: '127',
+                  icon: LucideIcons.shirt,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildInsightStatCard(
+                  title: 'Recently Added',
+                  value: '12',
+                  icon: LucideIcons.plus,
+                  color: AppColors.success,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInsightStatCard(
+                  title: 'Unworn Items',
+                  value: '23',
+                  icon: LucideIcons.eyeOff,
+                  color: AppColors.warning,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildInsightStatCard(
+                  title: 'Most Worn',
+                  value: '8',
+                  icon: LucideIcons.trendingUp,
+                  color: AppColors.info,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInsightStatCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.glassBorder),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: GoogleFonts.outfit(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: GoogleFonts.outfit(
+              fontSize: 12,
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildNotificationItem(NotificationItem notification) {
     return Dismissible(
       key: Key(notification.id),
@@ -215,11 +577,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
           color: AppColors.error.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(
-          LucideIcons.trash2,
-          color: AppColors.error,
-          size: 24,
-        ),
+        child: Icon(LucideIcons.trash2, color: AppColors.error, size: 24),
       ),
       onDismissed: (direction) {
         setState(() {
@@ -245,7 +603,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
           // Mark as read
           if (!notification.isRead) {
             setState(() {
-              final index = _notifications.indexWhere((n) => n.id == notification.id);
+              final index = _notifications.indexWhere(
+                (n) => n.id == notification.id,
+              );
               if (index != -1) {
                 _notifications[index] = NotificationItem(
                   id: notification.id,
@@ -265,18 +625,21 @@ class _NotificationScreenState extends State<NotificationScreen> {
           if (notification.actionUrl != null) {
             if (notification.actionUrl!.contains('/outfits/') ||
                 notification.actionUrl!.contains('/try-on/')) {
-              context.go(notification.actionUrl!);
+              context.push(notification.actionUrl!);
+            } else if (notification.actionUrl!.contains('/closet/insights/')) {
+              // Show insights as bottom sheets instead of navigating
+              _showInsightsBottomSheet(notification.actionUrl!);
             } else if (notification.actionUrl!.contains('/closet/')) {
-              context.go(notification.actionUrl!);
+              context.push(notification.actionUrl!);
             } else if (notification.actionUrl!.contains('/home/')) {
-              context.go(notification.actionUrl!);
+              context.push(notification.actionUrl!);
             } else {
               // Navigate to notification detail
-              context.go('/home/notifications/${notification.id}');
+              context.push('/home/notifications/${notification.id}');
             }
           } else {
             // Navigate to notification detail
-            context.go('/home/notifications/${notification.id}');
+            context.push('/home/notifications/${notification.id}');
           }
         },
         borderRadius: BorderRadius.circular(12),

@@ -5,24 +5,18 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/components/navigation/floating_nav_bar.dart';
-import 'daily_hub_screen.dart';
-import '../../closet/screens/closet_screen.dart';
-import '../../outfits/screens/outfits_screen.dart';
-import '../../profile/screens/profile_screen.dart';
-
 import '../../../core/components/common/driplord_scaffold.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class MainScaffold extends StatefulWidget {
+  const MainScaffold({super.key, required this.navigationShell});
+
+  final StatefulNavigationShell navigationShell;
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<MainScaffold> createState() => _MainScaffoldState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
-  final PageController _pageController = PageController();
-
+class _MainScaffoldState extends State<MainScaffold> {
   final List<NavItem> _navItems = const [
     NavItem(icon: LucideIcons.home, label: 'Home'),
     NavItem(icon: LucideIcons.shirt, label: 'Closet'),
@@ -31,13 +25,9 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   void _onNavTap(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-    _pageController.animateToPage(
+    widget.navigationShell.goBranch(
       index,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
+      initialLocation: index == widget.navigationShell.currentIndex,
     );
   }
 
@@ -47,22 +37,15 @@ class _HomeScreenState extends State<HomeScreen> {
       useSafeArea: false,
       body: Stack(
         children: [
-          PageView(
-            controller: _pageController,
-            physics: const NeverScrollableScrollPhysics(),
-            children: const [
-              DailyHubScreen(),
-              ClosetScreen(),
-              OutfitsScreen(),
-              ProfileScreen(),
-            ],
-          ),
+          // The main content body
+          widget.navigationShell,
 
           // Floating buttons for pages other than home
-          if (_currentIndex != 0) _buildFloatingButton(),
+          if (widget.navigationShell.currentIndex != 0) _buildFloatingButton(),
 
+          // Navigation Bar
           FloatingNavBar(
-            currentIndex: _currentIndex,
+            currentIndex: widget.navigationShell.currentIndex,
             onTap: _onNavTap,
             items: _navItems,
             centerAction: _buildCenterAction(),
@@ -76,16 +59,16 @@ class _HomeScreenState extends State<HomeScreen> {
     IconData icon;
     VoidCallback onPressed;
 
-    switch (_currentIndex) {
-      case 1:
+    switch (widget.navigationShell.currentIndex) {
+      case 1: // Closet
         icon = LucideIcons.plus;
         onPressed = () => _showAddItemOptions();
         break;
-      case 2:
+      case 2: // Outfits
         icon = LucideIcons.plusCircle;
         onPressed = () => _showCreateOutfitOptions();
         break;
-      case 3:
+      case 3: // Profile
         icon = LucideIcons.user;
         onPressed = () {}; // Profile actions
         break;
@@ -96,36 +79,41 @@ class _HomeScreenState extends State<HomeScreen> {
     return Positioned(
       right: 32,
       bottom: 120, // Position above the nav bar
-      child: GestureDetector(
-        onTap: onPressed,
-        child: Container(
-          width: 64,
-          height: 64,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-            border: Border.all(
-              color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.2),
-              width: 1.5,
-            ),
-          ),
-          child: Icon(
-            icon,
-            color: Theme.of(context).colorScheme.onPrimary,
-            size: 28,
-          ),
-        ),
-      )
-      .animate(key: ValueKey(_currentIndex))
-      .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0))
-      .fadeIn(),
+      child:
+          GestureDetector(
+                onTap: onPressed,
+                child: Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onPrimary.withValues(alpha: 0.2),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    size: 28,
+                  ),
+                ),
+              )
+              .animate(key: ValueKey(widget.navigationShell.currentIndex))
+              .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0))
+              .fadeIn(),
     );
   }
 
@@ -133,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Always show stylist button inline in nav bar for all pages
     return GestureDetector(
       onTap: () {
-        switch (_currentIndex) {
+        switch (widget.navigationShell.currentIndex) {
           case 0:
             _showGenerateOptions();
             break;
@@ -151,14 +139,16 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: _currentIndex == 0
+          color: widget.navigationShell.currentIndex == 0
               ? Theme.of(context).colorScheme.primary
               : Colors.transparent,
           shape: BoxShape.circle,
-          boxShadow: _currentIndex == 0
+          boxShadow: widget.navigationShell.currentIndex == 0
               ? [
                   BoxShadow(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.3),
                     blurRadius: 10,
                     offset: const Offset(0, 0),
                   ),
@@ -167,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Icon(
           FontAwesomeIcons.shirt,
-          color: _currentIndex == 0
+          color: widget.navigationShell.currentIndex == 0
               ? Theme.of(context).colorScheme.onPrimary
               : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
           size: 24,

@@ -340,7 +340,7 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
                               _notificationsEnabled = value;
                             });
                           },
-                          activeColor: AppColors.primary,
+                          activeThumbColor: AppColors.primary,
                         ),
                       ],
                     ),

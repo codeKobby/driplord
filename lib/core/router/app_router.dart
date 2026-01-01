@@ -3,22 +3,24 @@ import 'package:flutter/material.dart';
 import '../../features/onboarding/screens/welcome_screen.dart';
 import '../../features/auth/screens/auth_screen.dart';
 import '../../features/auth/screens/forgot_password_screen.dart';
-import '../../features/home/screens/home_screen.dart';
+
 import '../../features/home/screens/weather_settings_screen.dart';
 import '../../features/home/screens/notification_screen.dart';
-import '../../features/home/screens/notification_detail_screen.dart';
-import '../../features/home/screens/vibe_settings_screen.dart';
 import '../../features/closet/screens/closet_screen.dart';
 import '../../features/outfits/screens/outfits_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../components/common/fixed_app_bar.dart';
-import '../components/navigation/floating_nav_bar.dart';
 
-// Placeholder screens - to be implemented
+import '../../features/home/screens/daily_hub_screen.dart';
+import '../../features/home/screens/main_scaffold.dart';
+import '../../features/try_on/screens/style_composer_screen.dart';
+
+// =============================================================================
+// PLACEHOLDER SCREENS (Simple - no nav bar needed since outside shell route)
+// =============================================================================
 
 class NotificationDetailScreen extends StatelessWidget {
   const NotificationDetailScreen({super.key, required this.id});
-
   final String id;
 
   @override
@@ -54,157 +56,41 @@ class VibeCustomizationScreen extends StatelessWidget {
   }
 }
 
-class ClosetInsightsScreen extends StatefulWidget {
+class ClosetInsightsScreen extends StatelessWidget {
   const ClosetInsightsScreen({super.key});
-
-  @override
-  State<ClosetInsightsScreen> createState() => _ClosetInsightsScreenState();
-}
-
-class _ClosetInsightsScreenState extends State<ClosetInsightsScreen> {
-  final List<NavItem> _navItems = const [
-    NavItem(icon: Icons.home, label: 'Home'),
-    NavItem(icon: Icons.checkroom, label: 'Closet'),
-    NavItem(icon: Icons.bookmark, label: 'Outfits'),
-    NavItem(icon: Icons.person, label: 'Profile'),
-  ];
-
-  void _onNavTap(int index) {
-    switch (index) {
-      case 0:
-        context.go('/home');
-        break;
-      case 1:
-        context.go('/closet');
-        break;
-      case 2:
-        context.go('/outfits');
-        break;
-      case 3:
-        context.go('/profile');
-        break;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const FixedAppBar(title: 'Closet Insights'),
-      body: Stack(
-        children: [
-          const SafeArea(
-            child: Center(child: Text('Closet Insights Screen')),
-          ),
-          FloatingNavBar(
-            currentIndex: 1, // Closet tab
-            onTap: _onNavTap,
-            items: _navItems,
-          ),
-        ],
+      body: const SafeArea(
+        child: Center(child: Text('Closet Insights Screen')),
       ),
     );
   }
 }
 
-class UnwornItemsScreen extends StatefulWidget {
+class UnwornItemsScreen extends StatelessWidget {
   const UnwornItemsScreen({super.key});
-
-  @override
-  State<UnwornItemsScreen> createState() => _UnwornItemsScreenState();
-}
-
-class _UnwornItemsScreenState extends State<UnwornItemsScreen> {
-  final List<NavItem> _navItems = const [
-    NavItem(icon: Icons.home, label: 'Home'),
-    NavItem(icon: Icons.checkroom, label: 'Closet'),
-    NavItem(icon: Icons.bookmark, label: 'Outfits'),
-    NavItem(icon: Icons.person, label: 'Profile'),
-  ];
-
-  void _onNavTap(int index) {
-    switch (index) {
-      case 0:
-        context.go('/home');
-        break;
-      case 1:
-        context.go('/closet');
-        break;
-      case 2:
-        context.go('/outfits');
-        break;
-      case 3:
-        context.go('/profile');
-        break;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const FixedAppBar(title: 'Unworn Items'),
-      body: Stack(
-        children: [
-          const SafeArea(
-            child: Center(child: Text('Unworn Items Screen')),
-          ),
-          FloatingNavBar(
-            currentIndex: 1, // Closet tab
-            onTap: _onNavTap,
-            items: _navItems,
-          ),
-        ],
-      ),
+      body: const SafeArea(child: Center(child: Text('Unworn Items Screen'))),
     );
   }
 }
 
-class RecentItemsScreen extends StatefulWidget {
+class RecentItemsScreen extends StatelessWidget {
   const RecentItemsScreen({super.key});
-
-  @override
-  State<RecentItemsScreen> createState() => _RecentItemsScreenState();
-}
-
-class _RecentItemsScreenState extends State<RecentItemsScreen> {
-  final List<NavItem> _navItems = const [
-    NavItem(icon: Icons.home, label: 'Home'),
-    NavItem(icon: Icons.checkroom, label: 'Closet'),
-    NavItem(icon: Icons.bookmark, label: 'Outfits'),
-    NavItem(icon: Icons.person, label: 'Profile'),
-  ];
-
-  void _onNavTap(int index) {
-    switch (index) {
-      case 0:
-        context.go('/home');
-        break;
-      case 1:
-        context.go('/closet');
-        break;
-      case 2:
-        context.go('/outfits');
-        break;
-      case 3:
-        context.go('/profile');
-        break;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const FixedAppBar(title: 'Recent Items'),
-      body: Stack(
-        children: [
-          const SafeArea(
-            child: Center(child: Text('Recent Items Screen')),
-          ),
-          FloatingNavBar(
-            currentIndex: 1, // Closet tab
-            onTap: _onNavTap,
-            items: _navItems,
-          ),
-        ],
+      appBar: const FixedAppBar(title: 'Recently Added'),
+      body: const SafeArea(
+        child: Center(child: Text('Recently Added Items Screen')),
       ),
     );
   }
@@ -212,7 +98,6 @@ class _RecentItemsScreenState extends State<RecentItemsScreen> {
 
 class ItemDetailScreen extends StatelessWidget {
   const ItemDetailScreen({super.key, required this.id});
-
   final String id;
 
   @override
@@ -225,7 +110,12 @@ class ItemDetailScreen extends StatelessWidget {
 }
 
 class AddItemScreen extends StatelessWidget {
-  const AddItemScreen({super.key, this.camera = false, this.gallery = false, this.url = false});
+  const AddItemScreen({
+    super.key,
+    this.camera = false,
+    this.gallery = false,
+    this.url = false,
+  });
 
   final bool camera;
   final bool gallery;
@@ -235,14 +125,17 @@ class AddItemScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const FixedAppBar(title: 'Add Item'),
-      body: Center(child: Text('Add Item Screen - Camera: $camera, Gallery: $gallery, URL: $url')),
+      body: Center(
+        child: Text(
+          'Add Item Screen - Camera: $camera, Gallery: $gallery, URL: $url',
+        ),
+      ),
     );
   }
 }
 
 class OutfitDetailScreen extends StatelessWidget {
   const OutfitDetailScreen({super.key, required this.id});
-
   final String id;
 
   @override
@@ -266,26 +159,17 @@ class OutfitBuilderScreen extends StatelessWidget {
   }
 }
 
-class StyleComposerScreen extends StatelessWidget {
-  const StyleComposerScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const FixedAppBar(title: 'Style Composer'),
-      body: const Center(child: Text('Style Composer Screen')),
-    );
-  }
-}
+// =============================================================================
+// ROUTER CONFIGURATION
+// =============================================================================
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/home',
   routes: [
-    // Onboarding & Auth
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const WelcomeScreen(),
-    ),
+    // =========================================================================
+    // ONBOARDING & AUTH ROUTES (Fullscreen, no nav bar)
+    // =========================================================================
+    GoRoute(path: '/', builder: (context, state) => const WelcomeScreen()),
     GoRoute(
       path: '/auth/signin',
       builder: (context, state) => const AuthScreen(initialIsLogin: true),
@@ -299,32 +183,71 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const ForgotPasswordScreen(),
     ),
 
-    // Main Navigation
-    GoRoute(
-      path: '/home',
-      builder: (context, state) => const HomeScreen(),
-    ),
-    GoRoute(
-      path: '/closet',
-      builder: (context, state) => const ClosetScreen(),
-    ),
-    GoRoute(
-      path: '/outfits',
-      builder: (context, state) => const OutfitsScreen(),
-    ),
-    GoRoute(
-      path: '/profile',
-      builder: (context, state) => const ProfileScreen(),
+    // =========================================================================
+    // MAIN APP SHELL (Bottom nav visible on these 4 tabs ONLY)
+    // Per Apple HIG & Material Design 3: Nav bar for top-level destinations
+    // =========================================================================
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return MainScaffold(navigationShell: navigationShell);
+      },
+      branches: [
+        // Tab 1: Home (DailyHubScreen)
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/home',
+              builder: (context, state) => const DailyHubScreen(),
+            ),
+          ],
+        ),
+
+        // Tab 2: Closet
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closet',
+              builder: (context, state) => const ClosetScreen(),
+            ),
+          ],
+        ),
+
+        // Tab 3: Outfits
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/outfits',
+              builder: (context, state) => const OutfitsScreen(),
+            ),
+          ],
+        ),
+
+        // Tab 4: Profile
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/profile',
+              builder: (context, state) => const ProfileScreen(),
+            ),
+          ],
+        ),
+      ],
     ),
 
-    // Home Subpages
+    // =========================================================================
+    // SUBPAGES (Fullscreen, NO nav bar - per Apple HIG & Material Design 3)
+    // These are detail/settings screens that should hide the bottom nav
+    // =========================================================================
+
+    // --- Home Subpages ---
     GoRoute(
       path: '/home/notifications',
       builder: (context, state) => const NotificationScreen(),
     ),
     GoRoute(
       path: '/home/notifications/:id',
-      builder: (context, state) => NotificationDetailScreen(id: state.pathParameters['id']!),
+      builder: (context, state) =>
+          NotificationDetailScreen(id: state.pathParameters['id']!),
     ),
     GoRoute(
       path: '/home/weather',
@@ -339,10 +262,11 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const VibeCustomizationScreen(),
     ),
 
-    // Closet Subpages
+    // --- Closet Subpages ---
     GoRoute(
       path: '/closet/item/:id',
-      builder: (context, state) => ItemDetailScreen(id: state.pathParameters['id']!),
+      builder: (context, state) =>
+          ItemDetailScreen(id: state.pathParameters['id']!),
     ),
     GoRoute(
       path: '/closet/add',
@@ -373,36 +297,60 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const RecentItemsScreen(),
     ),
 
-    // Outfits Subpages
-    GoRoute(
-      path: '/outfits/:id',
-      builder: (context, state) => OutfitDetailScreen(id: state.pathParameters['id']!),
-    ),
+    // --- Outfits Subpages ---
     GoRoute(
       path: '/outfits/create',
       builder: (context, state) => const OutfitBuilderScreen(),
     ),
+    GoRoute(
+      path: '/outfits/:id',
+      builder: (context, state) =>
+          OutfitDetailScreen(id: state.pathParameters['id']!),
+    ),
 
-    // Style Composer (Try-On)
+    // --- Try-On / Style Composer (Fullscreen) ---
+    // Note: ComposerMode enum is defined in style_composer_screen.dart
     GoRoute(
       path: '/try-on',
-      builder: (context, state) => const StyleComposerScreen(),
+      builder: (context, state) =>
+          const StyleComposerScreen(mode: ComposerMode.manual),
     ),
     GoRoute(
       path: '/try-on/item/:id',
-      builder: (context, state) => const StyleComposerScreen(), // TODO: Pass mode parameters
+      builder: (context, state) => StyleComposerScreen(
+        mode: ComposerMode.tryOn,
+        initialItemId: state.pathParameters['id'],
+      ),
     ),
     GoRoute(
       path: '/try-on/outfit/:id',
-      builder: (context, state) => const StyleComposerScreen(), // TODO: Pass mode parameters
+      builder: (context, state) {
+        // Check extra query param to distinguish 'view' vs 'edit' if needed
+        // For now default to 'view', user can toggle to edit in UI
+        return StyleComposerScreen(
+          mode: ComposerMode.view,
+          outfitId: state.pathParameters['id'],
+        );
+      },
+    ),
+    GoRoute(
+      path: '/try-on/edit/:id',
+      builder: (context, state) => StyleComposerScreen(
+        mode: ComposerMode.edit,
+        outfitId: state.pathParameters['id'],
+      ),
     ),
     GoRoute(
       path: '/try-on/compose',
-      builder: (context, state) => const StyleComposerScreen(),
+      builder: (context, state) =>
+          const StyleComposerScreen(mode: ComposerMode.manual),
     ),
     GoRoute(
       path: '/try-on/ai/:vibe',
-      builder: (context, state) => const StyleComposerScreen(), // TODO: Pass vibe parameter
+      builder: (context, state) => StyleComposerScreen(
+        mode: ComposerMode.ai,
+        vibe: state.pathParameters['vibe'],
+      ),
     ),
   ],
 );

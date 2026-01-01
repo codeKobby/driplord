@@ -23,8 +23,8 @@ class DailyHubScreen extends ConsumerWidget {
     return CustomScrollView(
       slivers: [
         SliverAppBar(
-          backgroundColor: Colors.transparent,
-          floating: true,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          pinned: true,
           title: Text(
             "DripLord",
             style: GoogleFonts.inter(
@@ -37,7 +37,7 @@ class DailyHubScreen extends ConsumerWidget {
           actions: [
             IconButton(
               icon: const Icon(LucideIcons.bell),
-                onPressed: () => context.go('/home/notifications'),
+              onPressed: () => context.push('/home/notifications'),
             ),
           ],
         ),
@@ -400,15 +400,8 @@ class DailyHubScreen extends ConsumerWidget {
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      ref
-                          .read(mirrorProvider.notifier)
-                          .setItemFromRecommendation(recommendation);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const TryOnMirrorScreen(),
-                        ),
-                      );
+                      final currentVibe = ref.read(vibeProvider);
+                      context.push('/try-on/ai/${currentVibe.name}');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.pureWhite,
@@ -446,7 +439,9 @@ class DailyHubScreen extends ConsumerWidget {
             Icon(
               LucideIcons.barChart3,
               size: 20,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
             ),
             const SizedBox(width: 8),
             Text(
@@ -465,8 +460,8 @@ class DailyHubScreen extends ConsumerWidget {
         // Haven't Worn Card
         GestureDetector(
           onTap: () {
-            // Navigate to outfits screen to suggest using these unworn items
-            context.go('/outfits');
+            // Navigate to unworn items screen (per docs: /closet/insights/unworn)
+            context.push('/closet/insights/unworn');
           },
           child: GlassCard(
             padding: const EdgeInsets.all(20),
@@ -478,7 +473,9 @@ class DailyHubScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.secondary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -505,7 +502,9 @@ class DailyHubScreen extends ConsumerWidget {
                             "${unwornItems.length} items gathering dust",
                             style: GoogleFonts.inter(
                               fontSize: 13,
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.6),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -515,7 +514,9 @@ class DailyHubScreen extends ConsumerWidget {
                     Icon(
                       LucideIcons.chevronRight,
                       size: 20,
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.4),
                     ),
                   ],
                 ),
@@ -533,8 +534,8 @@ class DailyHubScreen extends ConsumerWidget {
         // Recently Added Card
         GestureDetector(
           onTap: () {
-            // Navigate to closet to see recent additions
-            context.go('/closet');
+            // Navigate to recent items screen (per docs: /closet/insights/recent)
+            context.push('/closet/insights/recent');
           },
           child: GlassCard(
             padding: const EdgeInsets.all(20),
@@ -546,7 +547,9 @@ class DailyHubScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -567,15 +570,21 @@ class DailyHubScreen extends ConsumerWidget {
                                 style: GoogleFonts.inter(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).colorScheme.onSurface,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 ),
                               ),
                               if (autoAddedItems.isNotEmpty) ...[
                                 const SizedBox(width: 8),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                                    color: Theme.of(context).colorScheme.primary
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
@@ -583,7 +592,9 @@ class DailyHubScreen extends ConsumerWidget {
                                     style: GoogleFonts.inter(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
                                     ),
                                   ),
                                 ),
@@ -595,7 +606,9 @@ class DailyHubScreen extends ConsumerWidget {
                             "${recentlyAddedItems.length} new items • Mix them in!",
                             style: GoogleFonts.inter(
                               fontSize: 13,
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.6),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -605,7 +618,9 @@ class DailyHubScreen extends ConsumerWidget {
                     Icon(
                       LucideIcons.chevronRight,
                       size: 20,
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.4),
                     ),
                   ],
                 ),
@@ -621,9 +636,10 @@ class DailyHubScreen extends ConsumerWidget {
     );
   }
 
-
-
-  Widget _buildSmartGrid(List<ClothingItem> items, {bool showAutoBadge = false}) {
+  Widget _buildSmartGrid(
+    List<ClothingItem> items, {
+    bool showAutoBadge = false,
+  }) {
     // Smart grid that adapts based on item count - increased sizes for better visibility
     if (items.isEmpty) {
       return const SizedBox.shrink();
@@ -721,7 +737,10 @@ class DailyHubScreen extends ConsumerWidget {
                   top: 6,
                   right: 6,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primary,
                       borderRadius: BorderRadius.circular(8),
