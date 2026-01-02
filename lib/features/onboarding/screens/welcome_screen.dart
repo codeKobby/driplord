@@ -129,20 +129,32 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
                     _onboardingData.length,
-                    (index) => AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      height: 4,
-                      width: _currentPage == index
-                          ? 32
-                          : 12, // More refined pill shape
-                      decoration: BoxDecoration(
-                        color: _currentPage == index
-                            ? Theme.of(context).colorScheme.onSurface
-                            : Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(2),
+                    (index) => Semantics(
+                      label: "Go to page ${index + 1}",
+                      child: InkWell(
+                        onTap: () {
+                          _pageController.animateToPage(
+                            index,
+                            duration: const Duration(milliseconds: 400),
+                            curve: Curves.easeInOutCubic,
+                          );
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          height: 4,
+                          width: _currentPage == index
+                              ? 32
+                              : 12, // More refined pill shape
+                          decoration: BoxDecoration(
+                            color: _currentPage == index
+                                ? Theme.of(context).colorScheme.onSurface
+                                : Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
                       ),
                     ),
                   ),
