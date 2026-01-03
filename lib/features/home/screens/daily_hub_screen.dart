@@ -786,42 +786,48 @@ class DailyHubScreen extends ConsumerWidget {
           final isSelected = selectedVibe == vibe.$2;
           return Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: InkWell(
-              onTap: () {
-                ref.read(vibeProvider.notifier).setVibe(vibe.$2);
-              },
-              borderRadius: BorderRadius.circular(100),
-              child: AnimatedContainer(
-                duration: 200.ms,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(100),
-                  border: Border.all(
+            child: Semantics(
+              label: "Set vibe to ${vibe.$1}",
+              button: true,
+              selected: isSelected,
+              excludeSemantics: true,
+              child: InkWell(
+                onTap: () {
+                  ref.read(vibeProvider.notifier).setVibe(vibe.$2);
+                },
+                borderRadius: BorderRadius.circular(100),
+                child: AnimatedContainer(
+                  duration: 200.ms,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
                     color: isSelected
                         ? Theme.of(context).colorScheme.primary
                         : Theme.of(
                             context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.1),
+                          ).colorScheme.onSurface.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(100),
+                    border: Border.all(
+                      color: isSelected
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.1),
+                    ),
                   ),
-                ),
-                child: Text(
-                  vibe.$1,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                    color: isSelected
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  child: Text(
+                    vibe.$1,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      color: isSelected
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.7),
+                    ),
                   ),
                 ),
               ),
