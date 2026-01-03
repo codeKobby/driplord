@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/components/navigation/floating_nav_bar.dart';
-import '../../../core/components/common/driplord_scaffold.dart';
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key, required this.navigationShell});
@@ -20,7 +18,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   final List<NavItem> _navItems = const [
     NavItem(icon: LucideIcons.home, label: 'Home'),
     NavItem(icon: LucideIcons.shirt, label: 'Closet'),
-    NavItem(icon: LucideIcons.bookmark, label: 'Outfits'),
+    NavItem(icon: LucideIcons.palette, label: 'Outfits'),
     NavItem(icon: LucideIcons.user, label: 'Profile'),
   ];
 
@@ -33,25 +31,15 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    return DripLordScaffold(
-      useSafeArea: false,
-      body: Stack(
-        children: [
-          // The main content body
-          widget.navigationShell,
-
-          // Floating buttons for pages other than home
-          if (widget.navigationShell.currentIndex != 0) _buildFloatingButton(),
-
-          // Navigation Bar
-          FloatingNavBar(
-            currentIndex: widget.navigationShell.currentIndex,
-            onTap: _onNavTap,
-            items: _navItems,
-            centerAction: _buildCenterAction(),
-          ),
-        ],
+    return Scaffold(
+      body: widget.navigationShell,
+      bottomNavigationBar: FixedBottomNavBar(
+        currentIndex: widget.navigationShell.currentIndex,
+        onTap: _onNavTap,
+        items: _navItems,
+        centerAction: _buildCenterAction(),
       ),
+      floatingActionButton: widget.navigationShell.currentIndex == 1 ? _buildFloatingButton() : null, // Only show FAB on Closet page
     );
   }
 
@@ -68,132 +56,56 @@ class _MainScaffoldState extends State<MainScaffold> {
         icon = LucideIcons.plusCircle;
         onPressed = () => _showCreateOutfitOptions();
         break;
-      case 3: // Profile
-        icon = LucideIcons.user;
-        onPressed = () {}; // Profile actions
-        break;
+      case 3: // Profile - No FAB
+        return const SizedBox.shrink();
       default:
         return const SizedBox.shrink();
     }
 
-    return Positioned(
-      right: 32,
-      bottom: 120, // Position above the nav bar
-      child:
-          GestureDetector(
-                onTap: onPressed,
-                child: Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.4),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                    border: Border.all(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onPrimary.withValues(alpha: 0.2),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    size: 28,
-                  ),
-                ),
-              )
-              .animate(key: ValueKey(widget.navigationShell.currentIndex))
-              .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0))
-              .fadeIn(),
+    return FloatingActionButton(
+      onPressed: onPressed,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+      elevation: 6,
+      child: Icon(icon, size: 28),
     );
   }
 
-  Widget? _buildCenterAction() {
-    // Always show stylist button inline in nav bar for all pages
+  Widget _buildCenterAction() {
+    // Center stylist button for styling and outfit creation only
     return GestureDetector(
       onTap: () {
-        switch (widget.navigationShell.currentIndex) {
-          case 0:
-            _showGenerateOptions();
-            break;
-          case 1:
-            _showAddItemOptions();
-            break;
-          case 2:
-            _showCreateOutfitOptions();
-            break;
-          case 3:
-            // Profile actions
-            break;
-        }
+        // Always show styling options regardless of current page
+        _showStylingOptions();
       },
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12), // Adjusted padding for smaller navbar
         decoration: BoxDecoration(
-          color: widget.navigationShell.currentIndex == 0
-              ? Theme.of(context).colorScheme.primary
-              : Colors.transparent,
+          color: Theme.of(context).colorScheme.primary,
           shape: BoxShape.circle,
-          boxShadow: widget.navigationShell.currentIndex == 0
-              ? [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 0),
-                  ),
-                ]
-              : [],
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 1),
+            ),
+          ],
+          border: Border.all(
+            color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.2),
+            width: 1,
+          ),
         ),
         child: Icon(
           FontAwesomeIcons.shirt,
-          color: widget.navigationShell.currentIndex == 0
-              ? Theme.of(context).colorScheme.onPrimary
-              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-          size: 24,
+          color: Theme.of(context).colorScheme.onPrimary,
+          size: 20, // Smaller icon to fit the reduced navbar height
         ),
       ),
     );
   }
 
-  void _showGenerateOptions() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _buildGlassBottomSheet(
-        title: "Generate New Look",
-        options: [
-          _BottomSheetOption(LucideIcons.sparkles, "AI Recommendation", () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("AI Recommendation coming soon...")),
-            );
-          }),
-          _BottomSheetOption(LucideIcons.calendar, "For an Event", () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Event-based looks coming soon...")),
-            );
-          }),
-          _BottomSheetOption(LucideIcons.cloud, "Weather Based", () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Weather integration coming soon..."),
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
+
+
 
   void _showAddItemOptions() {
     showModalBottomSheet(
@@ -230,6 +142,29 @@ class _MainScaffoldState extends State<MainScaffold> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("AI Auto-Composer coming soon...")),
             );
+          }),
+        ],
+      ),
+    );
+  }
+
+  void _showStylingOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _buildGlassBottomSheet(
+        title: "Style & Create",
+        options: [
+          _BottomSheetOption(LucideIcons.palette, "Create New Outfit", () {
+            context.go('/outfits/create');
+          }),
+          _BottomSheetOption(LucideIcons.sparkles, "AI Style Assistant", () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("AI Style Assistant coming soon...")),
+            );
+          }),
+          _BottomSheetOption(LucideIcons.heart, "View My Outfits", () {
+            context.go('/outfits');
           }),
         ],
       ),

@@ -3,6 +3,18 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../constants/app_dimensions.dart';
 import '../../theme/app_colors.dart';
 
+class _AdaptiveColors {
+  static Color getTextPrimary(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? AppColors.textPrimary
+          : Colors.black;
+
+  static Color getGlassBorder(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? AppColors.glassBorder
+          : AppColors.glassBorderDark;
+}
+
 /// Secondary Outline Button
 /// Transparent background with white border for secondary actions
 class SecondaryButton extends StatelessWidget {
@@ -32,9 +44,9 @@ class SecondaryButton extends StatelessWidget {
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           backgroundColor: Colors.transparent,
-          foregroundColor: AppColors.textPrimary,
-          side: const BorderSide(
-            color: AppColors.glassBorder,
+          foregroundColor: _AdaptiveColors.getTextPrimary(context),
+          side: BorderSide(
+            color: _AdaptiveColors.getGlassBorder(context),
             width: 1,
           ),
           padding: const EdgeInsets.symmetric(
@@ -63,7 +75,7 @@ class SecondaryButton extends StatelessWidget {
             ),
             if (icon != null) ...[
               const SizedBox(width: AppDimensions.paddingSm),
-              Icon(icon, size: 18, color: AppColors.textPrimary),
+              Icon(icon, size: 18, color: _AdaptiveColors.getTextPrimary(context)),
             ],
           ],
         ),

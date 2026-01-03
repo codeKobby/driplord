@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import '../cards/glass_card.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class FloatingNavBar extends StatelessWidget {
+class FixedBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
   final List<NavItem> items;
   final Widget? centerAction;
 
-  const FloatingNavBar({
+  const FixedBottomNavBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
@@ -17,16 +17,30 @@ class FloatingNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      left: 32,
-      right: 32,
-      bottom: 32,
-      child: GlassCard(
-        borderRadius: 100, // Pill shape
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+    return Container(
+      height: 80, // Increased height to accommodate content
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          top: BorderSide(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+            width: 0.5,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
+            // Left items (first half)
             ...items
                 .sublist(0, (items.length / 2).floor())
                 .asMap()
@@ -35,13 +49,19 @@ class FloatingNavBar extends StatelessWidget {
                   final index = entry.key;
                   final item = entry.value;
                   final isSelected = index == currentIndex;
-                  return _NavBarItem(
-                    item: item,
-                    isSelected: isSelected,
-                    onTap: () => onTap(index),
+                  return Expanded(
+                    child: _ModernNavItem(
+                      item: item,
+                      isSelected: isSelected,
+                      onTap: () => onTap(index),
+                    ),
                   );
                 }),
+
+            // Center action button
             if (centerAction != null) centerAction!,
+
+            // Right items (second half)
             ...items
                 .sublist((items.length / 2).floor())
                 .asMap()
@@ -50,10 +70,12 @@ class FloatingNavBar extends StatelessWidget {
                   final index = entry.key + (items.length / 2).floor();
                   final item = entry.value;
                   final isSelected = index == currentIndex;
-                  return _NavBarItem(
-                    item: item,
-                    isSelected: isSelected,
-                    onTap: () => onTap(index),
+                  return Expanded(
+                    child: _ModernNavItem(
+                      item: item,
+                      isSelected: isSelected,
+                      onTap: () => onTap(index),
+                    ),
                   );
                 }),
           ],
@@ -70,12 +92,12 @@ class NavItem {
   const NavItem({required this.icon, required this.label});
 }
 
-class _NavBarItem extends StatelessWidget {
+class _ModernNavItem extends StatelessWidget {
   final NavItem item;
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _NavBarItem({
+  const _ModernNavItem({
     required this.item,
     required this.isSelected,
     required this.onTap,
@@ -86,44 +108,45 @@ class _NavBarItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primary
-                  : Colors.transparent,
-              shape: BoxShape.circle,
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.3),
-                        blurRadius: 10,
-                        offset: const Offset(0, 0),
-                      ),
-                    ]
-                  : [],
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 44,
+              height: 28,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                item.icon,
+                size: 20,
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
             ),
-            child: Icon(
-              item.icon,
-              size: 24,
-              color: isSelected
-                  ? Theme.of(context).colorScheme.onPrimary
-                  : Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+            const SizedBox(height: 4),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                letterSpacing: 0.2,
+              ),
+              child: Text(item.label),
             ),
-          ),
-          if (isSelected)
-            const SizedBox(height: 4)
-          else
-            const SizedBox.shrink(),
-        ],
+          ],
+        ),
       ),
     );
   }

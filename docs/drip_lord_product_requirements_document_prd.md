@@ -1,216 +1,333 @@
 # Product Requirements Document (PRD)
 
-## Product Name
+**📋 Document Status: Long-term Vision & Comprehensive Feature Roadmap**
 
-DripLord
+Product Name (Working)
 
-## Product Summary
-
-DripLord is an AI-powered personal fashion assistant that helps users decide what to wear, preview outfits on themselves, and make better clothing purchase decisions. The app builds a digital wardrobe by analyzing user photos and uses AI to generate outfit recommendations, virtual try-ons, and size guidance for both owned and online clothing.
-
-The core goal is to reduce outfit uncertainty, improve fashion confidence, and minimize wrong-size purchases.
+TBD (internally: AI Stylist / Style Companion)
 
 ---
 
-## Problem Statement
+**🎯 Phase-2 MVP Focus (Current Priority):**
+See `drip_lord_phase2_mvp_prd.md` for current MVP implementation scope focusing on daily hub experience with 2 outfit recommendations, basic closet management, and conversational AI stylist.
 
-Users struggle with:
+This comprehensive PRD outlines the full product vision and premium features beyond the current MVP.
 
-- Deciding what to wear for different occasions
-- Remembering or organizing what clothes they already own
-- Knowing how an outfit will actually look on their body
-- Choosing correct sizes when shopping online
-- Visualizing inspiration outfits on themselves
+## 1. Product Vision
 
-Existing fashion apps either lack personalization, accurate body fit, or real wardrobe awareness.
+To give users a personal, always-available professional stylist that understands their real wardrobe, their personal style, and their lifestyle, so they never struggle with what to wear — for any occasion.
 
----
+This product does not aim to be:
 
-## Target Users
+- A generic virtual try-on app
+- A fashion marketplace
+- A social fashion platform (yet)
+
+It is:
+
+A wardrobe intelligence and styling system powered by AI, normalized visuals, and style learning.
+
+## 2. Target User (Phase-2 MVP)
 
 - Fashion-conscious individuals
-- Casual users who struggle with outfit choices
-- Online shoppers who want better fit confidence
-- Content consumers inspired by outfits on social media
-- Users attending events who want curated outfit suggestions
+- Users who take photos of themselves or their outfits
+- Users who want clarity, speed, and confidence when dressing
 
----
+Not stylists, not designers (yet)
 
-## Core Features
+## 3. Core Value Proposition
 
-### 1. User Profile & Body Data
+| Problem | Solution |
+|---------|----------|
+| Users forget what they own | AI-built visual closet |
+| Clothes don't mix well | Canvas-based outfit composition |
+| Styling is stressful | AI stylist with memory |
+| Try-on apps feel fake | Normalized, clean try-on |
+| Switching phones loses data | Cloud-first persistence |
 
-- User account with cloud-based data sync
-- Two body data input methods:
-  - AI-assisted body scan using camera
-  - Manual entry of body measurements
-- Ability to update measurements over time
-- Measurement data used for fit prediction and outfit simulation
+## 4. Scope Definition (IMPORTANT)
 
----
+🚀 MVP STARTS FROM PHASE 2
 
-### 2. Digital Wardrobe Creation
+No Phase 1 onboarding-heavy UX.
 
-- Gallery sync to detect clothing images
-- In-app camera for taking outfit photos
-- AI detects and categorizes clothing items
-- Confirmation flow for duplicate or similar outfits (inspired by Google Photos)
-- Manual edit options for clothing metadata
-- Automatic wardrobe updates when new photos are detected
+Assumption:
+AI learns style primarily from:
 
----
+- User images
+- Closet additions
+- Interactions (likes, saves, wears)
 
-### 3. Outfit Recommendation Engine
+### 4.1 Phase-2 MVP Core Flows (Current Priority)
 
-- Outfit suggestions based on:
-  - Occasion
-  - Weather (Daily Hub context)
-  - **Vibe Selectors** (Chill, Bold, Work, Hype) for instant context switching
-  - User preferences
-  - Available wardrobe items
-- Mix-and-match recommendations using existing clothes
-- Ability to save, favorite (Heart icon), or discard suggested outfits
-- **Digital Closet Insights**: Proactive notifications about unworn items or wardrobe stats.
+**Daily Hub Experience:**
+- App launch → Intro screens → Authentication → Daily Hub
+- Daily reset with exactly 2 outfit recommendations
+- Each recommendation includes preview, style rating, and explanation
+- Quick actions: Add Clothes, Open Closet, Open Canvas, Chat with Stylist
 
----
+**Simplified Onboarding:**
+- Streamlined intro (3-4 slides max)
+- Direct path to authentication
+- Focus on immediate value delivery
 
-### 4. Virtual Try-On & Visualization
+**Core MVP Features (Phase-2 Priority):**
+- Manual clothes addition with AI tagging
+- Basic closet organization (tops, bottoms, footwear, accessories)
+- Style Composer canvas with layering and controls
+- Conversational AI stylist companion
+- Outfit history and timeline tracking
+- Cloud-based persistence and multi-device sync
 
-- AI-generated outfit previews applied to the user’s body
-- Try-on using:
-  - Existing wardrobe items
-  - Uploaded images or videos (e.g. social media inspiration)
-  - Online shopping product images
-- Side-by-side comparison views
-- Fit realism based on user measurements
+**Premium Features (Future Phases):**
+All advanced capabilities listed below remain in scope but are lower priority for initial MVP.
 
----
+## 5. Functional Requirements
 
-### 5. Online Shopping Assistance
+### 5.1 Authentication & Persistence
 
-- Upload product images from online stores
-- AI estimates how items will fit on the user
-- Size recommendation based on brand measurements
-- Warnings for potential poor fit
-- Ability to compare multiple sizes visually
+**Required**
 
----
+- Email / OAuth authentication
+- Cloud-based storage
+- User data must persist across:
+  - App reinstalls
+  - Phone changes
 
-### 6. In-Store Shopping Mode
+### 5.2 Closet Creation & Management
 
-- Camera-based scanning of clothing items
-- Real-time fit and style suggestions
-- Outfit pairing with existing wardrobe items
-- Recommendation of best size to try
+#### 5.2.1 Ways to Add Clothes
 
----
+Users can add clothes via:
 
-### 7. Dual-Theme Support
+- Photo of themselves wearing the item
+- Photo of the clothing item alone
+- Gallery scan (optional, user-approved)
 
-- **Luxury Dark Mode**: Premium midnight blue and glassmorphism.
-- **Luxury Light Mode**: Warm cream, gold accents, and sophisticated light-mode glassmorphism.
-- Manual toggle in user preferences.
+#### 5.2.2 Gallery Scan (Smart Import)
 
----
+When enabled:
 
-### 8. AI Agent System
+- App scans gallery
+- Detects user's face
+- Extracts images containing the user
+- Identifies clothing & accessories
+- Segments items
+- Detects duplicates
+- Asks user to confirm matches
 
-- Gemini-powered agentic system
-- Specialized agents for:
-  - Wardrobe analysis
-  - Styling recommendations
-  - Fit prediction
-  - Visual generation
-- Agents collaborate to produce final suggestions
+⚠️ Must be:
 
----
+- Opt-in
+- Transparent
+- Interruptible
 
-## Non-Functional Requirements
+#### 5.2.3 Clothing Normalization (Critical)
+
+All extracted clothes are:
+
+- Segmented
+- Flattened
+- Rotated upright
+- Centered
+- Normalized to fashion-standard layout
+
+Goal:
+Every clothing item looks like:
+
+- An ecommerce flat-lay
+- A fashion editorial cut
+
+This normalized version is what appears in:
+
+- Closet view
+- Styling canvas
+- Try-on
+- AI reasoning
+
+#### 5.2.4 Categorization & Metadata
+
+Each clothing item includes:
+
+- Category (top, bottom, footwear, accessory, etc.)
+- Sub-category
+- Color
+- Layer type
+- Seasonality
+- Style attributes (formal, casual, street, etc.)
+
+User can:
+
+- Edit
+- Override
+- Merge duplicates
+
+### 5.3 Style Learning System (Style DNA)
+
+#### 5.3.1 Style Learning Inputs
+
+AI learns user style from:
+
+- Closet items
+- Saved outfits
+- Liked recommendations
+- Worn history
+- Skipped recommendations
+
+#### 5.3.2 Style DNA Behavior
+
+- Generated automatically
+- Updates continuously
+- No manual setup required
+- Used globally across app
+
+### 5.4 Outfit Canvas (Core Experience)
+
+#### 5.4.1 Canvas Functionality
+
+- Drag-and-drop clothing items
+- Layer-based composition
+- Logical constraints (e.g., shoes on feet)
+- Accessories supported
+- Save, edit, duplicate outfits
+
+#### 5.4.2 Canvas as Source of Truth
+
+Anything on the canvas:
+
+- Can be tried on
+- Can be shared
+- Can be reconstructed on another user's device
+
+### 5.5 Virtual Try-On (Normalized)
+
+#### 5.5.1 Try-On Rules
+
+- Uses upright, normalized user image
+- Does not preserve original pose
+- Prioritizes clarity and realism over pose fidelity
+
+#### 5.5.2 Pose Variants
+
+- Predefined pose library
+- User taps to re-render outfit in different pose
+- Same outfit, same clothes, different stance
+
+#### 5.5.3 Try-On Inputs
+
+- User base image
+- Outfit canvas layers
+- Accessories included
+
+### 5.6 AI Stylist (Chat Companion)
+
+#### 5.6.1 Personality (Phase-2 MVP)
+
+- Always available
+- Conversational
+- Action-triggering
+- Learns from overrides
+
+#### 5.6.2 Personality (Full Vision)
+
+- Friendly
+- Professional
+- Supportive
+- Feels like your stylist, not a bot
+
+#### 5.6.3 Capabilities
+
+Recommend outfits
+Explain why something works
+Suggest improvements
+Answer contextual questions:
+
+- Occasion
+- Weather
+- Calendar events
+
+**Phase-2 MVP Actions:**
+- Try outfit
+- Edit canvas
+- Add clothes
+- Save looks
+
+### 5.7 Recommendations
+
+- Daily recommendations reset once per day
+- AI explains reasoning
+- Max 2 recommended outfits at a time (for clarity)
+
+### 5.8 Outfit History & Timeline
+
+Track:
+
+- Past outfits
+- Planned outfits
+- Calendar-based timeline view
+
+Helps avoid repeats
+Helps learn user preferences
+
+### 5.9 Sharing & Reconstruction
+
+User can share an outfit blueprint
+
+Receiver's AI:
+
+- Attempts to recreate using their own closet
+- Suggests closest alternatives if items missing
+
+## 6. Non-Functional Requirements
 
 ### Performance
 
-- Fast image processing feedback
-- Smooth preview rendering
-- Low-latency AI responses
+- Async AI calls
+- No blocking UI
+- Graceful fallbacks
 
-### Reliability
+### Cost Control
 
-- Cloud data persistence
-- Cross-device sync
-- Offline access to saved wardrobe data (limited mode)
+- Edge-first processing
+- Serverless GPU
+- Batch jobs
 
-### Privacy & Security
+### Privacy
 
-- Explicit user consent for gallery access
-- Secure storage of images and measurements
-- Ability to delete data permanently
+- Explicit permissions
+- On-device preprocessing
+- Clear data ownership
 
----
+## 7. Explicit MVP Exclusions (Phase-3)
 
-## Tech Stack (High-Level)
+❌ Live AR try-on
+❌ Real-time camera overlay
+❌ Body proportion fitting
+❌ 3D avatars
+❌ Full fashion marketplace
 
-### Frontend
+## 8. Success Metrics (MVP)
 
-- Flutter (Android, iOS, Web)
+- Closet completion rate
+- Outfit saves per user
+- Try-on usage
+- Recommendation acceptance rate
+- Weekly active usage
 
-### Backend
+## 9. Product Feeling (Non-Negotiable)
 
-- Supabase (authentication, database, storage)
+The user should feel like they have their own professional stylist in their pocket, who:
 
-### AI & ML
+- Knows their clothes
+- Understands their taste
+- Removes friction
+- Builds confidence
 
-- Gemini models for reasoning, vision, and agent orchestration
-- On-device lightweight processing where applicable
+## 10. MVP Outcome Definition
 
-### Storage
+Phase-2 MVP is successful if:
 
-- Cloud-based image and metadata storage
-- Structured wardrobe and measurement database
-
----
-
-## MVP Scope
-
-### Included
-
-- User profiles
-- Gallery sync + manual photo capture
-- Digital wardrobe creation
-- Basic outfit recommendations with Vibe Selectors
-- Virtual try-on previews
-- Online size recommendation
-- Cloud sync across devices
-- Dual-theme (Light/Dark) support
-
-### Excluded (Future Versions)
-
-- Social sharing
-- Marketplace integrations
-- Brand partnerships
-- Community features
-- Advanced trend analytics
-
----
-
-## Success Metrics
-
-- User retention
-- Outfit recommendation usage
-- Virtual try-on engagement
-- Reduction in wrong-size purchases (self-reported)
-- Daily active usage before events or outings
-
----
-
-## Risks & Considerations
-
-- Accuracy of body measurement estimation
-- User trust in AI-generated previews
-- Performance constraints on low-end devices
-- Privacy concerns around personal images
-
----
-
-## Long-Term Vision
-
-DripLord becomes a personal fashion intelligence system that understands the user’s body, style, wardrobe, and lifestyle—serving as a trusted daily decision-maker for what to wear and what to buy.
+- Users build a real closet
+- AI recommendations feel personal
+- Try-on feels clean and believable
+- Users return daily for styling help

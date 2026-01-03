@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/components/cards/glass_card.dart';
+import '../../../core/theme/app_colors.dart';
 import '../providers/mirror_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,7 +15,7 @@ class TryOnMirrorScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final mirrorItem = ref.watch(mirrorProvider);
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.pureBlack,
       body: Stack(
         children: [
           // Camera/Mirror Placeholder
@@ -28,7 +30,7 @@ class TryOnMirrorScreen extends ConsumerWidget {
                   fit: BoxFit.cover,
                 ),
               ),
-              child: Container(color: Colors.black.withValues(alpha: 0.3)),
+              child: Container(color: AppColors.pureBlack.withValues(alpha: 0.3)),
             ),
           ),
 
@@ -41,12 +43,12 @@ class TryOnMirrorScreen extends ConsumerWidget {
                 children: [
                   _buildCircleAvatar(
                     LucideIcons.x,
-                    () => Navigator.pop(context),
+                    () => context.pop(),
                   ),
                   Text(
                     mirrorItem?.name ?? "Virtual Mirror",
                     style: GoogleFonts.outfit(
-                      color: Colors.white,
+                      color: AppColors.pureWhite,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 1.2,
@@ -101,11 +103,11 @@ class TryOnMirrorScreen extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.5),
+          color: AppColors.pureBlack.withValues(alpha: 0.5),
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white24),
+          border: Border.all(color: AppColors.pureWhite.withValues(alpha: 0.24)),
         ),
-        child: Icon(icon, color: Colors.white, size: 20),
+        child: Icon(icon, color: AppColors.pureWhite, size: 20),
       ),
     );
   }
@@ -114,18 +116,18 @@ class TryOnMirrorScreen extends ConsumerWidget {
     return Row(
       children: [
         if (!isLeft) const SizedBox(width: 8),
-        Container(height: 2, width: 40, color: Colors.white54),
+        Container(height: 2, width: 40, color: AppColors.pureWhite.withValues(alpha: 0.54)),
         const SizedBox(width: 8),
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: AppColors.pureWhite.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.white24),
+            border: Border.all(color: AppColors.pureWhite.withValues(alpha: 0.24)),
           ),
           child: Text(
             label,
-            style: GoogleFonts.outfit(color: Colors.white, fontSize: 12),
+            style: GoogleFonts.outfit(color: AppColors.pureWhite, fontSize: 12),
           ),
         ).animate().scale().fadeIn(),
       ],
@@ -150,11 +152,11 @@ class TryOnMirrorScreen extends ConsumerWidget {
           ),
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(
-              color: Colors.white,
+            decoration: BoxDecoration(
+              color: AppColors.pureWhite,
               shape: BoxShape.circle,
             ),
-            child: const Icon(LucideIcons.plus, color: Colors.black, size: 20),
+            child: Icon(LucideIcons.plus, color: AppColors.pureBlack, size: 20),
           ),
         ],
       ),
@@ -175,7 +177,7 @@ class TryOnMirrorScreen extends ConsumerWidget {
         const SizedBox(height: 8),
         Text(
           label,
-          style: GoogleFonts.outfit(color: Colors.white70, fontSize: 12),
+          style: GoogleFonts.outfit(color: AppColors.pureWhite.withValues(alpha: 0.7), fontSize: 12),
         ),
       ],
     );

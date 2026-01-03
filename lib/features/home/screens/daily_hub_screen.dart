@@ -5,11 +5,9 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/components/cards/glass_card.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../try_on/screens/try_on_mirror_screen.dart';
 import '../providers/recommendation_provider.dart';
 import '../providers/saved_outfits_provider.dart';
 import '../providers/weather_provider.dart';
-import '../../try_on/providers/mirror_provider.dart';
 import '../../closet/providers/closet_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,7 +16,13 @@ class DailyHubScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final recommendation = ref.watch(recommendationProvider);
+    final dailyRecos = ref.watch(recommendationProvider);
+    final activeOutfit = ref.watch(dailyOutfitProvider);
+
+    // Prepend active outfit if it exists, filtering duplicates
+    final recommendations = activeOutfit != null
+        ? [activeOutfit, ...dailyRecos.where((r) => r.id != activeOutfit.id)]
+        : dailyRecos;
 
     return CustomScrollView(
       slivers: [
@@ -43,27 +47,44 @@ class DailyHubScreen extends ConsumerWidget {
         ),
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 _buildWeatherWidget(context, ref),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 _buildVibeSelectors(context, ref),
-                const SizedBox(height: 32),
+                const SizedBox(height: 20),
                 Text(
-                  "Today's Recommendation",
+                  "Today's Recommendations",
                   style: GoogleFonts.inter(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 16),
-                _buildMainOutfitCard(context, recommendation, ref),
-                const SizedBox(height: 32),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 480, // Reduced height for more compact design
+                  child: PageView.builder(
+                    itemCount: recommendations.length,
+                    controller: PageController(viewportFraction: 0.95),
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                        child: _buildMainOutfitCard(
+                          context,
+                          recommendations[index],
+                          ref,
+                          index,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 24),
                 _buildInsightsSection(context, ref),
-                const SizedBox(height: 120), // Space for FAB and Nav
+                const SizedBox(height: 100), // Adjusted space for FAB and Nav
               ],
             ),
           ),
@@ -76,7 +97,7 @@ class DailyHubScreen extends ConsumerWidget {
     final weatherAsync = ref.watch(weatherProvider);
 
     return GlassCard(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       child: weatherAsync.when(
         data: (weather) {
           if (weather == null) {
@@ -298,12 +319,11 @@ class DailyHubScreen extends ConsumerWidget {
     BuildContext context,
     Recommendation recommendation,
     WidgetRef ref,
+    int index,
   ) {
     return Container(
-      width: double.infinity,
-      height: 450,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(20),
         image: DecorationImage(
           image: NetworkImage(recommendation.imageUrl),
           fit: BoxFit.cover,
@@ -311,22 +331,77 @@ class DailyHubScreen extends ConsumerWidget {
       ),
       child: Stack(
         children: [
+          // Gradient Overlay
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(32),
+                borderRadius: BorderRadius.circular(20),
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.transparent,
-                    AppColors.pureBlack.withValues(alpha: 0.8),
+                    AppColors.pureBlack.withValues(alpha: 0.1),
+                    AppColors.pureBlack.withValues(alpha: 0.4),
+                    AppColors.pureBlack.withValues(alpha: 0.95),
                   ],
+                  stops: const [0.0, 0.5, 1.0],
                 ),
               ),
             ),
           ),
-          // Heart icon in top-right corner (Instagram-style)
+
+          // Confidence Badge / Active Badge (Top Left)
+          Positioned(
+            top: 24,
+            left: 24,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: (ref.read(dailyOutfitProvider)?.id == recommendation.id)
+                    ? AppColors.pureBlack
+                    : AppColors.pureWhite.withValues(alpha: 0.9),
+                borderRadius: BorderRadius.circular(100),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    (ref.read(dailyOutfitProvider)?.id == recommendation.id)
+                        ? LucideIcons.checkCircle
+                        : LucideIcons.sparkles,
+                    size: 14,
+                    color:
+                        (ref.read(dailyOutfitProvider)?.id == recommendation.id)
+                        ? AppColors.pureWhite
+                        : Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    (ref.read(dailyOutfitProvider)?.id == recommendation.id)
+                        ? "Wearing Today"
+                        : "${(recommendation.confidenceScore * 100).toInt()}% Match",
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color:
+                          (ref.read(dailyOutfitProvider)?.id ==
+                              recommendation.id)
+                          ? AppColors.pureWhite
+                          : AppColors.pureBlack,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Favorite Button (Top Right)
           Positioned(
             top: 24,
             right: 24,
@@ -363,25 +438,71 @@ class DailyHubScreen extends ConsumerWidget {
               ),
             ),
           ),
+
+          // Content (Bottom)
           Positioned(
             bottom: 24,
             left: 24,
             right: 24,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start, // Left align text
               children: [
+                // Reasoning Bubble
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        LucideIcons.messageCircle,
+                        size: 14,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.8),
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          recommendation.reasoning,
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.pureWhite.withValues(alpha: 0.9),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
                 Text(
                   recommendation.title,
                   style: GoogleFonts.inter(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
                     color: AppColors.pureWhite,
+                    height: 1.1,
                   ),
-                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Wrap(
-                  alignment: WrapAlignment.center,
                   spacing: 12,
                   children: recommendation.tags
                       .map(
@@ -396,27 +517,30 @@ class DailyHubScreen extends ConsumerWidget {
                       .toList(),
                 ),
                 const SizedBox(height: 24),
-                // Centered "Try this look" button
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      final currentVibe = ref.read(vibeProvider);
-                      context.push('/try-on/ai/${currentVibe.name}');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.pureWhite,
-                      foregroundColor: AppColors.pureBlack,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(100),
+                // Action Buttons Row
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          context.push('/try-on/edit/${recommendation.id}');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.pureWhite,
+                          foregroundColor: AppColors.pureBlack,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          "Try On / Edit",
+                          style: GoogleFonts.inter(fontWeight: FontWeight.w700),
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
-                      ),
-                      elevation: 4,
                     ),
-                    child: const Text("Try this look"),
-                  ),
+                  ],
                 ),
               ],
             ),
@@ -455,7 +579,7 @@ class DailyHubScreen extends ConsumerWidget {
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
 
         // Haven't Worn Card
         GestureDetector(
@@ -464,7 +588,7 @@ class DailyHubScreen extends ConsumerWidget {
             context.push('/closet/insights/unworn');
           },
           child: GlassCard(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -538,7 +662,7 @@ class DailyHubScreen extends ConsumerWidget {
             context.push('/closet/insights/recent');
           },
           child: GlassCard(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -659,16 +783,16 @@ class DailyHubScreen extends ConsumerWidget {
 
     return SizedBox(
       height: crossAxisCount == 1
-          ? 120
+          ? 100
           : crossAxisCount == 2
-          ? 200
-          : 180,
+          ? 160
+          : 140,
       child: GridView.builder(
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: crossAxisCount,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
           childAspectRatio: aspectRatio,
         ),
         itemCount: itemCount,
@@ -678,7 +802,7 @@ class DailyHubScreen extends ConsumerWidget {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                   image: DecorationImage(
                     image: NetworkImage(item.imageUrl),
                     fit: BoxFit.cover,
@@ -693,7 +817,7 @@ class DailyHubScreen extends ConsumerWidget {
                 ),
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(8),
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -707,7 +831,7 @@ class DailyHubScreen extends ConsumerWidget {
                   child: Align(
                     alignment: Alignment.bottomLeft,
                     child: Padding(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(6),
                       child: Text(
                         item.name.length > 15
                             ? '${item.name.substring(0, 15)}...'

@@ -146,8 +146,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final unreadCount = _notifications.where((n) => !n.isRead).length;
-
     return Scaffold(
       appBar: const FixedAppBar(title: 'Notifications'),
       body: SafeArea(

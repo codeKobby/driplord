@@ -4,19 +4,23 @@
 
 This document outlines the complete routing architecture for DripLord, including navigation flows, deep linking support, and subpage relationships. The architecture supports both bottom tab navigation and deep linking for seamless user experiences.
 
-## 🗂️ Current Navigation Structure
+## 🗂️ Current Navigation Structure (January 2026)
 
-**Main Navigation (HomeScreen PageView):**
-- **Home** → DailyHubScreen (AI recommendations, vibe selectors, closet insights)
-- **Closet** → ClosetScreen (wardrobe grid, filtering, add item FAB)
-- **Outfits** → OutfitsScreen (favorites carousel, worn history)
-- **Profile** → ProfileScreen (settings, preferences, account)
+**Main Navigation (StatefulShellRoute with Bottom Tabs):**
+- **Home** → DailyStylistScreen (AI outfit carousel, vibe selectors, history)
+- **Closet** → ClosetScreen (wardrobe grid, filtering, image picker)
+- **Outfits** → OutfitsScreen (saved outfits, history tracking)
+- **Profile** → ProfileScreen (theme toggle, statistics, settings)
 
-**Existing Subpages:**
-- Closet → AddItemScreen (via FAB)
-- Closet → TryOnMirrorScreen (item tap)
-- Outfits → TryOnMirrorScreen (outfit tap)
-- Home → NotificationScreen (via bell icon)
+**Implemented Subpages:**
+- Home → NotificationScreen, NotificationDetailScreen
+- Home → WeatherSettingsScreen, VibeSettingsScreen, VibeCustomizationScreen
+- Closet → AddItemScreen (camera/gallery/URL modes), ItemDetailScreen
+- Closet → ClosetInsightsScreen, UnwornItemsScreen, RecentItemsScreen
+- Outfits → OutfitDetailScreen, StyleComposerScreen (multiple modes)
+- Try-on → StyleComposerScreen (tryOn, view, edit, manual, ai modes)
+- Auth → AuthScreen, SignUpScreen, ForgotPasswordScreen
+- Onboarding → WelcomeScreen, StylePreferenceScreen, BodyMeasurementsScreen, ScanClothesScreen
 
 ---
 
@@ -447,15 +451,23 @@ Navigator.push(context, MaterialPageRoute(
 
 ---
 
-## 📋 Route Definitions Summary
+## 📋 Route Definitions Summary (Implemented Routes)
 
-**Core App:**
+**Onboarding & Auth Routes:**
 ```
 / → WelcomeScreen
+/onboarding/scan → ScanClothesScreen
 /auth/signin → AuthScreen(initialIsLogin: true)
 /auth/signup → AuthScreen(initialIsLogin: false)
 /auth/forgot-password → ForgotPasswordScreen
-/home → HomeScreen (Bottom Tab Container)
+```
+
+**Main Tab Navigation (StatefulShellRoute):**
+```
+/home → DailyStylistScreen (Home tab)
+/closet → ClosetScreen (Closet tab)
+/outfits → OutfitsScreen (Outfits tab)
+/profile → ProfileScreen (Profile tab)
 ```
 
 **Home Subpages:**
@@ -469,22 +481,48 @@ Navigator.push(context, MaterialPageRoute(
 
 **Closet Subpages:**
 ```
-/closet → ClosetScreen
 /closet/item/:id → ItemDetailScreen
 /closet/add → AddItemScreen
 /closet/add/camera → AddItemScreen(camera: true)
 /closet/add/gallery → AddItemScreen(gallery: true)
 /closet/add/url → AddItemScreen(url: true)
+```
+
+**Closet Insights:**
+```
+/closet/insights → ClosetInsightsScreen
+/closet/insights/unworn → UnwornItemsScreen
+/closet/insights/recent → RecentItemsScreen
+```
+
+**Outfits Subpages:**
+```
+/outfits/:id → OutfitDetailScreen
+/outfits/create → StyleComposerScreen(mode: ComposerMode.manual)
+```
+
+**Style Composer / Try-On Routes:**
+```
+/try-on → StyleComposerScreen(mode: ComposerMode.manual)
+/try-on/item/:id → StyleComposerScreen(mode: ComposerMode.tryOn)
+/try-on/outfit/:id → StyleComposerScreen(mode: ComposerMode.view)
+/try-on/edit/:id → StyleComposerScreen(mode: ComposerMode.edit)
+/try-on/compose → StyleComposerScreen(mode: ComposerMode.manual)
+/try-on/ai/:vibe → StyleComposerScreen(mode: ComposerMode.ai)
+```
+
+**Planned Premium Routes:**
+```
 /closet/add/auto-scan → AutoScanSetupScreen (Premium)
 /closet/add/social/:platform → SocialLinkScreen (Premium)
 /closet/add/purchase-history → PurchaseHistoryScreen (Premium)
 /closet/settings → ClosetSettingsScreen
-/closet/insights → ClosetInsightsScreen
-/closet/insights/unworn → UnwornItemsScreen
-/closet/insights/recent → RecentItemsScreen
 /closet/insights/favorites → FavoriteItemsScreen
 /closet/insights/most-worn → MostWornItemsScreen
 /closet/insights/seasonal/:season → SeasonalItemsScreen
+/outfits/favorites → FavoriteOutfitsScreen
+/outfits/history → OutfitHistoryScreen
+/outfits/collections → OutfitCollectionsScreen
 ```
 
 ---

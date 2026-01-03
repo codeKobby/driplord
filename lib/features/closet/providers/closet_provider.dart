@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/services/database_service.dart';
 
 class ClothingItem {
   final String id;
@@ -7,6 +8,7 @@ class ClothingItem {
   final String imageUrl;
   final String? color;
   final String? brand;
+  final double? purchasePrice;
   final DateTime? lastWornDate;
   final DateTime addedDate;
   final bool isAutoAdded;
@@ -18,19 +20,65 @@ class ClothingItem {
     required this.imageUrl,
     this.color,
     this.brand,
+    this.purchasePrice,
     this.lastWornDate,
     DateTime? addedDate,
     this.isAutoAdded = false,
   }) : addedDate = addedDate ?? DateTime.now();
+
+  factory ClothingItem.fromJson(Map<String, dynamic> json) {
+    return ClothingItem(
+      id: json['id'],
+      name: json['name'],
+      category: json['category'],
+      imageUrl: json['image_url'],
+      color: json['color'],
+      brand: json['brand'],
+      purchasePrice: (json['purchase_price'] as num?)?.toDouble(),
+      lastWornDate: json['last_worn_date'] != null
+          ? DateTime.parse(json['last_worn_date'])
+          : null,
+      addedDate: DateTime.parse(json['created_at']),
+      isAutoAdded: false, // Default for now
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'category': category,
+      'image_url': imageUrl,
+      'color': color,
+      'brand': brand,
+      'purchase_price': purchasePrice,
+      'last_worn_date': lastWornDate?.toIso8601String(),
+      'created_at': addedDate.toIso8601String(),
+    };
+  }
 }
 
 class ClosetNotifier extends Notifier<List<ClothingItem>> {
   @override
   List<ClothingItem> build() {
-    return _mockItems;
+    // Start empty to force the "Scan" onboarding flow for new users
+    // TODO: Load from Supabase when user is authenticated
+    _loadClosetItems();
+    return [];
   }
 
-  static final List<ClothingItem> _mockItems = [
+  Future<void> _loadClosetItems() async {
+    try {
+      final items = await DatabaseService().getClosetItems();
+      state = items;
+    } catch (e) {
+      // Fall back to mock data if Supabase fails
+      state = mockItems;
+    }
+  }
+
+  // Exposed for the mock "AI Scan" feature
+  static final List<ClothingItem> mockItems = [
     ClothingItem(
       id: "1",
       name: "Classic White Tee",
@@ -151,6 +199,10 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
 
   void addItem(ClothingItem item) {
     state = [...state, item];
+  }
+
+  void addItems(List<ClothingItem> items) {
+    state = [...state, ...items];
   }
 
   void removeItem(String id) {

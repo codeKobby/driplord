@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/components/common/driplord_scaffold.dart';
 import '../../../core/components/cards/glass_card.dart';
 
@@ -25,7 +26,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                 LucideIcons.x,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.pop(),
             ),
             title: Text(
               "Add New Item",

@@ -1,8 +1,22 @@
 # DripLord User Functions & Workflows
 
-## Overview
+## Overview (Updated: January 2026)
 
-This document outlines the major functions and workflows users will perform in DripLord. Each function includes user journeys, premium features, and integration points.
+This document outlines the major functions and workflows users can perform in DripLord. The document reflects the current MVP implementation status, distinguishing between implemented features, mock implementations, and planned premium features.
+
+**🎯 Phase-2 MVP Status (Current Priority):**
+- ✅ **Implemented**: Core wardrobe management, outfit recommendations, basic UI/UX
+- 🔄 **Mock Data**: Outfit suggestions use static data (AI integration planned)
+- ❌ **Not Implemented**: Supabase database integration, Gemini AI, premium features
+
+**📋 Document Structure:**
+- **Phase-2 MVP Features**: Core functionality for initial launch
+- **Premium Features**: Advanced capabilities for future phases
+- All features remain in scope - Phase-2 MVP represents current implementation priority
+
+**📖 Related Documents:**
+- `drip_lord_phase2_mvp_prd.md`: Current MVP implementation scope
+- `drip_lord_product_requirements_document_prd.md`: Long-term vision and premium features
 
 ## 📋 Implementation Requirements
 

@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import '../../features/onboarding/screens/welcome_screen.dart';
+import '../../features/onboarding/screens/scan_clothes_screen.dart';
 import '../../features/auth/screens/auth_screen.dart';
 import '../../features/auth/screens/forgot_password_screen.dart';
 
@@ -11,7 +12,7 @@ import '../../features/outfits/screens/outfits_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../components/common/fixed_app_bar.dart';
 
-import '../../features/home/screens/daily_hub_screen.dart';
+import '../../features/home/screens/daily_stylist_screen.dart';
 import '../../features/home/screens/main_scaffold.dart';
 import '../../features/try_on/screens/style_composer_screen.dart';
 
@@ -147,18 +148,6 @@ class OutfitDetailScreen extends StatelessWidget {
   }
 }
 
-class OutfitBuilderScreen extends StatelessWidget {
-  const OutfitBuilderScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const FixedAppBar(title: 'Build Outfit'),
-      body: const Center(child: Text('Outfit Builder Screen')),
-    );
-  }
-}
-
 // =============================================================================
 // ROUTER CONFIGURATION
 // =============================================================================
@@ -170,6 +159,10 @@ final GoRouter appRouter = GoRouter(
     // ONBOARDING & AUTH ROUTES (Fullscreen, no nav bar)
     // =========================================================================
     GoRoute(path: '/', builder: (context, state) => const WelcomeScreen()),
+    GoRoute(
+      path: '/onboarding/scan',
+      builder: (context, state) => const ScanClothesScreen(),
+    ),
     GoRoute(
       path: '/auth/signin',
       builder: (context, state) => const AuthScreen(initialIsLogin: true),
@@ -197,7 +190,7 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/home',
-              builder: (context, state) => const DailyHubScreen(),
+              builder: (context, state) => const DailyStylistScreen(),
             ),
           ],
         ),
@@ -300,7 +293,8 @@ final GoRouter appRouter = GoRouter(
     // --- Outfits Subpages ---
     GoRoute(
       path: '/outfits/create',
-      builder: (context, state) => const OutfitBuilderScreen(),
+      builder: (context, state) =>
+          const StyleComposerScreen(mode: ComposerMode.manual),
     ),
     GoRoute(
       path: '/outfits/:id',

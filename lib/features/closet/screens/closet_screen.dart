@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -11,6 +13,43 @@ import '../../../core/theme/app_colors.dart';
 import '../providers/closet_provider.dart';
 import '../../try_on/providers/mirror_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class _AppColors {
+  static Color getBackground(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? AppColors.background
+          : const Color(0xFFFBF9F6); // Light cream
+
+  static Color getSurface(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? AppColors.surface
+          : Colors.white;
+
+  static Color getTextPrimary(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? AppColors.textPrimary
+          : Colors.black;
+
+  static Color getTextSecondary(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? AppColors.textSecondary
+          : Colors.black54;
+
+  static Color getGlassBorder(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? AppColors.glassBorder
+          : AppColors.glassBorderDark;
+
+  static Color getPrimary(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? AppColors.primary
+          : Colors.black;
+
+  static Color getTextOnPrimary(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? AppColors.textOnPrimary
+          : Colors.white;
+}
 
 class ClosetScreen extends ConsumerStatefulWidget {
   const ClosetScreen({super.key});
@@ -26,14 +65,14 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
   Widget build(BuildContext context) {
     final filteredItems = ref.watch(filteredClosetProvider);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: _AppColors.getBackground(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
           "My Closet",
           style: Theme.of(context).textTheme.displaySmall?.copyWith(
-            color: AppColors.textPrimary,
+            color: _AppColors.getTextPrimary(context),
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -41,7 +80,7 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
           IconButton(
             icon: const Icon(LucideIcons.search),
             onPressed: () {},
-            color: AppColors.textPrimary,
+            color: _AppColors.getTextPrimary(context),
           ),
         ],
       ),
@@ -49,12 +88,6 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
         child: filteredItems.isEmpty
             ? _buildEmptyState()
             : _buildClosetGrid(filteredItems),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addClothing,
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.textOnPrimary,
-        child: const Icon(LucideIcons.plus),
       ),
     );
   }
@@ -65,12 +98,12 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(LucideIcons.shirt, size: 80, color: AppColors.textSecondary),
+          Icon(LucideIcons.shirt, size: 80, color: _AppColors.getTextSecondary(context)),
           const SizedBox(height: 24),
           Text(
             "Your closet is empty",
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              color: AppColors.textPrimary,
+              color: _AppColors.getTextPrimary(context),
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -79,7 +112,7 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
             "Add your first clothing item to get started",
             style: Theme.of(
               context,
-            ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
+            ).textTheme.bodyLarge?.copyWith(color: _AppColors.getTextSecondary(context)),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 40),
@@ -115,17 +148,18 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
             child: Row(
               children: [
                 _buildFilterChip(
+                  context,
                   "All",
                   isSelected: ref.watch(selectedCategoryProvider) == "All",
                 ),
                 const SizedBox(width: 8),
-                _buildFilterChip("Tops"),
+                _buildFilterChip(context, "Tops"),
                 const SizedBox(width: 8),
-                _buildFilterChip("Bottoms"),
+                _buildFilterChip(context, "Bottoms"),
                 const SizedBox(width: 8),
-                _buildFilterChip("Shoes"),
+                _buildFilterChip(context, "Shoes"),
                 const SizedBox(width: 8),
-                _buildFilterChip("Outerwear"),
+                _buildFilterChip(context, "Outerwear"),
               ],
             ),
           ),
@@ -138,7 +172,7 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
                 crossAxisCount: 2,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-                childAspectRatio: 0.8,
+                childAspectRatio: 1.0, // Square cards to prevent overflow
               ),
               itemCount: items.length,
               itemBuilder: (context, index) {
@@ -152,22 +186,22 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
     );
   }
 
-  Widget _buildFilterChip(String label, {bool isSelected = false}) {
+  Widget _buildFilterChip(BuildContext context, String label, {bool isSelected = false}) {
     return FilterChip(
       label: Text(
         label,
         style: TextStyle(
-          color: isSelected ? AppColors.textOnPrimary : AppColors.textPrimary,
+          color: isSelected ? _AppColors.getTextOnPrimary(context) : _AppColors.getTextPrimary(context),
           fontWeight: FontWeight.w600,
           fontSize: 12,
         ),
       ),
-      backgroundColor: isSelected ? AppColors.primary : AppColors.surface,
-      selectedColor: isSelected ? AppColors.primary : AppColors.surface,
+      backgroundColor: isSelected ? _AppColors.getPrimary(context) : _AppColors.getSurface(context),
+      selectedColor: isSelected ? _AppColors.getPrimary(context) : _AppColors.getSurface(context),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: isSelected ? Colors.transparent : AppColors.glassBorder,
+          color: isSelected ? Colors.transparent : _AppColors.getGlassBorder(context),
         ),
       ),
       selected: isSelected,
@@ -182,149 +216,97 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
       DateTime.now().subtract(const Duration(days: 7)),
     );
 
-    return GestureDetector(
-      onTap: () {
-        ref.read(mirrorProvider.notifier).setItemFromClothingItem(item);
-        context.push('/try-on/item/${item.id}');
-      },
-      child: GlassCard(
-        padding: EdgeInsets.zero,
-        child: Stack(
-          children: [
-            // Image
-            Container(
-              width: double.infinity,
-              height: 160,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-                image: DecorationImage(
-                  image: NetworkImage(item.imageUrl),
-                  fit: BoxFit.cover,
-                ),
+    return GlassCard(
+      padding: EdgeInsets.zero,
+      child: Stack(
+        children: [
+          // Main image container (takes full card)
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+              image: DecorationImage(
+                image: NetworkImage(item.imageUrl),
+                fit: BoxFit.cover,
               ),
             ),
+          ),
 
-            // Recently added badge
-            if (isRecentlyAdded)
-              Positioned(
-                top: 8,
-                left: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.success,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    "NEW",
-                    style: TextStyle(
-                      color: AppColors.textOnPrimary,
-                      fontSize: 8,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-
-            // Category badge (positioned differently if recently added)
-            Positioned(
-              top: isRecentlyAdded ? 32 : 8,
-              left: 8,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  item.category,
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+          // Gradient overlay for text readability
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withValues(alpha: 0.6),
+                ],
               ),
             ),
+          ),
 
-            // Color indicator
-            if (item.color != null)
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: _getColorFromString(item.color!),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.glassBorder, width: 1),
-                  ),
-                ),
-              ),
-
-            // Item details
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      AppColors.surface.withValues(alpha: 0.8),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(AppDimensions.radiusMd),
-                    bottomRight: Radius.circular(AppDimensions.radiusMd),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          // Content overlay
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top row: badges and favorite
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text(
-                      item.name,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Row(
+                    // Right side: color indicator and favorite
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Expanded(
-                          child: Text(
-                            item.brand ?? 'Unknown Brand',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: AppColors.textSecondary),
+                        if (item.color != null)
+                          Container(
+                            width: 16,
+                            height: 16,
+                            margin: const EdgeInsets.only(bottom: 8),
+                            decoration: BoxDecoration(
+                              color: _getColorFromString(item.color!),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: _AppColors.getSurface(context).withValues(alpha: 0.8),
+                                width: 1,
+                              ),
+                            ),
+                          ),
+
+                        // Favorite icon
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: _AppColors.getSurface(context).withValues(alpha: 0.8),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(
+                            LucideIcons.heart,
+                            size: 14,
+                            color: _AppColors.getTextSecondary(context),
                           ),
                         ),
-                        if (item.isAutoAdded)
+
+                        // NEW badge (if recently added)
+                        if (isRecentlyAdded)
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 4,
-                              vertical: 1,
-                            ),
+                            margin: const EdgeInsets.only(top: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: AppColors.warning.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(4),
+                              color: _AppColors.getPrimary(context),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              "AUTO",
+                              "NEW",
                               style: TextStyle(
-                                color: AppColors.warning,
+                                color: AppColors.textOnPrimary,
                                 fontSize: 8,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.5,
                               ),
                             ),
                           ),
@@ -332,32 +314,81 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
                     ),
                   ],
                 ),
-              ),
-            ),
 
-            // Actions overlay
+                const Spacer(),
+
+                // Bottom content
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Item name
+                    Text(
+                      item.name,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withValues(alpha: 0.5),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+
+                    const SizedBox(height: 2),
+
+                    // Brand
+                    Text(
+                      item.brand ?? 'Unknown Brand',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withValues(alpha: 0.5),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Auto-added indicator (if applicable)
+          if (item.isAutoAdded)
             Positioned(
-              top: 8,
-              right: 8,
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(LucideIcons.heart, size: 18),
-                    onPressed: () {},
-                    color: AppColors.textSecondary,
-                    splashRadius: 20,
+              bottom: 8,
+              left: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.warning.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  "AUTO",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 8,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
                   ),
-                  IconButton(
-                    icon: const Icon(LucideIcons.moreVertical, size: 18),
-                    onPressed: () {},
-                    color: AppColors.textSecondary,
-                    splashRadius: 20,
-                  ),
-                ],
+                ),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     ).animate().fadeIn(delay: (200 + index * 50).ms);
   }

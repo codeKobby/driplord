@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../core/components/buttons/primary_button.dart';
+import '../../../core/components/buttons/secondary_button.dart';
+import '../../../core/components/common/auth_divider.dart';
+import '../../../core/components/buttons/oauth_button.dart';
 import '../../../core/components/common/driplord_scaffold.dart';
+import '../../closet/providers/closet_provider.dart';
 import '../services/auth_service.dart';
 
-class AuthScreen extends StatefulWidget {
+class AuthScreen extends ConsumerStatefulWidget {
   final bool initialIsLogin;
 
   const AuthScreen({super.key, this.initialIsLogin = true});
 
   @override
-  State<AuthScreen> createState() => _AuthScreenState();
+  ConsumerState<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> {
+class _AuthScreenState extends ConsumerState<AuthScreen> {
   late bool _isLogin;
   bool _showEmailForm = false;
   final _formKey = GlobalKey<FormState>();
@@ -61,7 +67,7 @@ class _AuthScreenState extends State<AuthScreen> {
       }
 
       if (mounted) {
-        context.go('/home');
+        _navigateBasedOnCloset();
       }
     } catch (e) {
       if (mounted) {
@@ -83,7 +89,7 @@ class _AuthScreenState extends State<AuthScreen> {
     try {
       await _authService.signInWithGoogle();
       if (mounted) {
-        context.go('/home');
+        _navigateBasedOnCloset();
       }
     } catch (e) {
       if (mounted) {
@@ -105,7 +111,7 @@ class _AuthScreenState extends State<AuthScreen> {
     try {
       await _authService.signInWithApple();
       if (mounted) {
-        context.go('/home');
+        _navigateBasedOnCloset();
       }
     } catch (e) {
       if (mounted) {
@@ -119,6 +125,15 @@ class _AuthScreenState extends State<AuthScreen> {
       }
     } finally {
       if (mounted) setState(() => _isAppleLoading = false);
+    }
+  }
+
+  void _navigateBasedOnCloset() {
+    final closet = ref.read(closetProvider);
+    if (closet.isEmpty) {
+      context.go('/onboarding/scan');
+    } else {
+      context.go('/home');
     }
   }
 

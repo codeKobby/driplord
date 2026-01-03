@@ -3,6 +3,28 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../constants/app_dimensions.dart';
 import '../../theme/app_colors.dart';
 
+class _AdaptiveColors {
+  static Color getPrimaryBackground(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? AppColors.primary
+          : Colors.black;
+
+  static Color getPrimaryForeground(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? AppColors.textOnPrimary
+          : Colors.white;
+
+  static Color getTextSecondary(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? AppColors.textSecondary
+          : Colors.black54;
+
+  static Color getGlassBorder(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? AppColors.glassBorder
+          : AppColors.glassBorderDark;
+}
+
 /// Luxury Primary Button
 /// White pill-shaped button with black text for high-contrast CTAs
 class PrimaryButton extends StatelessWidget {
@@ -33,10 +55,10 @@ class PrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary, // White
-          foregroundColor: AppColors.textOnPrimary, // Black text
-          disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.6),
-          disabledForegroundColor: AppColors.textOnPrimary.withValues(
+          backgroundColor: _AdaptiveColors.getPrimaryBackground(context),
+          foregroundColor: _AdaptiveColors.getPrimaryForeground(context),
+          disabledBackgroundColor: _AdaptiveColors.getPrimaryBackground(context).withValues(alpha: 0.6),
+          disabledForegroundColor: _AdaptiveColors.getPrimaryForeground(context).withValues(
             alpha: 0.6,
           ),
           elevation: 0,
@@ -55,11 +77,11 @@ class PrimaryButton extends StatelessWidget {
           ),
         ),
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
-                  color: AppColors.textOnPrimary,
+                  color: _AdaptiveColors.getPrimaryForeground(context),
                   strokeWidth: 2,
                 ),
               )
@@ -76,7 +98,7 @@ class PrimaryButton extends StatelessWidget {
                   ),
                   if (icon != null) ...[
                     const SizedBox(width: AppDimensions.paddingSm),
-                    Icon(icon, size: 18, color: AppColors.textOnPrimary),
+                    Icon(icon, size: 18, color: _AdaptiveColors.getPrimaryForeground(context)),
                   ],
                 ],
               ),
@@ -109,12 +131,14 @@ class FollowButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: isFollowing ? Colors.transparent : AppColors.primary,
+          backgroundColor: isFollowing
+              ? Colors.transparent
+              : _AdaptiveColors.getPrimaryBackground(context),
           foregroundColor: isFollowing
-              ? AppColors.textSecondary
-              : AppColors.textOnPrimary,
+              ? _AdaptiveColors.getTextSecondary(context)
+              : _AdaptiveColors.getPrimaryForeground(context),
           side: isFollowing
-              ? const BorderSide(color: AppColors.glassBorder, width: 1)
+              ? BorderSide(color: _AdaptiveColors.getGlassBorder(context), width: 1)
               : null,
           padding: const EdgeInsets.symmetric(
             horizontal: AppDimensions.paddingMd,
