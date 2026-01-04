@@ -14,6 +14,9 @@ import '../components/common/fixed_app_bar.dart';
 
 import '../../features/home/screens/daily_hub_screen.dart';
 import '../../features/home/screens/main_scaffold.dart';
+import '../../features/home/screens/frequently_worn_screen.dart';
+import '../../features/home/screens/newly_added_screen.dart';
+import '../../features/home/screens/neglected_screen.dart';
 import '../../features/try_on/screens/style_composer_screen.dart';
 
 // =============================================================================
@@ -288,6 +291,18 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/closet/insights/recent',
       builder: (context, state) => const RecentItemsScreen(),
+    ),
+    GoRoute(
+      path: '/home/newly-added',
+      builder: (context, state) => const NewlyAddedScreen(),
+    ),
+    GoRoute(
+      path: '/home/neglected',
+      builder: (context, state) => const NeglectedScreen(),
+    ),
+    GoRoute(
+      path: '/home/frequently-worn',
+      builder: (context, state) => const FrequentlyWornScreen(),
     ),
 
     // --- Outfits Subpages ---

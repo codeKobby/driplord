@@ -59,7 +59,7 @@ class SecondaryButton extends StatelessWidget {
             letterSpacing: 0.5,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(100), // Full pill shape
+            borderRadius: BorderRadius.circular(AppDimensions.radiusPill), // Full pill shape
           ),
         ),
         child: Row(

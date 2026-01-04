@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/app_dimensions.dart';
 import '../models/outfit_recommendation.dart';
+
+class _AppColors {
+  static Color getTextPrimary(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? AppColors.textPrimary
+          : Colors.black;
+}
 
 class OutfitHeroCard extends StatelessWidget {
   final OutfitRecommendation outfit;
@@ -24,7 +32,7 @@ class OutfitHeroCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingLg),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusCard),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.2),
@@ -34,54 +42,37 @@ class OutfitHeroCard extends StatelessWidget {
         ],
       ),
       clipBehavior: Clip.antiAlias,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Background Image
-          Image.network(
-            outfit.imageUrl,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Center(
-                child: CircularProgressIndicator(
-                  value: loadingProgress.expectedTotalBytes != null
-                      ? loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes!
-                      : null,
-                  color: AppColors.primary,
-                ),
-              );
-            },
-            errorBuilder: (context, error, stackTrace) => const Center(
-              child: Icon(Icons.broken_image, color: AppColors.textSecondary),
-            ),
-          ),
-
-          // Gradient Overlay
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  AppColors.pureBlack.withValues(alpha: 0.0),
-                  AppColors.pureBlack.withValues(alpha: 0.5),
-                  AppColors.pureBlack.withValues(alpha: 0.9),
-                ],
-                stops: const [0.0, 0.5, 0.7, 1.0],
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Background Image
+            Image.network(
+              outfit.imageUrl,
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                        : null,
+                    color: AppColors.primary,
+                  ),
+                );
+              },
+              errorBuilder: (context, error, stackTrace) => const Center(
+                child: Icon(Icons.broken_image, color: AppColors.textSecondary),
               ),
             ),
-          ),
 
-          // Content
-          Padding(
-            padding: const EdgeInsets.all(AppDimensions.paddingLg),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            // Content
+            Padding(
+              padding: const EdgeInsets.all(AppDimensions.paddingLg),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 // Tags / Occasion
                 Row(
                   children: [
@@ -142,10 +133,11 @@ class OutfitHeroCard extends StatelessWidget {
 
                 // Title
                 Text(
-                  outfit.title,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    height: 1.1,
+                  outfit.title.toUpperCase(),
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: _AppColors.getTextPrimary(context),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -161,7 +153,7 @@ class OutfitHeroCard extends StatelessWidget {
                           foregroundColor: AppColors.textPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
                           ),
                         ),
                         child: const Text('Edit Look'),
@@ -176,7 +168,7 @@ class OutfitHeroCard extends StatelessWidget {
                           foregroundColor: AppColors.textOnPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
                           ),
                         ),
                         child: const Text('Try On'),

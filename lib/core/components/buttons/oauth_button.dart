@@ -38,7 +38,7 @@ class OAuthButton extends StatelessWidget {
           elevation: 0,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusPill),
             side: BorderSide(color: borderColor, width: 1),
           ),
           padding: const EdgeInsets.symmetric(

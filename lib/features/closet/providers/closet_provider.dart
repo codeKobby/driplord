@@ -70,7 +70,12 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
   Future<void> _loadClosetItems() async {
     try {
       final items = await DatabaseService().getClosetItems();
-      state = items;
+      // If database is empty, fall back to mock items for testing
+      if (items.isEmpty) {
+        state = mockItems;
+      } else {
+        state = items;
+      }
     } catch (e) {
       // Fall back to mock data if Supabase fails
       state = mockItems;
@@ -224,16 +229,161 @@ class SelectedCategoryNotifier extends Notifier<String> {
 }
 
 final selectedCategoryProvider =
-    NotifierProvider<SelectedCategoryNotifier, String>(() {
+    NotifierProvider.autoDispose<SelectedCategoryNotifier, String>(() {
       return SelectedCategoryNotifier();
     });
 
+class SearchQueryNotifier extends Notifier<String> {
+  @override
+  String build() => "";
+
+  void setSearchQuery(String query) {
+    state = query.toLowerCase(); // Remove trim() to allow spaces while typing
+  }
+}
+
+final searchQueryProvider =
+    NotifierProvider.autoDispose<SearchQueryNotifier, String>(() {
+      return SearchQueryNotifier();
+    });
+
+class SortOptionNotifier extends Notifier<String> {
+  @override
+  String build() => "name_asc";
+
+  void setSortOption(String sortOption) {
+    state = sortOption;
+  }
+}
+
+final sortOptionProvider =
+    NotifierProvider.autoDispose<SortOptionNotifier, String>(() {
+      return SortOptionNotifier();
+    });
+
+class FilterOptionsNotifier extends Notifier<Set<String>> {
+  @override
+  Set<String> build() => {};
+
+  void toggleFilter(String filter) {
+    final currentFilters = state;
+    if (currentFilters.contains(filter)) {
+      state = currentFilters.where((f) => f != filter).toSet();
+    } else {
+      state = {...currentFilters, filter};
+    }
+  }
+
+  void clearAllFilters() {
+    state = {};
+  }
+}
+
+final filterOptionsProvider =
+    NotifierProvider.autoDispose<FilterOptionsNotifier, Set<String>>(() {
+      return FilterOptionsNotifier();
+    });
+
+// Enhanced filtered provider that handles search, sort, category, and filters
 final filteredClosetProvider = Provider<List<ClothingItem>>((ref) {
   final items = ref.watch(closetProvider);
+  final searchQuery = ref.watch(searchQueryProvider);
   final category = ref.watch(selectedCategoryProvider);
-  if (category == "All") return items;
-  return items.where((item) => item.category == category).toList();
+  final sortOption = ref.watch(sortOptionProvider);
+  final filters = ref.watch(filterOptionsProvider);
+
+  // Apply category filter
+  var filteredItems = items;
+  if (category != "All") {
+    filteredItems = filteredItems
+        .where((item) => item.category == category)
+        .toList();
+  }
+
+  // Apply search filter with multiple criteria
+  if (searchQuery.isNotEmpty) {
+    filteredItems = filteredItems.where((item) {
+      final query = searchQuery
+          .toLowerCase(); // Consistent with Notifier (no trim)
+      final nameMatches = item.name.toLowerCase().contains(query);
+      final brandMatches = (item.brand?.toLowerCase() ?? "").contains(query);
+      final colorMatches = (item.color?.toLowerCase() ?? "").contains(query);
+      final categoryMatches = item.category.toLowerCase().contains(query);
+
+      return nameMatches || brandMatches || colorMatches || categoryMatches;
+    }).toList();
+  }
+
+  // Apply additional filters
+  if (filters.isNotEmpty) {
+    filteredItems = filteredItems.where((item) {
+      bool matches = true;
+
+      if (filters.contains('worn_recently')) {
+        matches =
+            matches &&
+            item.lastWornAt != null &&
+            DateTime.now().difference(item.lastWornAt!).inDays <= 7;
+      }
+
+      if (filters.contains('unworn')) {
+        matches =
+            matches &&
+            (item.lastWornAt == null ||
+                DateTime.now().difference(item.lastWornAt!).inDays > 30);
+      }
+
+      if (filters.contains('favorites')) {
+        matches =
+            matches &&
+            item.isAutoAdded ==
+                false; // Assuming non-auto added items are favorites
+      }
+
+      if (filters.contains('auto_added')) {
+        matches = matches && item.isAutoAdded;
+      }
+
+      return matches;
+    }).toList();
+  }
+
+  // Apply sorting
+  filteredItems = _applySorting(filteredItems, sortOption);
+
+  return filteredItems;
 });
+
+// Helper function to apply sorting without mutating the original list
+List<ClothingItem> _applySorting(List<ClothingItem> items, String sortOption) {
+  final sortedItems = List<ClothingItem>.from(items);
+  switch (sortOption) {
+    case "name_asc":
+      return sortedItems..sort((a, b) => a.name.compareTo(b.name));
+    case "name_desc":
+      return sortedItems..sort((a, b) => b.name.compareTo(a.name));
+    case "date_added_asc":
+      return sortedItems..sort((a, b) => a.addedDate.compareTo(b.addedDate));
+    case "date_added_desc":
+      return sortedItems..sort((a, b) => b.addedDate.compareTo(a.addedDate));
+    case "last_worn_asc":
+      final withWearDate =
+          sortedItems.where((item) => item.lastWornAt != null).toList()
+            ..sort((a, b) => a.lastWornAt!.compareTo(b.lastWornAt!));
+      return withWearDate;
+    case "last_worn_desc":
+      final withWearDate =
+          sortedItems.where((item) => item.lastWornAt != null).toList()
+            ..sort((a, b) => b.lastWornAt!.compareTo(a.lastWornAt!));
+      return withWearDate;
+    case "category_asc":
+      return sortedItems..sort((a, b) => a.category.compareTo(b.category));
+    case "category_desc":
+      return sortedItems..sort((a, b) => b.category.compareTo(a.category));
+    default:
+      return sortedItems;
+  }
+}
 
 // Items that haven't been worn in more than 30 days
 final unwornItemsProvider = Provider<List<ClothingItem>>((ref) {
@@ -256,4 +406,15 @@ final recentlyAddedItemsProvider = Provider<List<ClothingItem>>((ref) {
 final autoAddedItemsProvider = Provider<List<ClothingItem>>((ref) {
   final recentlyAdded = ref.watch(recentlyAddedItemsProvider);
   return recentlyAdded.where((item) => item.isAutoAdded).toList();
+});
+
+// Items that have been worn most frequently (recently worn items)
+final frequentlyWornItemsProvider = Provider<List<ClothingItem>>((ref) {
+  final items = ref.watch(closetProvider);
+
+  // Get items that have been worn at least once, sorted by most recent wear
+  final wornItems = items.where((item) => item.lastWornAt != null).toList()
+    ..sort((a, b) => b.lastWornAt!.compareTo(a.lastWornAt!));
+
+  return wornItems.take(4).toList();
 });

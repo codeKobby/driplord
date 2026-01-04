@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/components/cards/glass_card.dart';
 import '../../../core/components/buttons/primary_button.dart';
@@ -8,18 +10,13 @@ import '../../../core/components/buttons/secondary_button.dart';
 import '../../../core/constants/app_dimensions.dart';
 import '../../../core/theme/app_colors.dart';
 import '../providers/closet_provider.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../components/closet_filter_sheet.dart';
 
 class _AppColors {
   static Color getBackground(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
       ? AppColors.background
       : const Color(0xFFFBF9F6); // Light cream
-
-  static Color getSurface(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark
-      ? AppColors.surface
-      : Colors.white;
 
   static Color getTextPrimary(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
@@ -35,16 +32,6 @@ class _AppColors {
       Theme.of(context).brightness == Brightness.dark
       ? AppColors.glassBorder
       : AppColors.glassBorderDark;
-
-  static Color getPrimary(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark
-      ? AppColors.primary
-      : Colors.black;
-
-  static Color getTextOnPrimary(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark
-      ? AppColors.textOnPrimary
-      : Colors.white;
 }
 
 class ClosetScreen extends ConsumerStatefulWidget {
@@ -56,34 +43,185 @@ class ClosetScreen extends ConsumerStatefulWidget {
 
 class _ClosetScreenState extends ConsumerState<ClosetScreen> {
   final ImagePicker _picker = ImagePicker();
+  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _toggleSearch() {
+    setState(() {
+      _isSearching = !_isSearching;
+      if (!_isSearching) {
+        _searchController.clear();
+        ref.read(searchQueryProvider.notifier).setSearchQuery("");
+      }
+    });
+  }
+
+  void _syncSearchState() {
+    // Listen to search query changes to reset UI when state is cleared externally (e.g. from MainScaffold)
+    ref.listen(searchQueryProvider, (previous, next) {
+      if (next.isEmpty && _isSearching) {
+        setState(() {
+          _isSearching = false;
+          _searchController.clear();
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    _syncSearchState();
     final filteredItems = ref.watch(filteredClosetProvider);
+
     return Scaffold(
       backgroundColor: _AppColors.getBackground(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
-          "My Closet",
-          style: Theme.of(context).textTheme.displaySmall?.copyWith(
-            color: _AppColors.getTextPrimary(context),
-            fontWeight: FontWeight.w700,
+        titleSpacing: 0,
+        title: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppDimensions.paddingLg,
           ),
+          child: _isSearching
+              ? _buildAnimatedSearch()
+              : Text(
+                  "My Closet",
+                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                    color: _AppColors.getTextPrimary(context),
+                  ),
+                ),
         ),
         actions: [
+          if (!_isSearching)
+            IconButton(
+              icon: const Icon(LucideIcons.search),
+              onPressed: _toggleSearch,
+              color: _AppColors.getTextPrimary(context),
+            ),
           IconButton(
-            icon: const Icon(LucideIcons.search),
-            onPressed: () {},
+            icon: const Icon(LucideIcons.sliders),
+            onPressed: _showFilterSheet,
             color: _AppColors.getTextPrimary(context),
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: SafeArea(
-        child: filteredItems.isEmpty
+        child: filteredItems.isEmpty && !_isSearching
             ? _buildEmptyState()
-            : _buildClosetGrid(filteredItems),
+            : _buildClosetContent(filteredItems),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedSearch() {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: _AppColors.getTextPrimary(
+                    context,
+                  ).withValues(alpha: 0.8),
+                  width: 2.0,
+                ),
+              ),
+            ),
+            child: TextField(
+              controller: _searchController,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: "Search closet...",
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                focusedErrorBorder: InputBorder.none,
+                border: InputBorder.none,
+                hintStyle: TextStyle(
+                  color: _AppColors.getTextSecondary(
+                    context,
+                  ).withValues(alpha: 0.6),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                isDense: true,
+              ),
+              style: TextStyle(
+                color: _AppColors.getTextPrimary(context),
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.5,
+              ),
+              onChanged: (value) {
+                if (_debounce?.isActive ?? false) _debounce!.cancel();
+                _debounce = Timer(const Duration(milliseconds: 150), () {
+                  ref.read(searchQueryProvider.notifier).setSearchQuery(value);
+                });
+              },
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        IconButton(
+          icon: const Icon(LucideIcons.x, size: 20),
+          onPressed: _toggleSearch,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          color: _AppColors.getTextPrimary(context).withValues(alpha: 0.6),
+        ),
+      ],
+    );
+  }
+
+  void _showAddOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => GlassSurface(
+        padding: const EdgeInsets.all(AppDimensions.paddingLg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Add to Closet",
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
+            PrimaryButton(
+              text: "Add from Gallery",
+              onPressed: () {
+                Navigator.pop(context);
+                _addClothing();
+              },
+              icon: LucideIcons.image,
+            ),
+            const SizedBox(height: 12),
+            SecondaryButton(
+              text: "Take Photo",
+              onPressed: () {
+                Navigator.pop(context);
+                _addClothingFromCamera();
+              },
+              icon: LucideIcons.camera,
+            ),
+            const SizedBox(height: 32),
+          ],
+        ),
       ),
     );
   }
@@ -116,136 +254,153 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 40),
-          Column(
-            children: [
-              PrimaryButton(
-                text: "Add from Gallery",
-                onPressed: _addClothing,
-                icon: LucideIcons.image,
-              ),
-              const SizedBox(height: 16),
-              SecondaryButton(
-                text: "Take Photo",
-                onPressed: _addClothingFromCamera,
-                icon: LucideIcons.camera,
-              ),
-            ],
+          PrimaryButton(
+            text: "Get Started",
+            onPressed: _showAddOptions,
+            icon: LucideIcons.plus,
           ),
         ],
       ),
     ).animate().fadeIn(delay: 200.ms);
   }
 
-  Widget _buildClosetGrid(List<ClothingItem> items) {
+  Widget _buildClosetContent(List<ClothingItem> items) {
     return Padding(
-      padding: const EdgeInsets.all(AppDimensions.paddingLg),
+      padding: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingLg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Filter buttons
+          const SizedBox(height: 8),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _buildFilterChip(
-                  context,
-                  "All",
-                  isSelected: ref.watch(selectedCategoryProvider) == "All",
-                ),
+                _buildFilterChip("All"),
                 const SizedBox(width: 8),
-                _buildFilterChip(
-                  context,
-                  "Tops",
-                  isSelected: ref.watch(selectedCategoryProvider) == "Tops",
-                ),
+                _buildFilterChip("Tops"),
                 const SizedBox(width: 8),
-                _buildFilterChip(
-                  context,
-                  "Bottoms",
-                  isSelected: ref.watch(selectedCategoryProvider) == "Bottoms",
-                ),
+                _buildFilterChip("Bottoms"),
                 const SizedBox(width: 8),
-                _buildFilterChip(
-                  context,
-                  "Shoes",
-                  isSelected: ref.watch(selectedCategoryProvider) == "Shoes",
-                ),
+                _buildFilterChip("Shoes"),
                 const SizedBox(width: 8),
-                _buildFilterChip(
-                  context,
-                  "Outerwear",
-                  isSelected: ref.watch(selectedCategoryProvider) == "Outerwear",
-                ),
+                _buildFilterChip("Outerwear"),
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
-          // Grid view
-          Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1.0, // Square cards to prevent overflow
+          if (_isSearching &&
+              items.isNotEmpty &&
+              ref.watch(searchQueryProvider).isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Text(
+                "${items.length} items found",
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: _AppColors.getTextSecondary(context),
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                final item = items[index];
-                return _buildClosetItemCard(item, index);
-              },
             ),
+
+          Expanded(
+            child: items.isEmpty
+                ? (ref.watch(searchQueryProvider).isNotEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                LucideIcons.searchX,
+                                size: 48,
+                                color: _AppColors.getTextSecondary(
+                                  context,
+                                ).withValues(alpha: 0.3),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                "No results",
+                                style: Theme.of(context).textTheme.titleLarge
+                                    ?.copyWith(
+                                      color: _AppColors.getTextPrimary(context),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "Try searching for something else",
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      color: _AppColors.getTextSecondary(
+                                        context,
+                                      ),
+                                    ),
+                              ),
+                            ],
+                          ).animate().fadeIn(),
+                        )
+                      : _buildEmptyState())
+                : GridView.builder(
+                    padding: const EdgeInsets.only(bottom: 80),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.75,
+                        ),
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      return _buildClosetItemCard(items[index], index);
+                    },
+                  ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFilterChip(
-    BuildContext context,
-    String label, {
-    bool isSelected = false,
-  }) {
-    return FilterChip(
-      label: Text(
-        label,
-        style: TextStyle(
-          color: isSelected
-              ? _AppColors.getTextOnPrimary(context)
-              : _AppColors.getTextPrimary(context),
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
-        ),
-      ),
+  void _showFilterSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const ClosetFilterSheet(),
+    );
+  }
+
+  Widget _buildFilterChip(String label) {
+    final currentCategory = ref.watch(selectedCategoryProvider);
+    final isSelected = currentCategory == label;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (selected) {
+        if (selected) {
+          ref.read(selectedCategoryProvider.notifier).setCategory(label);
+        }
+      },
+      selectedColor: isDarkMode ? Colors.white : Colors.black,
+      backgroundColor: Colors.transparent,
       labelStyle: TextStyle(
         color: isSelected
-            ? _AppColors.getTextOnPrimary(context)
+            ? (isDarkMode ? Colors.black : Colors.white)
             : _AppColors.getTextPrimary(context),
+        fontSize: 13,
         fontWeight: FontWeight.w600,
-        fontSize: 12,
-      ),
-      backgroundColor: _AppColors.getSurface(context),
-      selectedColor: _AppColors.getPrimary(context),
-      checkmarkColor: _AppColors.getTextOnPrimary(context),
-      side: BorderSide(
-        color: isSelected
-            ? _AppColors.getPrimary(context)
-            : _AppColors.getGlassBorder(context),
-        width: 1.5,
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: isSelected
+              ? (isDarkMode ? Colors.white : Colors.black)
+              : _AppColors.getGlassBorder(context),
+          width: 1.2,
+        ),
       ),
-      selected: isSelected,
-      onSelected: (bool selected) {
-        ref.read(selectedCategoryProvider.notifier).setCategory(label);
-      },
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      elevation: 0,
-      pressElevation: 2,
-      shadowColor: Colors.transparent,
-      selectedShadowColor: Colors.transparent,
+      showCheckmark: false,
     );
   }
 
@@ -255,194 +410,128 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
     );
 
     return GlassCard(
-      padding: EdgeInsets.zero,
-      child: Stack(
-        children: [
-          // Main image container (takes full card)
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-              image: DecorationImage(
-                image: NetworkImage(item.imageUrl),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-
-          // Gradient overlay for text readability
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withValues(alpha: 0.6),
-                ],
-              ),
-            ),
-          ),
-
-          // Content overlay
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top row: badges and favorite
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    // Right side: color indicator and favorite
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        if (item.color != null)
-                          Container(
-                            width: 16,
-                            height: 16,
-                            margin: const EdgeInsets.only(bottom: 8),
-                            decoration: BoxDecoration(
-                              color: _getColorFromString(item.color!),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: _AppColors.getSurface(
-                                  context,
-                                ).withValues(alpha: 0.8),
-                                width: 1,
-                              ),
-                            ),
-                          ),
-
-                        // Favorite icon
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: _AppColors.getSurface(
-                              context,
-                            ).withValues(alpha: 0.8),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Icon(
-                            LucideIcons.heart,
-                            size: 14,
-                            color: _AppColors.getTextSecondary(context),
-                          ),
-                        ),
-
-                        // NEW badge (if recently added)
-                        if (isRecentlyAdded)
-                          Container(
-                            margin: const EdgeInsets.only(top: 4),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: _AppColors.getPrimary(context),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              "NEW",
-                              style: TextStyle(
-                                color: AppColors.textOnPrimary,
-                                fontSize: 8,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-
-                const Spacer(),
-
-                // Bottom content
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Item name
-                    Text(
-                      item.name,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.5),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1),
-                          ),
-                        ],
+          padding: EdgeInsets.zero,
+          onTap: () {
+            // TODO: Open item details
+          },
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                  child: Image.network(
+                    item.imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.grey[200],
+                      child: const Icon(
+                        LucideIcons.imageOff,
+                        color: Colors.grey,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
-
-                    const SizedBox(height: 2),
-
-                    // Brand
-                    Text(
-                      item.brand ?? 'Unknown Brand',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.5),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1),
-                          ),
-                        ],
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          // Auto-added indicator (if applicable)
-          if (item.isAutoAdded)
-            Positioned(
-              bottom: 8,
-              left: 8,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppColors.warning.withValues(alpha: 0.9),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  "AUTO",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 8,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
                   ),
                 ),
               ),
-            ),
-        ],
-      ),
-    ).animate().fadeIn(delay: (200 + index * 50).ms);
+
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.7),
+                      ],
+                      stops: const [0.6, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        LucideIcons.heart,
+                        size: 14,
+                        color: Colors.white,
+                      ),
+                    ),
+                    if (isRecentlyAdded)
+                      Container(
+                        margin: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          "NEW",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+
+              Positioned(
+                left: 12,
+                right: 12,
+                bottom: 12,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      item.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      item.brand ?? 'Essential',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        )
+        .animate()
+        .fadeIn(delay: (100 + index * 30).ms)
+        .scale(begin: const Offset(0.95, 0.95), curve: Curves.easeOutBack);
   }
 
   Future<void> _addClothing() async {
     try {
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
-        // TODO: Upload image to Supabase Storage and save to database
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -468,7 +557,6 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
     try {
       final XFile? image = await _picker.pickImage(source: ImageSource.camera);
       if (image != null) {
-        // TODO: Upload image to Supabase Storage and save to database
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -487,34 +575,6 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
           ),
         );
       }
-    }
-  }
-
-  Color _getColorFromString(String colorName) {
-    switch (colorName.toLowerCase()) {
-      case 'white':
-        return Colors.white;
-      case 'black':
-        return Colors.black;
-      case 'blue':
-        return Colors.blue;
-      case 'red':
-        return Colors.red;
-      case 'green':
-        return Colors.green;
-      case 'yellow':
-        return Colors.yellow;
-      case 'purple':
-        return Colors.purple;
-      case 'pink':
-        return Colors.pink;
-      case 'orange':
-        return Colors.orange;
-      case 'gray':
-      case 'grey':
-        return Colors.grey;
-      default:
-        return AppColors.textSecondary;
     }
   }
 }

@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/components/navigation/floating_nav_bar.dart';
+import '../../closet/providers/closet_provider.dart';
 
-class MainScaffold extends StatefulWidget {
+class MainScaffold extends ConsumerStatefulWidget {
   const MainScaffold({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
 
   @override
-  State<MainScaffold> createState() => _MainScaffoldState();
+  ConsumerState<MainScaffold> createState() => _MainScaffoldState();
 }
 
-class _MainScaffoldState extends State<MainScaffold> {
+class _MainScaffoldState extends ConsumerState<MainScaffold> {
   final List<NavItem> _navItems = const [
     NavItem(icon: LucideIcons.home, label: 'Home'),
     NavItem(icon: LucideIcons.shirt, label: 'Closet'),
@@ -21,6 +23,14 @@ class _MainScaffoldState extends State<MainScaffold> {
   ];
 
   void _onNavTap(int index) {
+    // If switching TO or FROM the closet tab (index 1), clear its volatile state
+    // This satisfies the "clear state after page switching" requirement
+    if (widget.navigationShell.currentIndex == 1 || index == 1) {
+      ref.invalidate(searchQueryProvider);
+      ref.invalidate(filterOptionsProvider);
+      ref.invalidate(selectedCategoryProvider);
+    }
+
     widget.navigationShell.goBranch(
       index,
       initialLocation: index == widget.navigationShell.currentIndex,

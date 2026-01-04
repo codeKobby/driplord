@@ -27,7 +27,7 @@ class GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderRadiusValue = borderRadius ?? AppDimensions.radiusLg;
+    final borderRadiusValue = borderRadius ?? AppDimensions.radiusCard;
 
     return Container(
       width: width,

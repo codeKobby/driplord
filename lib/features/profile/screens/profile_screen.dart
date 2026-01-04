@@ -26,10 +26,7 @@ class ProfileScreen extends ConsumerWidget {
           floating: true,
           title: Text(
             "Profile",
-            style: GoogleFonts.outfit(
-              fontWeight: FontWeight.w800,
-              fontSize: 24,
-            ),
+            style: Theme.of(context).textTheme.headlineLarge,
           ),
         ),
         SliverToBoxAdapter(
@@ -167,15 +164,11 @@ class ProfileScreen extends ConsumerWidget {
         const SizedBox(height: 16),
         Text(
           "Kobby",
-          style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         Text(
           "Fashion Enthusiast",
-          style: GoogleFonts.outfit(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.54),
-          ),
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 24),
         Row(
@@ -206,20 +199,11 @@ class ProfileScreen extends ConsumerWidget {
         children: [
           Text(
             value,
-            style: GoogleFonts.outfit(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            style: Theme.of(context).textTheme.titleLarge,
           ),
           Text(
             label,
-            style: GoogleFonts.outfit(
-              fontSize: 12,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.38),
-            ),
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
       ),
@@ -238,14 +222,7 @@ class ProfileScreen extends ConsumerWidget {
           padding: const EdgeInsets.only(left: 8, bottom: 12),
           child: Text(
             title,
-            style: GoogleFonts.outfit(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.38),
-              letterSpacing: 1.2,
-            ),
+            style: Theme.of(context).textTheme.labelMedium,
           ),
         ),
         GlassCard(
@@ -265,17 +242,12 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     title: Text(
                       entry.value.title,
-                      style: GoogleFonts.outfit(fontSize: 16),
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                     subtitle: entry.value.subtitle != null
                         ? Text(
                             entry.value.subtitle!,
-                            style: GoogleFonts.outfit(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.38),
-                              fontSize: 12,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall,
                           )
                         : null,
                     trailing:
@@ -319,7 +291,9 @@ class ProfileScreen extends ConsumerWidget {
         ),
         child: Text(
           "Sign Out",
-          style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.error),
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: Theme.of(context).colorScheme.error,
+          ),
         ),
       ),
     );

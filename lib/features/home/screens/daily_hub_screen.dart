@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../core/constants/app_dimensions.dart';
+import '../../../core/theme/app_colors.dart';
 import '../providers/recommendation_provider.dart';
 import '../providers/saved_outfits_provider.dart';
 import '../providers/weather_provider.dart';
@@ -42,11 +44,7 @@ class DailyHubScreen extends ConsumerWidget {
               children: [
                 Text(
                   "DRIPLORD",
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    letterSpacing: 2,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 32,
-                  ),
+                  style: Theme.of(context).textTheme.headlineLarge,
                 ),
               ],
             ),
@@ -57,7 +55,9 @@ class DailyHubScreen extends ConsumerWidget {
                   icon: const Icon(LucideIcons.calendar, size: 20),
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Calendar styling coming soon...")),
+                      const SnackBar(
+                        content: Text("Calendar styling coming soon..."),
+                      ),
                     );
                   },
                 ),
@@ -81,16 +81,12 @@ class DailyHubScreen extends ConsumerWidget {
                 children: [
                   _buildWeatherWidget(context, ref),
                   const SizedBox(height: 16),
-                  _buildVibeSelectors(context, ref),
-                  const SizedBox(height: 32),
                   Text(
                     "DAILY INSPO",
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       fontWeight: FontWeight.w900,
                       letterSpacing: 4,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.5),
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -109,7 +105,9 @@ class DailyHubScreen extends ConsumerWidget {
                       },
                     ),
                   ),
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 24),
+                  _buildVibeSelectors(context, ref),
+                  const SizedBox(height: 32),
                   _buildInsightsSection(context, ref),
                   const SizedBox(height: 120),
                 ],
@@ -131,34 +129,45 @@ class DailyHubScreen extends ConsumerWidget {
     ];
 
     return SizedBox(
-      height: 30,
+      height: 40,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         itemCount: vibes.length,
-        separatorBuilder: (context, index) => const SizedBox(width: 24),
+        separatorBuilder: (context, index) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final vibe = vibes[index];
           final isSelected = selectedVibe == vibe.$2;
 
-          return GestureDetector(
-            onTap: () => ref.read(vibeProvider.notifier).setVibe(vibe.$2),
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 200),
-              opacity: isSelected ? 1.0 : 0.3,
-              child: Text(
-                vibe.$1,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 14,
-                  letterSpacing: 2,
-                  decoration: isSelected ? TextDecoration.underline : null,
-                  decorationColor: Theme.of(context).colorScheme.primary,
-                  decorationThickness: 2,
-                ),
+          return ChoiceChip(
+            label: Text(
+              vibe.$1,
+              style: TextStyle(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Theme.of(context).colorScheme.onSurface,
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
               ),
             ),
+            selected: isSelected,
+            onSelected: (selected) {
+              if (selected) {
+                ref.read(vibeProvider.notifier).setVibe(vibe.$2);
+              }
+            },
+            selectedColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
+              side: BorderSide(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.outline,
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            showCheckmark: false,
           );
         },
       ),
@@ -177,7 +186,7 @@ class DailyHubScreen extends ConsumerWidget {
         // Main Image
         Container(
           clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(0)),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppDimensions.radiusSm)),
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -205,7 +214,7 @@ class DailyHubScreen extends ConsumerWidget {
                   height: 180,
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
                     border: Border.all(color: Colors.white24, width: 1),
                     boxShadow: [
                       BoxShadow(
@@ -218,24 +227,31 @@ class DailyHubScreen extends ConsumerWidget {
                   clipBehavior: Clip.antiAlias,
                   child: Stack(
                     children: [
-                      Image.network(recommendation.personalImageUrl, fit: BoxFit.cover),
+                      Image.network(
+                        recommendation.personalImageUrl,
+                        fit: BoxFit.cover,
+                      ),
                       Positioned(
                         top: 8,
                         left: 8,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(4),
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.circular(AppDimensions.radiusXs),
                           ),
                           child: Text(
                             "YOUR STYLE",
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 8,
-                              letterSpacing: 1,
-                            ),
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 8,
+                                  letterSpacing: 1,
+                                ),
                           ),
                         ),
                       ),
@@ -246,7 +262,7 @@ class DailyHubScreen extends ConsumerWidget {
             ],
           ),
         ),
-        
+
         // Title Overlay (moved to avoid PiP conflict)
         Positioned(
           top: 24,
@@ -254,18 +270,15 @@ class DailyHubScreen extends ConsumerWidget {
           right: 24,
           child: Text(
             recommendation.title.toUpperCase(),
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w900,
-              letterSpacing: 2,
-              fontSize: 24,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: Colors.white,
-              shadows: [Shadow(color: Colors.black, blurRadius: 4)],
+              letterSpacing: 2,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        
+
         // Action Buttons Overlay
         Positioned(
           bottom: 24,
@@ -278,21 +291,17 @@ class DailyHubScreen extends ConsumerWidget {
                   onPressed: () =>
                       context.push('/try-on/ai/${recommendation.id}'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
                     ),
-                    elevation: 4,
-                    minimumSize: Size(80, 36),
                   ),
                   child: Text(
                     "TRY ON",
-                    style: GoogleFonts.outfit(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1,
-                      fontSize: 12,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
                 ),
@@ -300,23 +309,23 @@ class DailyHubScreen extends ConsumerWidget {
               SizedBox(width: 12),
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () => context.push('/try-on/edit/${recommendation.id}'),
+                  onPressed: () =>
+                      context.push('/try-on/edit/${recommendation.id}'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: BorderSide(color: Colors.white.withValues(alpha: 0.8)),
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                    foregroundColor: Theme.of(context).colorScheme.onSurface,
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.outline,
                     ),
-                    minimumSize: Size(80, 36),
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+                    ),
+                    minimumSize: const Size(80, 36),
                   ),
                   child: Text(
                     "EDIT",
-                    style: GoogleFonts.outfit(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1,
-                      fontSize: 12,
-                      color: Colors.white,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -331,22 +340,38 @@ class DailyHubScreen extends ConsumerWidget {
   Widget _buildInsightsSection(BuildContext context, WidgetRef ref) {
     final unwornItems = ref.watch(unwornItemsProvider);
     final recentlyAddedItems = ref.watch(recentlyAddedItemsProvider);
+    final frequentlyWornItems = ref.watch(frequentlyWornItemsProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader(context, "WARDROBE ARCHIVE", "SCAN ALL"),
-        const SizedBox(height: 24),
-        if (unwornItems.isNotEmpty) ...[
-          _buildSubHeader(context, "NEGLECTED PIECES"),
-          const SizedBox(height: 16),
-          _buildAsymmetricGrid(context, unwornItems.take(3).toList()),
+        // Newly Added Section (2x2 grid)
+        if (recentlyAddedItems.isNotEmpty) ...[
+          _buildSectionHeader(context, "NEWLY ADDED", "VIEW ALL"),
+          const SizedBox(height: 20),
+          _buildGridSection(context, recentlyAddedItems, () {
+            context.push('/home/newly-added');
+          }),
           const SizedBox(height: 48),
         ],
-        if (recentlyAddedItems.isNotEmpty) ...[
-          _buildSubHeader(context, "RECENT ACQUISITIONS"),
-          const SizedBox(height: 16),
-          _buildAsymmetricGrid(context, recentlyAddedItems.take(3).toList()),
+
+        // Neglected Section (2x2 grid)
+        if (unwornItems.isNotEmpty) ...[
+          _buildSectionHeader(context, "NEGLECTED PIECES", "VIEW ALL"),
+          const SizedBox(height: 20),
+          _buildGridSection(context, unwornItems, () {
+            context.push('/home/neglected');
+          }),
+          const SizedBox(height: 48),
+        ],
+
+        // Frequently Worn Section (2x2 grid)
+        if (frequentlyWornItems.isNotEmpty) ...[
+          _buildSectionHeader(context, "FREQUENTLY WORN", "VIEW ALL"),
+          const SizedBox(height: 20),
+          _buildGridSection(context, frequentlyWornItems, () {
+            context.push('/home/frequently-worn');
+          }),
         ],
       ],
     );
@@ -368,88 +393,126 @@ class DailyHubScreen extends ConsumerWidget {
             fontWeight: FontWeight.w900,
           ),
         ),
-        Text(
-          action,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.4),
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1,
-            decoration: TextDecoration.underline,
+        GestureDetector(
+          onTap: action == "VIEW ALL"
+              ? null
+              : () {
+                  if (action == "SCAN ALL") {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Scan functionality coming soon..."),
+                      ),
+                    );
+                  }
+                },
+          child: Text(
+            action,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+              fontWeight: action == "VIEW ALL"
+                  ? FontWeight.bold
+                  : FontWeight.normal,
+              letterSpacing: 1,
+              decoration: action == "VIEW ALL"
+                  ? TextDecoration.underline
+                  : TextDecoration.none,
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildSubHeader(BuildContext context, String title) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-        fontWeight: FontWeight.w900,
-        letterSpacing: 2,
-        fontSize: 12,
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
-      ),
-    );
-  }
-
-  Widget _buildAsymmetricGrid(BuildContext context, List<ClothingItem> items) {
-    if (items.isEmpty) return const SizedBox.shrink();
-
+  Widget _buildGridSection(
+    BuildContext context, 
+    List<ClothingItem> items, 
+    VoidCallback onViewAllTap,
+    {bool showAll = false}
+  ) {
+    final itemsToShow = showAll ? items : items.take(4).toList();
+    
     return Container(
-      height: 320,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(0)),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(flex: 3, child: _buildArchiveItem(context, items[0])),
-          const SizedBox(width: 1),
-          if (items.length > 1)
-            Expanded(
-              flex: 2,
-              child: Column(
-                children: [
-                  Expanded(child: _buildArchiveItem(context, items[1])),
-                  if (items.length > 2) ...[
-                    const SizedBox(height: 1),
-                    Expanded(child: _buildArchiveItem(context, items[2])),
-                  ],
-                ],
-              ),
-            ),
-        ],
+      height: showAll ? null : 240,
+      constraints: BoxConstraints(
+        minHeight: 240,
+        maxHeight: showAll ? MediaQuery.of(context).size.height * 0.5 : 240,
+      ),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: itemsToShow.length,
+        separatorBuilder: (context, index) => const SizedBox(width: 16),
+        itemBuilder: (context, index) {
+          final item = itemsToShow[index];
+          return SizedBox(
+            width: 180, // Fixed width for each item
+            child: _buildGridItemCard(context, item, index),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildArchiveItem(BuildContext context, ClothingItem item) {
+  Widget _buildGridItemCard(BuildContext context, ClothingItem item, int index) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        image: DecorationImage(
-          image: NetworkImage(item.imageUrl),
-          fit: BoxFit.cover,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.1),
+          width: 1,
         ),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Stack(
+        fit: StackFit.expand,
         children: [
-          Positioned(
-            bottom: 8,
-            left: 8,
-            child: Text(
-              item.lastWornAt != null
-                  ? getRelativeTime(item.lastWornAt!).toUpperCase()
-                  : "NEW",
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 10,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1,
-                shadows: [Shadow(color: Colors.black, blurRadius: 4)],
+          Image.network(item.imageUrl, fit: BoxFit.cover),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.6),
+                  ],
+                ),
               ),
+            ),
+          ),
+          Positioned(
+            bottom: 12,
+            left: 12,
+            right: 12,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.name.toUpperCase(),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Colors.white,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  item.category.toUpperCase(),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.white70,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  item.lastWornAt != null
+                      ? "Last worn ${getRelativeTime(item.lastWornAt!)}"
+                      : "Never worn",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.white54,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -458,53 +521,73 @@ class DailyHubScreen extends ConsumerWidget {
   }
 
   Widget _buildWeatherWidget(BuildContext context, WidgetRef ref) {
-    return ref.watch(weatherProvider).when(
-      data: (weather) => weather != null
-          ? Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(LucideIcons.cloudSun, size: 18, color: Theme.of(context).colorScheme.primary),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "${weather.temperatureString} · ${weather.condition.toUpperCase()}",
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 0,
-                            fontSize: 12,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          weather.clothingSuggestion.toUpperCase(),
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 0,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
+    return ref
+        .watch(weatherProvider)
+        .when(
+          data: (weather) => weather != null
+              ? Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusInput),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.3),
                     ),
                   ),
-                ],
-              ),
-            )
-          : const SizedBox.shrink(),
-      loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
-    );
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        LucideIcons.cloudSun,
+                        size: 18,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "${weather.temperatureString} · ${weather.condition.toUpperCase()}",
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 0,
+                                    fontSize: 12,
+                                  ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              weather.clothingSuggestion.toUpperCase(),
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
+                                    color: Theme.of(context).colorScheme.primary
+                                        .withValues(alpha: 0.7),
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 0,
+                                    fontSize: 10,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : const SizedBox.shrink(),
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+        );
   }
 
   String getRelativeTime(DateTime date) {

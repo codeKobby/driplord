@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
+import '../constants/app_dimensions.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
@@ -45,6 +46,31 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: AppColors.primaryDark,
         ),
+        headlineMedium: GoogleFonts.outfit(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: AppColors.primaryDark,
+        ),
+        headlineSmall: GoogleFonts.outfit(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: AppColors.primaryDark,
+        ),
+        titleLarge: GoogleFonts.outfit(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: AppColors.primaryDark,
+        ),
+        titleMedium: GoogleFonts.outfit(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: AppColors.primaryDark,
+        ),
+        titleSmall: GoogleFonts.outfit(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppColors.primaryDark,
+        ),
         bodyLarge: GoogleFonts.inter(
           fontSize: 16,
           fontWeight: FontWeight.w400,
@@ -55,8 +81,25 @@ class AppTheme {
           fontWeight: FontWeight.w400,
           color: AppColors.textSecondary,
         ),
+        bodySmall: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+          color: AppColors.textSecondary,
+        ),
         labelLarge: GoogleFonts.inter(
           fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: AppColors.primaryDark,
+          letterSpacing: 0.5,
+        ),
+        labelMedium: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppColors.primaryDark,
+          letterSpacing: 0.5,
+        ),
+        labelSmall: GoogleFonts.inter(
+          fontSize: 10,
           fontWeight: FontWeight.w600,
           color: AppColors.primaryDark,
           letterSpacing: 0.5,
@@ -65,8 +108,8 @@ class AppTheme {
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryDark,
-          foregroundColor: AppColors.pureWhite,
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.textOnPrimary,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
           textStyle: GoogleFonts.inter(
@@ -75,9 +118,7 @@ class AppTheme {
             letterSpacing: 0.5,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              12,
-            ), // Reduced radius for minimalist look
+            borderRadius: BorderRadius.circular(AppDimensions.radiusButton),
           ),
         ),
       ),
@@ -86,15 +127,15 @@ class AppTheme {
         filled: true,
         fillColor: AppColors.surfaceLight,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppDimensions.radiusInput),
           borderSide: const BorderSide(color: AppColors.borderLight, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppDimensions.radiusInput),
           borderSide: const BorderSide(color: AppColors.borderLight, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppDimensions.radiusInput),
           borderSide: const BorderSide(
             color: AppColors.primaryDark,
             width: 1.5,
@@ -147,6 +188,31 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
         ),
+        headlineMedium: GoogleFonts.outfit(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+        headlineSmall: GoogleFonts.outfit(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+        titleLarge: GoogleFonts.outfit(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+        titleMedium: GoogleFonts.outfit(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+        titleSmall: GoogleFonts.outfit(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
         bodyLarge: GoogleFonts.inter(
           fontSize: 16,
           fontWeight: FontWeight.w400,
@@ -157,8 +223,25 @@ class AppTheme {
           fontWeight: FontWeight.w400,
           color: AppColors.textSecondary,
         ),
+        bodySmall: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+          color: AppColors.textSecondary,
+        ),
         labelLarge: GoogleFonts.inter(
           fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+          letterSpacing: 0.5,
+        ),
+        labelMedium: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+          letterSpacing: 0.5,
+        ),
+        labelSmall: GoogleFonts.inter(
+          fontSize: 10,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
           letterSpacing: 0.5,
@@ -177,7 +260,7 @@ class AppTheme {
             letterSpacing: 0.5,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusButton),
           ),
         ),
       ),
@@ -186,15 +269,15 @@ class AppTheme {
         filled: true,
         fillColor: AppColors.surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppDimensions.radiusInput),
           borderSide: const BorderSide(color: AppColors.border, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppDimensions.radiusInput),
           borderSide: const BorderSide(color: AppColors.border, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppDimensions.radiusInput),
           borderSide: const BorderSide(color: Colors.white, width: 1.5),
         ),
         contentPadding: const EdgeInsets.all(20),
