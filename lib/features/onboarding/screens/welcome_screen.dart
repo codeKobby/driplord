@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../core/theme/app_colors.dart';
@@ -149,31 +150,86 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
                 const SizedBox(height: 48),
 
-                // Button
-                SizedBox(
-                  width: double.infinity,
-                  child: PrimaryButton(
-                    text: _currentPage == _onboardingData.length - 1
-                        ? "Get Started"
-                        : "Next",
-                    onPressed: () {
-                      if (_currentPage < _onboardingData.length - 1) {
-                        _pageController.nextPage(
-                          duration: const Duration(milliseconds: 400),
-                          curve: Curves.easeInOutCubic,
-                        );
-                      } else {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const StylePreferenceScreen(),
-                          ),
-                        );
-                      }
-                    },
-                  ),
+                // Action Buttons
+                Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: PrimaryButton(
+                        text: _currentPage == _onboardingData.length - 1
+                            ? "Get Started"
+                            : "Next",
+                        onPressed: () {
+                          if (_currentPage < _onboardingData.length - 1) {
+                            _pageController.nextPage(
+                              duration: const Duration(milliseconds: 400),
+                              curve: Curves.easeInOutCubic,
+                            );
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const StylePreferenceScreen(),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    if (_currentPage < _onboardingData.length - 1)
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const StylePreferenceScreen(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          "Skip Transition",
+                          style: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.5),
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                      ),
+                    const SizedBox(height: 32),
+                    GestureDetector(
+                      onTap: () {
+                        // Navigate to Login
+                        context.push('/auth');
+                      },
+                      child: RichText(
+                        text: TextSpan(
+                          text: "Already have an account? ",
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.5),
+                              ),
+                          children: [
+                            TextSpan(
+                              text: "Sign in",
+                              style: Theme.of(context).textTheme.labelLarge
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w900,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: AppDimensions.paddingLg),
               ],
             ),
           ),
@@ -374,7 +430,9 @@ class _GlassCardPreview extends StatelessWidget {
         border: Border.all(color: AppColors.glassBorder),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),

@@ -195,10 +195,7 @@ class DatabaseService {
     if (avatarUrl != null) updates['avatar_url'] = avatarUrl;
     if (styleVibes != null) updates['style_vibes'] = styleVibes;
 
-    await _supabase.from('profiles').upsert({
-      'id': userId,
-      ...updates,
-    });
+    await _supabase.from('profiles').upsert({'id': userId, ...updates});
   }
 
   // ===========================================================================
@@ -212,8 +209,10 @@ class DatabaseService {
       id: json['id'],
       title: json['title'],
       imageUrl: json['image_url'] ?? '',
+      personalImageUrl: json['personal_image_url'] ?? json['image_url'] ?? '',
       tags: List<String>.from(metaData['tags'] ?? []),
-      confidenceScore: (metaData['confidence_score'] as num?)?.toDouble() ?? 0.0,
+      confidenceScore:
+          (metaData['confidence_score'] as num?)?.toDouble() ?? 0.0,
       reasoning: metaData['reasoning'] ?? '',
     );
   }

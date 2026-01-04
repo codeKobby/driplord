@@ -51,6 +51,7 @@ dependencies:
   geolocator: ^14.0.2
   weather: ^3.2.1
   go_router: ^17.0.1
+  flutter_slidable: 4.0.3
 
 dev_dependencies:
   flutter_test:

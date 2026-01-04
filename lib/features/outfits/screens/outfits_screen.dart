@@ -1,10 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/components/cards/glass_card.dart';
 import '../../../core/components/buttons/primary_button.dart';
 import '../../../core/theme/app_colors.dart';
@@ -12,39 +10,32 @@ import '../../../core/constants/app_dimensions.dart';
 import '../providers/history_provider.dart';
 import '../../home/providers/saved_outfits_provider.dart';
 import '../../home/providers/recommendation_provider.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 class _AppColors {
   static Color getBackground(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.background
-          : const Color(0xFFFBF9F6);
-
-  static Color getSurface(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark
-          ? AppColors.surface
-          : Colors.white;
+      ? AppColors.background
+      : const Color(0xFFFBF9F6);
 
   static Color getTextPrimary(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.textPrimary
-          : Colors.black;
+      ? AppColors.textPrimary
+      : Colors.black;
 
   static Color getTextSecondary(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.textSecondary
-          : Colors.black54;
+      ? AppColors.textSecondary
+      : Colors.black54;
 
   static Color getPrimary(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.primary
-          : Colors.black;
+      ? AppColors.primary
+      : Colors.black;
 
   static Color getTextOnPrimary(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.textOnPrimary
-          : Colors.white;
+      ? AppColors.textOnPrimary
+      : Colors.white;
 }
 
 class OutfitsScreen extends ConsumerWidget {
@@ -75,10 +66,16 @@ class OutfitsScreen extends ConsumerWidget {
             },
             itemBuilder: (context) => [
               const PopupMenuItem(value: 'recent', child: Text('Most Recent')),
-              const PopupMenuItem(value: 'favorites', child: Text('Favorites First')),
+              const PopupMenuItem(
+                value: 'favorites',
+                child: Text('Favorites First'),
+              ),
               const PopupMenuItem(value: 'worn', child: Text('Recently Worn')),
             ],
-            icon: Icon(LucideIcons.filter, color: _AppColors.getTextPrimary(context)),
+            icon: Icon(
+              LucideIcons.filter,
+              color: _AppColors.getTextPrimary(context),
+            ),
           ),
         ],
       ),
@@ -142,7 +139,11 @@ class OutfitsScreen extends ConsumerWidget {
             delegate: SliverChildListDelegate([
               // Saved Outfits Section
               if (savedOutfits.isNotEmpty) ...[
-                _buildSectionHeader(context, "Saved Outfits", "${savedOutfits.length} outfits"),
+                _buildSectionHeader(
+                  context,
+                  "Saved Outfits",
+                  "${savedOutfits.length} outfits",
+                ),
                 const SizedBox(height: 16),
                 _buildSavedOutfitsGrid(context, ref, savedOutfits),
                 const SizedBox(height: 32),
@@ -150,7 +151,11 @@ class OutfitsScreen extends ConsumerWidget {
 
               // History Section
               if (history.isNotEmpty) ...[
-                _buildSectionHeader(context, "Recently Worn", "${history.length} entries"),
+                _buildSectionHeader(
+                  context,
+                  "Recently Worn",
+                  "${history.length} entries",
+                ),
                 const SizedBox(height: 16),
                 _buildHistoryGrid(context, ref, history),
               ],
@@ -163,7 +168,11 @@ class OutfitsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, String subtitle) {
+  Widget _buildSectionHeader(
+    BuildContext context,
+    String title,
+    String subtitle,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -186,7 +195,11 @@ class OutfitsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSavedOutfitsGrid(BuildContext context, WidgetRef ref, List<Recommendation> outfits) {
+  Widget _buildSavedOutfitsGrid(
+    BuildContext context,
+    WidgetRef ref,
+    List<Recommendation> outfits,
+  ) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -203,7 +216,11 @@ class OutfitsScreen extends ConsumerWidget {
     ).animate().fadeIn().slideY();
   }
 
-  Widget _buildHistoryGrid(BuildContext context, WidgetRef ref, List<HistoryEntry> history) {
+  Widget _buildHistoryGrid(
+    BuildContext context,
+    WidgetRef ref,
+    List<HistoryEntry> history,
+  ) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -215,12 +232,20 @@ class OutfitsScreen extends ConsumerWidget {
       ),
       itemCount: history.length,
       itemBuilder: (context, index) {
-        return _buildOutfitCard(context, ref, history[index].outfit, historyEntry: history[index]);
+        return _buildOutfitCard(
+          context,
+          ref,
+          history[index].outfit,
+          historyEntry: history[index],
+        );
       },
     ).animate().fadeIn(delay: 200.ms).slideY();
   }
 
-  Widget _buildOutfitCard(BuildContext context, WidgetRef ref, Recommendation outfit, {
+  Widget _buildOutfitCard(
+    BuildContext context,
+    WidgetRef ref,
+    Recommendation outfit, {
     bool isSaved = false,
     HistoryEntry? historyEntry,
   }) {
@@ -231,8 +256,8 @@ class OutfitsScreen extends ConsumerWidget {
     final lastWornText = daysAgo == 0
         ? 'Today'
         : daysAgo == 1
-            ? 'Yesterday'
-            : '$daysAgo days ago';
+        ? 'Yesterday'
+        : '$daysAgo days ago';
 
     return GlassCard(
       padding: EdgeInsets.zero,
@@ -282,7 +307,10 @@ class OutfitsScreen extends ConsumerWidget {
                       children: [
                         if (isSaved)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.pink.withValues(alpha: 0.9),
                               borderRadius: BorderRadius.circular(12),
@@ -312,7 +340,10 @@ class OutfitsScreen extends ConsumerWidget {
                         if (historyEntry != null)
                           Container(
                             margin: const EdgeInsets.only(top: 6),
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.blue.withValues(alpha: 0.9),
                               borderRadius: BorderRadius.circular(12),
@@ -422,7 +453,9 @@ class OutfitsScreen extends ConsumerWidget {
                           child: IconButton(
                             onPressed: () {
                               // Mark outfit as worn today
-                              ref.read(historyProvider.notifier).addEntry(outfit);
+                              ref
+                                  .read(historyProvider.notifier)
+                                  .addEntry(outfit);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Outfit marked as worn today!'),
@@ -456,7 +489,9 @@ class OutfitsScreen extends ConsumerWidget {
                                 case 'share':
                                   // TODO: Implement share functionality
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Share coming soon!')),
+                                    const SnackBar(
+                                      content: Text('Share coming soon!'),
+                                    ),
                                   );
                                   break;
                                 case 'delete':
@@ -465,22 +500,37 @@ class OutfitsScreen extends ConsumerWidget {
                                     context: context,
                                     builder: (context) => AlertDialog(
                                       title: const Text('Delete Outfit'),
-                                      content: const Text('Are you sure you want to delete this outfit?'),
+                                      content: const Text(
+                                        'Are you sure you want to delete this outfit?',
+                                      ),
                                       actions: [
                                         TextButton(
-                                          onPressed: () => Navigator.pop(context),
+                                          onPressed: () =>
+                                              Navigator.pop(context),
                                           child: const Text('Cancel'),
                                         ),
                                         TextButton(
                                           onPressed: () {
                                             // Remove from saved outfits using toggleFavorite
-                                            ref.read(savedOutfitsProvider.notifier).toggleFavorite(outfit);
+                                            ref
+                                                .read(
+                                                  savedOutfitsProvider.notifier,
+                                                )
+                                                .toggleFavorite(outfit);
                                             Navigator.pop(context);
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Outfit removed from saved')),
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'Outfit removed from saved',
+                                                ),
+                                              ),
                                             );
                                           },
-                                          style: TextButton.styleFrom(foregroundColor: Colors.red),
+                                          style: TextButton.styleFrom(
+                                            foregroundColor: Colors.red,
+                                          ),
                                           child: const Text('Delete'),
                                         ),
                                       ],
@@ -521,7 +571,10 @@ class OutfitsScreen extends ConsumerWidget {
                                 ),
                               ),
                             ],
-                            icon: const Icon(LucideIcons.moreVertical, size: 16),
+                            icon: const Icon(
+                              LucideIcons.moreVertical,
+                              size: 16,
+                            ),
                             padding: EdgeInsets.zero,
                             color: Colors.white,
                           ),

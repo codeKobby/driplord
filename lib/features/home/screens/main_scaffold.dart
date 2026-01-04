@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/components/navigation/floating_nav_bar.dart';
 
 class MainScaffold extends StatefulWidget {
@@ -39,7 +37,9 @@ class _MainScaffoldState extends State<MainScaffold> {
         items: _navItems,
         centerAction: _buildCenterAction(),
       ),
-      floatingActionButton: widget.navigationShell.currentIndex == 1 ? _buildFloatingButton() : null, // Only show FAB on Closet page
+      floatingActionButton: widget.navigationShell.currentIndex == 1
+          ? _buildFloatingButton()
+          : null, // Only show FAB on Closet page
     );
   }
 
@@ -72,56 +72,38 @@ class _MainScaffoldState extends State<MainScaffold> {
   }
 
   Widget _buildCenterAction() {
-    // Center stylist button for styling and outfit creation only
     return GestureDetector(
-      onTap: () {
-        // Always show styling options regardless of current page
-        _showStylingOptions();
-      },
+      onTap: _showStylingOptions,
       child: Container(
-        padding: const EdgeInsets.all(12), // Adjusted padding for smaller navbar
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.primary,
           shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 1),
-            ),
-          ],
-          border: Border.all(
-            color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.2),
-            width: 1,
-          ),
         ),
         child: Icon(
-          FontAwesomeIcons.shirt,
+          LucideIcons.plus,
           color: Theme.of(context).colorScheme.onPrimary,
-          size: 20, // Smaller icon to fit the reduced navbar height
+          size: 20,
         ),
       ),
     );
   }
 
-
-
-
   void _showAddItemOptions() {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => _buildGlassBottomSheet(
+      builder: (context) => _buildMinimalBottomSheet(
         title: "Add Clothing",
         options: [
           _BottomSheetOption(LucideIcons.camera, "Take Photo", () {
-            context.go('/closet/add/camera');
+            context.push('/closet/add/camera');
           }),
           _BottomSheetOption(LucideIcons.image, "Upload from Gallery", () {
-            context.go('/closet/add/gallery');
+            context.push('/closet/add/gallery');
           }),
           _BottomSheetOption(LucideIcons.link, "Import from URL", () {
-            context.go('/closet/add/url');
+            context.push('/closet/add/url');
           }),
         ],
       ),
@@ -132,11 +114,11 @@ class _MainScaffoldState extends State<MainScaffold> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => _buildGlassBottomSheet(
+      builder: (context) => _buildMinimalBottomSheet(
         title: "Create Outfit",
         options: [
           _BottomSheetOption(LucideIcons.plusCircle, "Manual Builder", () {
-            context.go('/outfits/create');
+            context.push('/outfits/create');
           }),
           _BottomSheetOption(LucideIcons.wand2, "AI Auto-Composer", () {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -152,35 +134,37 @@ class _MainScaffoldState extends State<MainScaffold> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => _buildGlassBottomSheet(
+      builder: (context) => _buildMinimalBottomSheet(
         title: "Style & Create",
         options: [
           _BottomSheetOption(LucideIcons.palette, "Create New Outfit", () {
-            context.go('/outfits/create');
+            context.push('/outfits/create');
           }),
           _BottomSheetOption(LucideIcons.sparkles, "AI Style Assistant", () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("AI Style Assistant coming soon...")),
+              const SnackBar(
+                content: Text("AI Style Assistant coming soon..."),
+              ),
             );
           }),
-          _BottomSheetOption(LucideIcons.heart, "View My Outfits", () {
-            context.go('/outfits');
+          _BottomSheetOption(LucideIcons.heart, "Add to Closet", () {
+            _showAddItemOptions();
           }),
         ],
       ),
     );
   }
 
-  Widget _buildGlassBottomSheet({
+  Widget _buildMinimalBottomSheet({
     required String title,
     required List<_BottomSheetOption> options,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         border: Border.all(
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
         ),
       ),
       padding: const EdgeInsets.all(24),
@@ -188,38 +172,37 @@ class _MainScaffoldState extends State<MainScaffold> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 40,
+            width: 32,
             height: 4,
             decoration: BoxDecoration(
               color: Theme.of(
                 context,
-              ).colorScheme.onSurface.withValues(alpha: 0.2),
+              ).colorScheme.onSurface.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
           const SizedBox(height: 24),
-          Text(
-            title,
-            style: GoogleFonts.outfit(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text(title, style: Theme.of(context).textTheme.headlineLarge),
           const SizedBox(height: 24),
           ...options.map(
             (opt) => ListTile(
               leading: Icon(
                 opt.icon,
                 color: Theme.of(context).colorScheme.onSurface,
+                size: 20,
               ),
               title: Text(
                 opt.label,
-                style: GoogleFonts.outfit(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+              ),
+              trailing: Icon(
+                LucideIcons.chevronRight,
+                size: 16,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.3),
               ),
               onTap: () {
                 Navigator.pop(context);

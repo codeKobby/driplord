@@ -1,10 +1,8 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../constants/app_dimensions.dart';
-import '../../theme/app_colors.dart';
 
-/// Glassmorphism card with frosted glass effect
-/// Used for floating navigation, overlays, and premium UI elements
+/// Minimalist card component (formerly GlassCard)
+/// Now uses solid backgrounds and clean borders to align with the Clean Minimalist theme.
 class GlassCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
@@ -13,6 +11,7 @@ class GlassCard extends StatelessWidget {
   final bool showBorder;
   final double? width;
   final double? height;
+  final Color? color;
 
   const GlassCard({
     super.key,
@@ -23,6 +22,7 @@ class GlassCard extends StatelessWidget {
     this.showBorder = true,
     this.width,
     this.height,
+    this.color,
   });
 
   @override
@@ -40,19 +40,21 @@ class GlassCard extends StatelessWidget {
         onTap: onTap,
         padding: padding,
         showBorder: showBorder,
+        color: color,
         child: child,
       ),
     );
   }
 }
 
-/// Inner glass effect widget with BackdropFilter
+/// Inner minimalist effect widget
 class GlassEffect extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
   final VoidCallback? onTap;
   final double borderRadius;
   final bool showBorder;
+  final Color? color;
 
   const GlassEffect({
     super.key,
@@ -61,124 +63,67 @@ class GlassEffect extends StatelessWidget {
     this.onTap,
     required this.borderRadius,
     this.showBorder = true,
+    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(
-          sigmaX: 20,
-          sigmaY: 20,
-          tileMode: TileMode.decal,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: padding ?? const EdgeInsets.all(AppDimensions.paddingLg),
+        decoration: BoxDecoration(
+          color: color ?? Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(borderRadius),
+          border: showBorder
+              ? Border.all(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.5),
+                  width: 1,
+                )
+              : null,
         ),
-        child: GestureDetector(
-          onTap: onTap,
-          child: Container(
-            padding: padding ?? const EdgeInsets.all(AppDimensions.paddingLg),
-            decoration: _buildDecoration(context),
-            child: child,
-          ),
-        ),
+        child: child,
       ),
-    );
-  }
-
-  BoxDecoration _buildDecoration(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final glassColor = isDark
-        ? AppColors.glassSurface
-        : Colors.white; // Or a specific light glass color
-
-    return BoxDecoration(
-      // Gradient for subtle depth
-      gradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          glassColor.withValues(alpha: isDark ? 0.8 : 0.7),
-          glassColor.withValues(alpha: isDark ? 0.6 : 0.4),
-        ],
-        stops: const [0.0, 1.0],
-      ),
-      border: showBorder
-          ? Border.all(
-              color: isDark
-                  ? AppColors.glassBorder
-                  : Colors.black.withValues(alpha: 0.05),
-              width: 1,
-            )
-          : null,
-      // Subtle inner glow effect
-      boxShadow: [
-        BoxShadow(
-          color: (isDark ? Colors.black : Colors.grey).withValues(alpha: 0.2),
-          blurRadius: 30,
-          spreadRadius: -5,
-          offset: const Offset(0, 10),
-        ),
-      ],
     );
   }
 }
 
-/// Full-width glass container for navigation bars and bottom sheets
+/// Solid surface container for navigation bars and bottom sheets
 class GlassSurface extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
   final bool includeTopRadius;
+  final Color? color;
 
   const GlassSurface({
     super.key,
     required this.child,
     this.padding,
     this.includeTopRadius = true,
+    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: includeTopRadius
-          ? const BorderRadius.vertical(
-              top: Radius.circular(AppDimensions.radiusXl),
-            )
-          : BorderRadius.zero,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(
-          sigmaX: 30,
-          sigmaY: 30,
-          tileMode: TileMode.decal,
-        ),
-        child: Container(
-          padding: padding,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                (Theme.of(context).brightness == Brightness.dark
-                        ? AppColors.glassSurface
-                        : Colors.white)
-                    .withValues(alpha: 0.85),
-                (Theme.of(context).brightness == Brightness.dark
-                        ? AppColors.glassSurface
-                        : Colors.white)
-                    .withValues(alpha: 0.7),
-              ],
-            ),
-            border: Border(
-              top: BorderSide(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? AppColors.glassBorder
-                    : Colors.black.withValues(alpha: 0.05),
-                width: 0.5,
-              ),
-            ),
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: color ?? Theme.of(context).colorScheme.surface,
+        borderRadius: includeTopRadius
+            ? const BorderRadius.vertical(
+                top: Radius.circular(AppDimensions.radiusXl),
+              )
+            : BorderRadius.zero,
+        border: Border(
+          top: BorderSide(
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+            width: 0.5,
           ),
-          child: child,
         ),
       ),
+      child: child,
     );
   }
 }

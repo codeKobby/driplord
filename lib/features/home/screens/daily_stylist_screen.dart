@@ -48,7 +48,9 @@ class DailyStylistScreen extends ConsumerWidget {
       ),
       body: dailyState.isLoading
           ? Center(
-              child: CircularProgressIndicator(color: _AppColors.getPrimary(context)),
+              child: CircularProgressIndicator(
+                color: _AppColors.getPrimary(context),
+              ),
             )
           : SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
@@ -84,17 +86,25 @@ class DailyStylistScreen extends ConsumerWidget {
                                       id: outfit.id,
                                       title: outfit.title,
                                       imageUrl: outfit.imageUrl,
+                                      personalImageUrl: outfit
+                                          .imageUrl, // Fallback to inspiration image
                                       tags: outfit.tags,
                                       confidenceScore: outfit.confidenceScore,
                                       reasoning: outfit.reasoning,
                                     );
                                     // Save to saved outfits
-                                    ref.read(savedOutfitsProvider.notifier).saveVariant(recommendation);
+                                    ref
+                                        .read(savedOutfitsProvider.notifier)
+                                        .saveVariant(recommendation);
                                     // Add to history as worn today
-                                    ref.read(historyProvider.notifier).addEntry(recommendation);
+                                    ref
+                                        .read(historyProvider.notifier)
+                                        .addEntry(recommendation);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text('Look saved to favorites and marked as worn!'),
+                                        content: Text(
+                                          'Look saved to favorites and marked as worn!',
+                                        ),
                                       ),
                                     );
                                   },
@@ -151,7 +161,9 @@ class DailyStylistScreen extends ConsumerWidget {
                                       vibeNotifier.setVibe(vibe);
                                     }
                                   },
-                                  backgroundColor: _AppColors.getSurface(context),
+                                  backgroundColor: _AppColors.getSurface(
+                                    context,
+                                  ),
                                   selectedColor: _AppColors.getPrimary(context),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(100),
@@ -216,7 +228,9 @@ class DailyStylistScreen extends ConsumerWidget {
                                     'No recent wears yet',
                                     style: GoogleFonts.inter(
                                       fontSize: 14,
-                                      color: _AppColors.getTextSecondary(context),
+                                      color: _AppColors.getTextSecondary(
+                                        context,
+                                      ),
                                     ),
                                   ),
                                 )
@@ -279,8 +293,8 @@ class DailyStylistScreen extends ConsumerWidget {
     final label = daysAgo == 0
         ? 'Today'
         : daysAgo == 1
-            ? 'Yesterday'
-            : '${daysAgo}d ago';
+        ? 'Yesterday'
+        : '${daysAgo}d ago';
 
     return GestureDetector(
       onTap: () => context.push('/try-on/outfit/${entry.outfit.id}'),
@@ -367,36 +381,36 @@ class DailyStylistScreen extends ConsumerWidget {
 class _AppColors {
   static Color getBackground(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.background
-          : const Color(0xFFFBF9F6); // Light cream
+      ? AppColors.background
+      : const Color(0xFFFBF9F6); // Light cream
 
   static Color getSurface(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.surface
-          : Colors.white;
+      ? AppColors.surface
+      : Colors.white;
 
   static Color getTextPrimary(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.textPrimary
-          : Colors.black;
+      ? AppColors.textPrimary
+      : Colors.black;
 
   static Color getTextSecondary(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.textSecondary
-          : Colors.black54;
+      ? AppColors.textSecondary
+      : Colors.black54;
 
   static Color getGlassBorder(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.glassBorder
-          : AppColors.glassBorderDark;
+      ? AppColors.glassBorder
+      : AppColors.glassBorderDark;
 
   static Color getPrimary(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.primary
-          : Colors.black;
+      ? AppColors.primary
+      : Colors.black;
 
   static Color getTextOnPrimary(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.textOnPrimary
-          : Colors.white;
+      ? AppColors.textOnPrimary
+      : Colors.white;
 }

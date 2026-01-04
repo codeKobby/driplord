@@ -12,7 +12,8 @@ class WeatherSettingsScreen extends ConsumerStatefulWidget {
   const WeatherSettingsScreen({super.key});
 
   @override
-  ConsumerState<WeatherSettingsScreen> createState() => _WeatherSettingsScreenState();
+  ConsumerState<WeatherSettingsScreen> createState() =>
+      _WeatherSettingsScreenState();
 }
 
 class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
@@ -31,8 +32,9 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
     try {
       final permission = await Geolocator.checkPermission();
       setState(() {
-        _locationEnabled = permission == LocationPermission.always ||
-                          permission == LocationPermission.whileInUse;
+        _locationEnabled =
+            permission == LocationPermission.always ||
+            permission == LocationPermission.whileInUse;
       });
     } catch (e) {
       setState(() {
@@ -45,11 +47,12 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
     try {
       final permission = await Geolocator.requestPermission();
       setState(() {
-        _locationEnabled = permission == LocationPermission.always ||
-                          permission == LocationPermission.whileInUse;
+        _locationEnabled =
+            permission == LocationPermission.always ||
+            permission == LocationPermission.whileInUse;
       });
 
-      if (_locationEnabled) {
+      if (_locationEnabled && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Location permission granted'),
@@ -58,12 +61,14 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to request permission: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to request permission: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -71,12 +76,14 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
     try {
       await Geolocator.openLocationSettings();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Could not open location settings: $e'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not open location settings: $e'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
     }
   }
 
@@ -101,9 +108,9 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
               const SizedBox(height: 8),
               Text(
                 'Configure how weather data is collected and displayed',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
               ),
               const SizedBox(height: 32),
 
@@ -123,10 +130,11 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
                         const SizedBox(width: 12),
                         Text(
                           'Location Services',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
                       ],
                     ),
@@ -141,7 +149,10 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
 
                     // Location Status
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: _locationEnabled
                             ? AppColors.success.withValues(alpha: 0.1)
@@ -157,7 +168,9 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
                         children: [
                           Icon(
                             _locationEnabled ? Icons.check_circle : Icons.error,
-                            color: _locationEnabled ? AppColors.success : AppColors.error,
+                            color: _locationEnabled
+                                ? AppColors.success
+                                : AppColors.error,
                             size: 20,
                           ),
                           const SizedBox(width: 12),
@@ -166,10 +179,13 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
                               _locationEnabled
                                   ? 'Location access granted'
                                   : 'Location access required',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: _locationEnabled ? AppColors.success : AppColors.error,
-                                fontWeight: FontWeight.w500,
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(
+                                    color: _locationEnabled
+                                        ? AppColors.success
+                                        : AppColors.error,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                             ),
                           ),
                         ],
@@ -214,10 +230,11 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
                         const SizedBox(width: 12),
                         Text(
                           'Temperature Unit',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
                       ],
                     ),
@@ -260,10 +277,11 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
                         const SizedBox(width: 12),
                         Text(
                           'Update Frequency',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
                       ],
                     ),
@@ -306,10 +324,11 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
                         const SizedBox(width: 12),
                         Text(
                           'Weather Notifications',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
                       ],
                     ),
@@ -328,10 +347,11 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
                       children: [
                         Text(
                           'Weather Alerts',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w500,
+                              ),
                         ),
                         Switch(
                           value: _notificationsEnabled,
@@ -401,7 +421,9 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
               Text(
                 symbol,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                  color: isSelected
+                      ? AppColors.primary
+                      : AppColors.textSecondary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -409,7 +431,9 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
               Text(
                 unit,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                  color: isSelected
+                      ? AppColors.primary
+                      : AppColors.textSecondary,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
               ),
@@ -452,11 +476,7 @@ class _WeatherSettingsScreenState extends ConsumerState<WeatherSettingsScreen> {
               ),
             ),
             if (isSelected)
-              Icon(
-                Icons.check,
-                color: AppColors.primary,
-                size: 20,
-              ),
+              Icon(Icons.check, color: AppColors.primary, size: 20),
           ],
         ),
       ),

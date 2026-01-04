@@ -33,9 +33,12 @@ class HistoryNotifier extends Notifier<List<HistoryEntry>> {
         title: "Monochrome Business",
         imageUrl:
             "https://images.unsplash.com/photo-1481325544415-bc49418e662c?w=400",
+        personalImageUrl:
+            "https://images.unsplash.com/photo-1481325544415-bc49418e662c?w=400",
         tags: ["Work", "Blazer"],
         confidenceScore: 0.95,
-        reasoning: "Professional look that commands respect in business settings.",
+        reasoning:
+            "Professional look that commands respect in business settings.",
       ),
       wornAt: DateTime.now().subtract(const Duration(days: 1)),
     ),
@@ -44,6 +47,8 @@ class HistoryNotifier extends Notifier<List<HistoryEntry>> {
         id: "history_2",
         title: "Weekend Casual",
         imageUrl:
+            "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400",
+        personalImageUrl:
             "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400",
         tags: ["Chill", "Cotton"],
         confidenceScore: 0.88,

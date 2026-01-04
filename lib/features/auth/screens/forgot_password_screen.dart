@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/components/common/driplord_scaffold.dart';
 
@@ -61,46 +60,39 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return DripLordScaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 16),
-
-              // Back button
               IconButton(
+                visualDensity: VisualDensity.compact,
                 icon: Icon(
                   LucideIcons.arrowLeft,
                   color: Theme.of(context).colorScheme.onSurface,
+                  size: 20,
                 ),
                 onPressed: () => Navigator.pop(context),
-              ).animate().fadeIn(delay: 100.ms),
-
+              ),
               const SizedBox(height: 32),
-
-              // Title
               Text(
-                'Reset\nPassword',
-                style: GoogleFonts.outfit(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  color: Theme.of(context).colorScheme.onSurface,
-                  height: 1.2,
-                ),
-              ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.1, end: 0),
-
-              const SizedBox(height: 16),
-
-              Text(
-                "Enter your email address and we'll send you a link to reset your password.",
-                style: GoogleFonts.outfit(
-                  fontSize: 16,
+                "FORGOT PASSWORD",
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
-                  height: 1.5,
+                  ).colorScheme.primary.withValues(alpha: 0.5),
+                  letterSpacing: 2,
+                  fontWeight: FontWeight.w900,
                 ),
-              ).animate().fadeIn(delay: 300.ms),
+              ).animate().fadeIn(),
+              const SizedBox(height: 8),
+              Text(
+                "Recover your style pulse.",
+                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  height: 1.1,
+                ),
+              ).animate().fadeIn(delay: 100.ms).slideX(begin: -0.1, end: 0),
 
               const SizedBox(height: 48),
 
@@ -110,48 +102,49 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.05),
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(32),
                     border: Border.all(
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.1),
+                      ).colorScheme.outline.withValues(alpha: 0.5),
                     ),
                   ),
                   child: Column(
                     children: [
                       Container(
-                        width: 80,
-                        height: 80,
+                        width: 100,
+                        height: 100,
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.05),
+                          color: Theme.of(context).colorScheme.surface,
                           shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.outline.withValues(alpha: 0.5),
+                          ),
                         ),
                         child: Icon(
                           LucideIcons.mailCheck,
-                          color: Theme.of(context).colorScheme.onSurface,
+                          color: Theme.of(context).colorScheme.primary,
                           size: 40,
                         ),
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        "Link Sent",
-                        style: GoogleFonts.outfit(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                          color: Theme.of(context).colorScheme.onSurface,
+                        "LINK SENT",
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2,
                         ),
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        "We've sent a password reset link to\n${_emailController.text}",
-                        style: GoogleFonts.outfit(
-                          fontSize: 14,
+                        "We've sent a recovery link to\n${_emailController.text}",
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(
                             context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.38),
+                          ).colorScheme.onSurface.withValues(alpha: 0.5),
                           height: 1.5,
                         ),
                         textAlign: TextAlign.center,
@@ -159,29 +152,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       const SizedBox(height: 32),
                       SizedBox(
                         width: double.infinity,
-                        height: 60,
                         child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.onSurface,
-                            foregroundColor: Theme.of(
-                              context,
-                            ).colorScheme.surface,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                          ),
-                          child: Text(
-                            'Back to Login',
-                            style: GoogleFonts.outfit(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('BACK TO LOGIN'),
                         ),
                       ),
                     ],
@@ -192,102 +165,48 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  style: GoogleFonts.outfit(
-                    fontSize: 16,
-                    color: Theme.of(context).colorScheme.onSurface,
+                  decoration: const InputDecoration(
+                    hintText: 'Email address',
+                    prefixIcon: Icon(LucideIcons.mail, size: 18),
                   ),
-                  decoration: InputDecoration(
-                    hintText: 'Enter your email',
-                    hintStyle: GoogleFonts.outfit(
-                      fontSize: 14,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.38),
-                    ),
-                    prefixIcon: Icon(
-                      LucideIcons.mail,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.38),
-                      size: 20,
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.05),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        width: 1,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 20,
-                    ),
-                  ),
-                ).animate().fadeIn(delay: 400.ms),
+                ).animate().fadeIn(delay: 300.ms),
 
                 const SizedBox(height: 32),
 
                 // Send button
                 SizedBox(
                   width: double.infinity,
-                  height: 60,
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _handleResetPassword,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.onSurface,
-                      foregroundColor: Theme.of(context).colorScheme.surface,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                    ),
                     child: _isLoading
                         ? SizedBox(
-                            width: 24,
-                            height: 24,
+                            width: 20,
+                            height: 20,
                             child: CircularProgressIndicator(
-                              color: Theme.of(context).colorScheme.surface,
+                              color: Theme.of(context).colorScheme.onPrimary,
                               strokeWidth: 2,
                             ),
                           )
-                        : Text(
-                            'Send Reset Link',
-                            style: GoogleFonts.outfit(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                        : const Text('SEND RESET LINK'),
                   ),
-                ).animate().fadeIn(delay: 500.ms),
+                ).animate().fadeIn(delay: 400.ms),
 
                 const SizedBox(height: 32),
 
-                // Back link
                 Center(
                   child: TextButton(
                     onPressed: () => Navigator.pop(context),
                     child: Text(
                       "Back to Login",
-                      style: GoogleFonts.outfit(
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: Theme.of(
                           context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                ).animate().fadeIn(delay: 600.ms),
+                ).animate().fadeIn(delay: 500.ms),
               ],
             ],
           ),

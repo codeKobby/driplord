@@ -150,21 +150,26 @@ class _StyleComposerScreenState extends ConsumerState<StyleComposerScreen> {
   }
 
   void _loadOutfitForEdit(String outfitId) {
-     // Mock loading logic based on ID
-     // In a real app, fetch items from the outfit ID
-     setState(() {
-        _canvasItems = _mockRegistry.map((item) {
-           return CanvasItem(
-            id: item.id,
-            data: item,
-            position: Offset(
-              MediaQuery.of(context).size.width / 2, 
-              MediaQuery.of(context).size.height * 0.4 + (item.category == 'Top' ? -50 : item.category == 'Bottom' ? 150 : 350)
-            ),
-            zIndex: CanvasItem.getDefaultZIndex(item.category),
-          );
-        }).toList();
-     });
+    // Mock loading logic based on ID
+    // In a real app, fetch items from the outfit ID
+    setState(() {
+      _canvasItems = _mockRegistry.map((item) {
+        return CanvasItem(
+          id: item.id,
+          data: item,
+          position: Offset(
+            MediaQuery.of(context).size.width / 2,
+            MediaQuery.of(context).size.height * 0.4 +
+                (item.category == 'Top'
+                    ? -50
+                    : item.category == 'Bottom'
+                    ? 150
+                    : 350),
+          ),
+          zIndex: CanvasItem.getDefaultZIndex(item.category),
+        );
+      }).toList();
+    });
   }
 
   void _initializeCanvas() {
@@ -424,7 +429,11 @@ class _StyleComposerScreenState extends ConsumerState<StyleComposerScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         child: Column(
           children: [
-            Icon(icon, size: 20, color: AppColors.textPrimary.withValues(alpha: 0.87)),
+            Icon(
+              icon,
+              size: 20,
+              color: AppColors.textPrimary.withValues(alpha: 0.87),
+            ),
             const SizedBox(height: 4),
             Text(
               label,
@@ -446,18 +455,21 @@ class _StyleComposerScreenState extends ConsumerState<StyleComposerScreen> {
     if (widget.mode == ComposerMode.edit && widget.outfitId != null) {
       // Create a variant recommendation
       final originalId = widget.outfitId!;
-      final variantId = "${originalId}_variant_${DateTime.now().millisecondsSinceEpoch}";
-      
+      final variantId =
+          "${originalId}_variant_${DateTime.now().millisecondsSinceEpoch}";
+
       // In a real app, we'd generate a composite image from the canvas
       // For now, use a placeholder or reuse the first item's image
-      final variantImage = _canvasItems.isNotEmpty 
-          ? _canvasItems.first.data.imageUrl 
+      final variantImage = _canvasItems.isNotEmpty
+          ? _canvasItems.first.data.imageUrl
           : "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400";
 
       final variant = Recommendation(
         id: variantId,
-        title: "My Twist on ${originalId.split('_').first}", // specific title logic can be improved
+        title:
+            "My Twist on ${originalId.split('_').first}", // specific title logic can be improved
         imageUrl: variantImage,
+        personalImageUrl: variantImage, // For user-created, both are the same
         tags: ["edited", "my-style"],
         confidenceScore: 1.0, // User created it, so 100% confidence!
         reasoning: "You customized this look yourself.",
@@ -465,7 +477,7 @@ class _StyleComposerScreenState extends ConsumerState<StyleComposerScreen> {
 
       // Save as variant
       ref.read(savedOutfitsProvider.notifier).saveVariant(variant);
-      
+
       // Set as today's active outfit
       ref.read(dailyOutfitProvider.notifier).setActive(variant);
 
@@ -479,9 +491,9 @@ class _StyleComposerScreenState extends ConsumerState<StyleComposerScreen> {
       // Navigate back to home
       context.go('/home');
     } else {
-       ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Look saved to collection!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Look saved to collection!')),
+      );
     }
   }
 
@@ -798,7 +810,9 @@ class _StyleComposerScreenState extends ConsumerState<StyleComposerScreen> {
                         child: Text(
                           "This outfit has been generated based on your canvas composition.",
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(color: AppColors.textSecondary),
+                          style: GoogleFonts.inter(
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 32),

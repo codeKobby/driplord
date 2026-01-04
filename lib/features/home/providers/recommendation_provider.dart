@@ -22,7 +22,8 @@ final vibeProvider = NotifierProvider<VibeNotifier, Vibe>(() {
 class Recommendation {
   final String id;
   final String title;
-  final String imageUrl;
+  final String imageUrl; // Online Inspiration
+  final String personalImageUrl; // User's Canvas/Wardrobe Version
   final List<String> tags;
   final double confidenceScore;
   final String reasoning;
@@ -31,6 +32,7 @@ class Recommendation {
     required this.id,
     required this.title,
     required this.imageUrl,
+    required this.personalImageUrl,
     required this.tags,
     required this.confidenceScore,
     required this.reasoning,
@@ -48,6 +50,8 @@ final recommendationProvider = Provider<List<Recommendation>>((ref) {
           title: "Sunday Minimalist",
           imageUrl:
               "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800",
+          personalImageUrl:
+              "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400", // Black hoodie/sweats translation
           tags: ["Cotton", "Loose", "Neutral"],
           confidenceScore: 0.94,
           reasoning: "Perfect for today's forecast. Clean lines, zero stress.",
@@ -57,6 +61,8 @@ final recommendationProvider = Provider<List<Recommendation>>((ref) {
           title: "Coffee Run Texture",
           imageUrl:
               "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=800",
+          personalImageUrl:
+              "https://images.unsplash.com/photo-1544966503-7cc5ac882d5e?w=400", // Denim jacket translation
           tags: ["Layered", "Soft", "Earthy"],
           confidenceScore: 0.88,
           reasoning: "A bit more warmth if the breeze picks up.",
@@ -69,6 +75,8 @@ final recommendationProvider = Provider<List<Recommendation>>((ref) {
           title: "Neon City Nights",
           imageUrl:
               "https://images.unsplash.com/photo-1529139572894-3d2d93b3204b?w=800",
+          personalImageUrl:
+              "https://images.unsplash.com/photo-1520975661595-6453be3f7070?w=400", // Leather jacket translation
           tags: ["Graphic", "Oversized", "Vibrant"],
           confidenceScore: 0.96,
           reasoning: "Stand out without trying too hard.",
@@ -78,6 +86,8 @@ final recommendationProvider = Provider<List<Recommendation>>((ref) {
           title: "Industrial Contrast",
           imageUrl:
               "https://images.unsplash.com/photo-1504198458649-3128b932f49e?w=800",
+          personalImageUrl:
+              "https://images.unsplash.com/photo-1481325544415-bc49418e662c?w=400", // Sharp blazer translation
           tags: ["Tech", "Sharp", "Monochrome"],
           confidenceScore: 0.91,
           reasoning: "High impact, modern silhouette.",
@@ -90,6 +100,8 @@ final recommendationProvider = Provider<List<Recommendation>>((ref) {
           title: "Metropolitan Professional",
           imageUrl:
               "https://images.unsplash.com/photo-1481325544415-bc49418e662c?w=800",
+          personalImageUrl:
+              "https://images.unsplash.com/photo-1481325544415-bc49418e662c?w=400",
           tags: ["Tailored", "Blazer", "Monochrome"],
           confidenceScore: 0.95,
           reasoning: "Commands respect, but comfortable enough for 8 hours.",
@@ -99,6 +111,8 @@ final recommendationProvider = Provider<List<Recommendation>>((ref) {
           title: "Smart Casual Flow",
           imageUrl:
               "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=800",
+          personalImageUrl:
+              "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=400",
           tags: ["Structured", "Navy", "Crisp"],
           confidenceScore: 0.89,
           reasoning: "Professional without the stiffness.",
@@ -111,6 +125,8 @@ final recommendationProvider = Provider<List<Recommendation>>((ref) {
           title: "Street Culture Icon",
           imageUrl:
               "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=800",
+          personalImageUrl:
+              "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=400",
           tags: ["Sneakers", "Denim", "Statement"],
           confidenceScore: 0.98,
           reasoning: "On trend. The silhouette everyone's after right now.",
@@ -120,6 +136,8 @@ final recommendationProvider = Provider<List<Recommendation>>((ref) {
           title: "Utility Future",
           imageUrl:
               "https://images.unsplash.com/photo-1512413314640-c3fa08f1b623?w=800",
+          personalImageUrl:
+              "https://images.unsplash.com/photo-1512413314640-c3fa08f1b623?w=400",
           tags: ["Cargo", "Oversized", "Techwear"],
           confidenceScore: 0.92,
           reasoning: "Functional, heavy-duty, clean.",

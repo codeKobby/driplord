@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../core/components/common/fixed_app_bar.dart';
-import '../../../core/theme/app_colors.dart';
 
 class NotificationItem {
   final String id;
@@ -57,18 +57,18 @@ class NotificationItem {
     }
   }
 
-  Color get iconColor {
+  Color getIconColor(BuildContext context) {
     switch (type) {
       case 'outfit_suggestion':
-        return AppColors.primary;
+        return Theme.of(context).colorScheme.primary;
       case 'wardrobe_update':
-        return AppColors.success;
+        return Theme.of(context).colorScheme.secondary;
       case 'style_tip':
-        return AppColors.warning;
+        return Theme.of(context).colorScheme.tertiary;
       case 'weather_alert':
-        return AppColors.info;
+        return Theme.of(context).colorScheme.primary;
       default:
-        return AppColors.textSecondary;
+        return Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7);
     }
   }
 }
@@ -81,6 +81,220 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
+  // State management for bulk actions
+  final Set<String> _selectedNotificationIds = {};
+  bool _isSelectionMode = false;
+
+  // Add notification to selection
+  void _toggleNotificationSelection(String notificationId) {
+    setState(() {
+      if (_selectedNotificationIds.contains(notificationId)) {
+        _selectedNotificationIds.remove(notificationId);
+      } else {
+        _selectedNotificationIds.add(notificationId);
+      }
+    });
+  }
+
+  // Clear all selections
+  void _clearSelection() {
+    setState(() {
+      _selectedNotificationIds.clear();
+      _isSelectionMode = false;
+    });
+  }
+
+  // Enter selection mode
+  void _enterSelectionMode() {
+    setState(() {
+      _isSelectionMode = true;
+    });
+  }
+
+  // Select all notifications
+  void _selectAllNotifications() {
+    setState(() {
+      _selectedNotificationIds.clear();
+      _selectedNotificationIds.addAll(_notifications.map((n) => n.id));
+      _isSelectionMode = true;
+    });
+  }
+
+  // Mark selected notifications as read
+  void _markSelectedAsRead() {
+    if (_selectedNotificationIds.isEmpty) return;
+
+    setState(() {
+      for (var notification in _notifications) {
+        if (_selectedNotificationIds.contains(notification.id)) {
+          final index = _notifications.indexWhere(
+            (n) => n.id == notification.id,
+          );
+          if (index != -1) {
+            _notifications[index] = NotificationItem(
+              id: notification.id,
+              title: notification.title,
+              message: notification.message,
+              type: notification.type,
+              timestamp: notification.timestamp,
+              isRead: true,
+              actionUrl: notification.actionUrl,
+              metadata: notification.metadata,
+            );
+          }
+        }
+      }
+    });
+    _clearSelection();
+  }
+
+  // Delete selected notifications with confirmation
+  void _deleteSelectedNotifications() {
+    if (_selectedNotificationIds.isEmpty) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Delete Notifications',
+          style: GoogleFonts.outfit(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to delete ${_selectedNotificationIds.length} notification(s)? This action cannot be undone.',
+          style: GoogleFonts.outfit(
+            fontSize: 14,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.9),
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        actions: [
+          TextButton(
+            onPressed: Navigator.of(context).pop,
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.onSurface,
+            ),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.outfit(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _notifications.removeWhere(
+                  (n) => _selectedNotificationIds.contains(n.id),
+                );
+              });
+              _clearSelection();
+              Navigator.of(context).pop();
+
+              // Show success message
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '${_selectedNotificationIds.length} notification(s) deleted',
+                    style: GoogleFonts.outfit(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+            child: Text(
+              'Delete',
+              style: GoogleFonts.outfit(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Bulk action bar for selected items
+  Widget _buildBulkActionBar() {
+    return Container(
+      height: 60,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.1),
+            blurRadius: 10,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 16),
+          Text(
+            '${_selectedNotificationIds.length} selected',
+            style: GoogleFonts.outfit(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(width: 8),
+          TextButton(
+            onPressed: _selectAllNotifications,
+            child: Text(
+              'Select All',
+              style: GoogleFonts.outfit(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const Spacer(),
+          IconButton(
+            icon: Icon(
+              LucideIcons.eye,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            onPressed: _markSelectedAsRead,
+            tooltip: 'Mark as read',
+          ),
+          IconButton(
+            icon: Icon(
+              LucideIcons.trash2,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            onPressed: _deleteSelectedNotifications,
+            tooltip: 'Delete',
+          ),
+          IconButton(
+            icon: const Icon(LucideIcons.x, color: Colors.grey),
+            onPressed: _clearSelection,
+            tooltip: 'Done',
+          ),
+          const SizedBox(width: 16),
+        ],
+      ),
+    );
+  }
+
   // Mock data - in real app, this would come from a provider
   final List<NotificationItem> _notifications = [
     NotificationItem(
@@ -151,7 +365,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
       body: SafeArea(
         child: _notifications.isEmpty
             ? _buildEmptyState()
-            : _buildNotificationList(),
+            : Column(
+                children: [
+                  // Bulk action bar if in selection mode
+                  if (_selectedNotificationIds.isNotEmpty)
+                    _buildBulkActionBar(),
+                  // Notification list
+                  Expanded(child: _buildNotificationList()),
+                ],
+              ),
       ),
     );
   }
@@ -164,7 +386,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
           Icon(
             LucideIcons.bell,
             size: 80,
-            color: AppColors.textSecondary.withValues(alpha: 0.5),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 24),
           Text(
@@ -172,7 +396,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             style: GoogleFonts.outfit(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
@@ -180,7 +404,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
             'We\'ll notify you about outfit suggestions\nand wardrobe updates',
             style: GoogleFonts.outfit(
               fontSize: 16,
-              color: AppColors.textSecondary,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
               height: 1.5,
             ),
             textAlign: TextAlign.center,
@@ -196,7 +422,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       itemCount: _notifications.length,
       separatorBuilder: (context, index) => Divider(
         height: 1,
-        color: AppColors.glassBorder,
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
         indent: 16,
         endIndent: 16,
       ),
@@ -289,7 +515,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -305,8 +531,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
             child: ElevatedButton(
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.textOnPrimary,
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
@@ -347,9 +573,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.glassBorder),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.1),
+            ),
           ),
           child: Row(
             children: [
@@ -357,10 +587,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(LucideIcons.shirt, color: AppColors.primary),
+                child: Icon(
+                  LucideIcons.shirt,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -372,14 +607,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       style: GoogleFonts.outfit(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     Text(
                       'Added ${item['date']}',
                       style: GoogleFonts.outfit(
                         fontSize: 14,
-                        color: AppColors.textSecondary,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -417,9 +654,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.glassBorder),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.1),
+            ),
           ),
           child: Row(
             children: [
@@ -427,10 +668,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: AppColors.warning.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.secondary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(LucideIcons.shirt, color: AppColors.warning),
+                child: Icon(
+                  LucideIcons.shirt,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -442,14 +688,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       style: GoogleFonts.outfit(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     Text(
                       'Last worn ${item['lastWorn']}',
                       style: GoogleFonts.outfit(
                         fontSize: 14,
-                        color: AppColors.textSecondary,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -475,7 +723,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   title: 'Total Items',
                   value: '127',
                   icon: LucideIcons.shirt,
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const SizedBox(width: 16),
@@ -484,7 +732,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   title: 'Recently Added',
                   value: '12',
                   icon: LucideIcons.plus,
-                  color: AppColors.success,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
             ],
@@ -497,7 +745,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   title: 'Unworn Items',
                   value: '23',
                   icon: LucideIcons.eyeOff,
-                  color: AppColors.warning,
+                  color: Theme.of(context).colorScheme.tertiary,
                 ),
               ),
               const SizedBox(width: 16),
@@ -506,7 +754,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   title: 'Most Worn',
                   value: '8',
                   icon: LucideIcons.trendingUp,
-                  color: AppColors.info,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ],
@@ -525,9 +773,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+        ),
       ),
       child: Column(
         children: [
@@ -546,7 +796,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             style: GoogleFonts.outfit(
               fontSize: 24,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 4),
@@ -554,7 +804,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
             title,
             style: GoogleFonts.outfit(
               fontSize: 12,
-              color: AppColors.textSecondary,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
               fontWeight: FontWeight.w500,
             ),
             textAlign: TextAlign.center,
@@ -565,176 +817,279 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   Widget _buildNotificationItem(NotificationItem notification) {
-    return Dismissible(
-      key: Key(notification.id),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        decoration: BoxDecoration(
-          color: AppColors.error.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(LucideIcons.trash2, color: AppColors.error, size: 24),
-      ),
-      onDismissed: (direction) {
-        setState(() {
-          _notifications.removeWhere((n) => n.id == notification.id);
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${notification.title} deleted'),
-            action: SnackBarAction(
-              label: 'Undo',
-              onPressed: () {
-                setState(() {
-                  // In a real app, you'd restore from a backup or undo stack
-                  _notifications.insert(0, notification);
-                });
-              },
-            ),
-          ),
-        );
-      },
-      child: InkWell(
-        onTap: () {
-          // Mark as read
-          if (!notification.isRead) {
-            setState(() {
-              final index = _notifications.indexWhere(
-                (n) => n.id == notification.id,
-              );
-              if (index != -1) {
-                _notifications[index] = NotificationItem(
-                  id: notification.id,
-                  title: notification.title,
-                  message: notification.message,
-                  type: notification.type,
-                  timestamp: notification.timestamp,
-                  isRead: true,
-                  actionUrl: notification.actionUrl,
-                  metadata: notification.metadata,
-                );
-              }
-            });
-          }
+    // Check if notification is selected
+    bool isSelected = _selectedNotificationIds.contains(notification.id);
 
-          // Navigate to action URL if available
-          if (notification.actionUrl != null) {
-            if (notification.actionUrl!.contains('/outfits/') ||
-                notification.actionUrl!.contains('/try-on/')) {
-              context.push(notification.actionUrl!);
-            } else if (notification.actionUrl!.contains('/closet/insights/')) {
-              // Show insights as bottom sheets instead of navigating
-              _showInsightsBottomSheet(notification.actionUrl!);
-            } else if (notification.actionUrl!.contains('/closet/')) {
-              context.push(notification.actionUrl!);
-            } else if (notification.actionUrl!.contains('/home/')) {
-              context.push(notification.actionUrl!);
-            } else {
-              // Navigate to notification detail
-              context.push('/home/notifications/${notification.id}');
-            }
-          } else {
-            // Navigate to notification detail
-            context.push('/home/notifications/${notification.id}');
-          }
-        },
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        border: isSelected
+            ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
+            : null,
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Slidable(
+          key: ValueKey(notification.id),
+          endActionPane: ActionPane(
+            motion: const DrawerMotion(),
+            extentRatio: 0.5,
             children: [
-              // Icon
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: notification.iconColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Icon(
-                  notification.icon,
-                  color: notification.iconColor,
-                  size: 20,
-                ),
+              SlidableAction(
+                onPressed: (context) {
+                  // Mark as read action
+                  setState(() {
+                    final index = _notifications.indexWhere(
+                      (n) => n.id == notification.id,
+                    );
+                    if (index != -1) {
+                      _notifications[index] = NotificationItem(
+                        id: notification.id,
+                        title: notification.title,
+                        message: notification.message,
+                        type: notification.type,
+                        timestamp: notification.timestamp,
+                        isRead: true,
+                        actionUrl: notification.actionUrl,
+                        metadata: notification.metadata,
+                      );
+                    }
+                  });
+
+                  // Remove from selection if selected
+                  if (isSelected) {
+                    _selectedNotificationIds.remove(notification.id);
+                  }
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${notification.title} marked as read'),
+                    ),
+                  );
+                },
+                backgroundColor: const Color(0xFF1E88E5).withValues(alpha: 0.1),
+                foregroundColor: const Color(0xFF1E88E5),
+                icon: LucideIcons.eye,
+                label: 'Read',
               ),
+              SlidableAction(
+                onPressed: (context) {
+                  // Delete action
+                  setState(() {
+                    _notifications.removeWhere((n) => n.id == notification.id);
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${notification.title} deleted'),
+                      action: SnackBarAction(
+                        label: 'Undo',
+                        onPressed: () {
+                          setState(() {
+                            _notifications.insert(0, notification);
+                          });
+                        },
+                      ),
+                    ),
+                  );
+                },
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.error.withValues(alpha: 0.1),
+                foregroundColor: Theme.of(context).colorScheme.error,
+                icon: LucideIcons.trash2,
+                label: 'Delete',
+              ),
+            ],
+          ),
+          child: InkWell(
+            onTap: () {
+              if (_isSelectionMode) {
+                // Toggle selection
+                _toggleNotificationSelection(notification.id);
+              } else {
+                // Normal tap behavior
+                // Mark as read
+                if (!notification.isRead) {
+                  setState(() {
+                    final index = _notifications.indexWhere(
+                      (n) => n.id == notification.id,
+                    );
+                    if (index != -1) {
+                      _notifications[index] = NotificationItem(
+                        id: notification.id,
+                        title: notification.title,
+                        message: notification.message,
+                        type: notification.type,
+                        timestamp: notification.timestamp,
+                        isRead: true,
+                        actionUrl: notification.actionUrl,
+                        metadata: notification.metadata,
+                      );
+                    }
+                  });
+                }
 
-              const SizedBox(width: 16),
+                // Navigate to action URL if available
+                if (notification.actionUrl != null) {
+                  if (notification.actionUrl!.contains('/outfits/') ||
+                      notification.actionUrl!.contains('/try-on/')) {
+                    context.push(notification.actionUrl!);
+                  } else if (notification.actionUrl!.contains(
+                    '/closet/insights/',
+                  )) {
+                    // Show insights as bottom sheets instead of navigating
+                    _showInsightsBottomSheet(notification.actionUrl!);
+                  } else if (notification.actionUrl!.contains('/closet/')) {
+                    context.push(notification.actionUrl!);
+                  } else if (notification.actionUrl!.contains('/home/')) {
+                    context.push(notification.actionUrl!);
+                  } else {
+                    // Navigate to notification detail
+                    context.push('/home/notifications/${notification.id}');
+                  }
+                } else {
+                  // Navigate to notification detail
+                  context.push('/home/notifications/${notification.id}');
+                }
+              }
+            },
+            onLongPress: () {
+              // Enter selection mode and select this item
+              _enterSelectionMode();
+              _toggleNotificationSelection(notification.id);
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              decoration: isSelected
+                  ? BoxDecoration(
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    )
+                  : null,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Selection checkbox
+                  if (_isSelectionMode)
+                    Container(
+                      width: 40,
+                      height: 40,
+                      margin: const EdgeInsets.only(right: 12),
+                      child: Checkbox(
+                        value: isSelected,
+                        checkColor: Theme.of(context).colorScheme.onPrimary,
+                        activeColor: Theme.of(context).colorScheme.primary,
+                        onChanged: (bool? value) {
+                          _toggleNotificationSelection(notification.id);
+                        },
+                      ),
+                    ),
+                  // Icon
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: notification
+                          .getIconColor(context)
+                          .withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Icon(
+                      notification.icon,
+                      color: notification.getIconColor(context),
+                      size: 20,
+                    ),
+                  ),
 
-              // Content
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title and time
-                    Row(
+                  const SizedBox(width: 16),
+
+                  // Content
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Text(
-                            notification.title,
+                        // Title and time
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                notification.title,
+                                style: GoogleFonts.outfit(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: notification.isRead
+                                      ? Theme.of(context).colorScheme.onSurface
+                                            .withValues(alpha: 0.7)
+                                      : Theme.of(context).colorScheme.onSurface,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              notification.timeAgo,
+                              style: GoogleFonts.outfit(
+                                fontSize: 12,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 4),
+
+                        // Message
+                        Text(
+                          notification.message,
+                          style: GoogleFonts.outfit(
+                            fontSize: 14,
+                            color: notification.isRead
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withValues(alpha: 0.7)
+                                : Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.9),
+                            height: 1.4,
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        // Action hint (if applicable)
+                        if (notification.actionUrl != null)
+                          Text(
+                            'Tap to view',
                             style: GoogleFonts.outfit(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: notification.isRead
-                                  ? AppColors.textSecondary
-                                  : AppColors.textPrimary,
+                              fontSize: 12,
+                              color: notification.getIconColor(context),
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          notification.timeAgo,
-                          style: GoogleFonts.outfit(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
                       ],
                     ),
+                  ),
 
-                    const SizedBox(height: 4),
-
-                    // Message
-                    Text(
-                      notification.message,
-                      style: GoogleFonts.outfit(
-                        fontSize: 14,
-                        color: notification.isRead
-                            ? AppColors.textSecondary.withValues(alpha: 0.7)
-                            : AppColors.textPrimary.withValues(alpha: 0.9),
-                        height: 1.4,
+                  // Unread indicator
+                  if (!notification.isRead && !_isSelectionMode)
+                    Container(
+                      width: 8,
+                      height: 8,
+                      margin: const EdgeInsets.only(left: 8),
+                      decoration: BoxDecoration(
+                        color: notification.getIconColor(context),
+                        shape: BoxShape.circle,
                       ),
                     ),
-
-                    const SizedBox(height: 8),
-
-                    // Action hint (if applicable)
-                    if (notification.actionUrl != null)
-                      Text(
-                        'Tap to view',
-                        style: GoogleFonts.outfit(
-                          fontSize: 12,
-                          color: notification.iconColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                  ],
-                ),
+                ],
               ),
-
-              // Unread indicator
-              if (!notification.isRead)
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: notification.iconColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-            ],
+            ),
           ),
         ),
       ),

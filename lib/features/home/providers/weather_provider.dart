@@ -49,7 +49,8 @@ class WeatherData {
 }
 
 class WeatherService {
-  static const String _apiKey = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with actual API key
+  static const String _apiKey =
+      'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with actual API key
   final WeatherFactory _weatherFactory = WeatherFactory(_apiKey);
 
   Future<WeatherData?> getCurrentWeather() async {
@@ -67,9 +68,10 @@ class WeatherService {
         return null; // User denied forever
       }
 
-      // Get current position
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.medium,
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.medium,
+        ),
       );
 
       // Get weather data
@@ -126,6 +128,7 @@ class WeatherNotifier extends Notifier<AsyncValue<WeatherData?>> {
   }
 }
 
-final weatherProvider = NotifierProvider<WeatherNotifier, AsyncValue<WeatherData?>>(
-  () => WeatherNotifier(),
-);
+final weatherProvider =
+    NotifierProvider<WeatherNotifier, AsyncValue<WeatherData?>>(
+      () => WeatherNotifier(),
+    );

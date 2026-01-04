@@ -2,13 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../../core/components/buttons/primary_button.dart';
-import '../../../core/components/buttons/secondary_button.dart';
-import '../../../core/components/common/auth_divider.dart';
-import '../../../core/components/buttons/oauth_button.dart';
 import '../../../core/components/common/driplord_scaffold.dart';
 import '../../closet/providers/closet_provider.dart';
 import '../services/auth_service.dart';
@@ -34,7 +29,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   bool _isGoogleLoading = false;
   bool _isAppleLoading = false;
   bool _obscurePassword = true;
-  bool _rememberMe = false;
 
   @override
   void initState() {
@@ -144,13 +138,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
                   IconButton(
+                    visualDensity: VisualDensity.compact,
                     icon: Icon(
                       LucideIcons.arrowLeft,
                       color: Theme.of(context).colorScheme.onSurface,
+                      size: 20,
                     ),
                     onPressed: () {
                       if (_showEmailForm) {
@@ -180,31 +176,30 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   Widget _buildWelcomeVariant() {
     return SingleChildScrollView(
       key: const ValueKey('welcome'),
+      physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
-          const SizedBox(height: 20),
+          const SizedBox(height: 48),
 
           // Icon Group
           Center(
             child: Container(
-              height: 180,
-              width: 180,
+              height: 160,
+              width: 160,
               decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.05),
+                color: Theme.of(context).colorScheme.surface,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.1),
+                  ).colorScheme.outline.withValues(alpha: 0.5),
                 ),
               ),
               child: Icon(
                 LucideIcons.lock,
-                size: 80,
-                color: Theme.of(context).colorScheme.onSurface,
+                size: 60,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           ).animate().fadeIn(duration: 600.ms).scale(),
@@ -212,15 +207,26 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           const SizedBox(height: 48),
 
           Text(
-            "Access Your Style",
-            style: GoogleFonts.outfit(
-              fontSize: 32,
-              fontWeight: FontWeight.w800,
-              color: Theme.of(context).colorScheme.onSurface,
+            "ACCESS YOUR STYLE",
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.5),
+              letterSpacing: 2,
+              fontWeight: FontWeight.w900,
             ),
-          ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
+          ).animate().fadeIn(delay: 200.ms),
+          const SizedBox(height: 8),
+          Text(
+            "Your digital wardrobe awaits.",
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              height: 1.1,
+            ),
+          ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1, end: 0),
 
-          const SizedBox(height: 48),
+          const SizedBox(height: 64),
 
           // Social Buttons
           _buildSocialButton(
@@ -231,7 +237,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             onTap: _handleGoogleSignIn,
           ).animate().fadeIn(delay: 400.ms),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
           _buildSocialButton(
             icon: FontAwesomeIcons.apple,
@@ -249,21 +255,18 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 child: Divider(
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.1),
-                  thickness: 1,
+                  ).colorScheme.outline.withValues(alpha: 0.3),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
                   "OR",
-                  style: GoogleFonts.outfit(
-                    fontSize: 14,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: Theme.of(
                       context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.38),
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 2,
+                    ).colorScheme.onSurface.withValues(alpha: 0.3),
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
@@ -271,8 +274,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 child: Divider(
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.1),
-                  thickness: 1,
+                  ).colorScheme.outline.withValues(alpha: 0.3),
                 ),
               ),
             ],
@@ -280,17 +282,21 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
           const SizedBox(height: 48),
 
-          _buildPrimaryButton(
-            onPressed: () => setState(() {
-              _isLogin = true;
-              _showEmailForm = true;
-            }),
-            text: "Sign in with password",
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => setState(() {
+                _isLogin = true;
+                _showEmailForm = true;
+              }),
+              child: const Text("SIGN IN WITH PASSWORD"),
+            ),
           ).animate().fadeIn(delay: 700.ms),
 
           const SizedBox(height: 40),
 
           _buildAuthToggleLink(),
+          const SizedBox(height: 32),
         ],
       ),
     );
@@ -299,22 +305,32 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   Widget _buildEmailForm() {
     return SingleChildScrollView(
       key: const ValueKey('email_form'),
+      physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
           Text(
-            _isLogin ? "Welcome\nBack" : "Create\nAccount",
-            style: GoogleFonts.outfit(
-              fontSize: 38,
+            _isLogin ? "WELCOME\nBACK" : "CREATE\nACCOUNT",
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.5),
+              letterSpacing: 2,
+              fontWeight: FontWeight.w900,
+            ),
+          ).animate().fadeIn(),
+          const SizedBox(height: 8),
+          Text(
+            _isLogin ? "Your style is ready." : "Start your journey.",
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
               fontWeight: FontWeight.w800,
-              color: Theme.of(context).colorScheme.onSurface,
               height: 1.1,
             ),
-          ).animate().fadeIn().slideX(begin: -0.1),
+          ).animate().fadeIn(delay: 100.ms).slideX(begin: -0.1),
 
-          const SizedBox(height: 40),
+          const SizedBox(height: 48),
 
           Form(
             key: _formKey,
@@ -322,11 +338,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               children: [
                 _buildTextField(
                   controller: _emailController,
-                  hint: "Email",
+                  hint: "Email address",
                   icon: LucideIcons.mail,
                   keyboardType: TextInputType.emailAddress,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 _buildTextField(
                   controller: _passwordController,
                   hint: "Password",
@@ -337,69 +353,45 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             ),
           ),
 
-          const SizedBox(height: 20),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Checkbox(
-                value: _rememberMe,
-                onChanged: (v) => setState(() => _rememberMe = v ?? false),
-                activeColor: Theme.of(context).colorScheme.onSurface,
-                checkColor: Theme.of(context).colorScheme.surface,
-                side: BorderSide(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.38),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-              Text(
-                "Remember me",
-                style: GoogleFonts.outfit(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 32),
-
-          _buildPrimaryButton(
-            onPressed: _handleEmailAuth,
-            text: _isLogin ? "Sign in" : "Sign up",
-            isLoading: _isLoading,
-          ),
+          const SizedBox(height: 24),
 
           if (_isLogin) ...[
-            const SizedBox(height: 16),
-            Center(
+            Align(
+              alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () => context.go('/auth/forgot-password'),
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(0, 0),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
                 child: Text(
-                  "Forgot the password?",
-                  style: GoogleFonts.outfit(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
-                    fontWeight: FontWeight.w600,
+                  "Forgot password?",
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 11,
                   ),
                 ),
               ),
             ),
+            const SizedBox(height: 16),
           ],
 
-          const SizedBox(height: 40),
+          _buildPrimaryButton(
+            onPressed: _handleEmailAuth,
+            text: _isLogin ? "SIGN IN" : "SIGN UP",
+            isLoading: _isLoading,
+          ),
+
+          const SizedBox(height: 48),
 
           _buildSocialToggleRow(),
 
           const SizedBox(height: 48),
 
           _buildAuthToggleLink(),
+          const SizedBox(height: 32),
         ],
       ),
     );
@@ -414,18 +406,19 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               child: Divider(
                 color: Theme.of(
                   context,
-                ).colorScheme.onSurface.withValues(alpha: 0.1),
+                ).colorScheme.outline.withValues(alpha: 0.3),
               ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                "social join",
-                style: GoogleFonts.outfit(
+                "ALTERNATIVE JOIN",
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.24),
-                  fontSize: 12,
+                  ).colorScheme.onSurface.withValues(alpha: 0.3),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
                 ),
               ),
             ),
@@ -433,7 +426,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               child: Divider(
                 color: Theme.of(
                   context,
-                ).colorScheme.onSurface.withValues(alpha: 0.1),
+                ).colorScheme.outline.withValues(alpha: 0.3),
               ),
             ),
           ],
@@ -448,7 +441,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               onTap: _handleGoogleSignIn,
               isLoading: _isGoogleLoading,
             ),
-            const SizedBox(width: 24),
+            const SizedBox(width: 16),
             _buildSmallSocialButton(
               FontAwesomeIcons.apple,
               Theme.of(context).colorScheme.onSurface,
@@ -474,14 +467,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         width: double.infinity,
         height: 60,
         decoration: BoxDecoration(
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.05),
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
             width: 1,
           ),
         ),
@@ -492,7 +481,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   width: 24,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               )
@@ -503,10 +492,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   const SizedBox(width: 12),
                   Text(
                     label,
-                    style: GoogleFonts.outfit(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
@@ -524,17 +511,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     return GestureDetector(
       onTap: isLoading ? null : onTap,
       child: Container(
-        width: 80,
-        height: 64,
+        width: 100,
+        height: 60,
         decoration: BoxDecoration(
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(20),
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
             width: 1,
           ),
         ),
@@ -545,11 +528,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   width: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               )
-            : Center(child: FaIcon(icon, color: color, size: 24)),
+            : Center(child: FaIcon(icon, color: color, size: 22)),
       ),
     );
   }
@@ -561,29 +544,18 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }) {
     return SizedBox(
       width: double.infinity,
-      height: 60,
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.onSurface,
-          foregroundColor: Theme.of(context).colorScheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(100),
-          ),
-          elevation: 0,
-        ),
         child: isLoading
-            ? CircularProgressIndicator(
-                color: Theme.of(context).colorScheme.surface,
-              )
-            : Text(
-                text,
-                style: GoogleFonts.outfit(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1,
+            ? SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Theme.of(context).colorScheme.onPrimary,
                 ),
-              ),
+              )
+            : Text(text),
       ),
     );
   }
@@ -599,53 +571,19 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       controller: controller,
       obscureText: isPassword && _obscurePassword,
       keyboardType: keyboardType,
-      style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.outfit(
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.38),
-        ),
-        prefixIcon: Icon(
-          icon,
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.38),
-          size: 20,
-        ),
+        prefixIcon: Icon(icon, size: 18),
         suffixIcon: isPassword
             ? IconButton(
-                icon: Icon(
-                  _obscurePassword ? LucideIcons.eyeOff : LucideIcons.eye,
-                ),
                 onPressed: () =>
                     setState(() => _obscurePassword = !_obscurePassword),
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.38),
+                icon: Icon(
+                  _obscurePassword ? LucideIcons.eyeOff : LucideIcons.eye,
+                  size: 18,
+                ),
               )
             : null,
-        filled: true,
-        fillColor: Theme.of(
-          context,
-        ).colorScheme.onSurface.withValues(alpha: 0.05),
-        contentPadding: const EdgeInsets.all(22),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.onSurface,
-            width: 1,
-          ),
-        ),
       ),
     );
   }
@@ -665,21 +603,18 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         },
         child: RichText(
           text: TextSpan(
-            text: _isLogin
-                ? "Don't have an account? "
-                : "Already have an account? ",
-            style: GoogleFonts.outfit(
+            text: _isLogin ? "New to DripLord? " : "Already styled? ",
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(
                 context,
-              ).colorScheme.onSurface.withValues(alpha: 0.54),
-              fontSize: 16,
+              ).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
             children: [
               TextSpan(
-                text: _isLogin ? "Sign up" : "Sign in",
-                style: GoogleFonts.outfit(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.w800,
+                text: _isLogin ? "Join now" : "Sign in",
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  decoration: TextDecoration.underline,
                 ),
               ),
             ],

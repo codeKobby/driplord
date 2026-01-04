@@ -18,67 +18,61 @@ class FixedBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 80, // Increased height to accommodate content
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
           top: BorderSide(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
             width: 0.5,
           ),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
       ),
       child: SafeArea(
         top: false,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            // Left items (first half)
-            ...items
-                .sublist(0, (items.length / 2).floor())
-                .asMap()
-                .entries
-                .map((entry) {
-                  final index = entry.key;
-                  final item = entry.value;
-                  final isSelected = index == currentIndex;
-                  return Expanded(
-                    child: _ModernNavItem(
-                      item: item,
-                      isSelected: isSelected,
-                      onTap: () => onTap(index),
-                    ),
-                  );
-                }),
+        child: SizedBox(
+          height: 64, // Sleeker height
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              // Left items
+              ...items
+                  .sublist(0, (items.length / 2).floor())
+                  .asMap()
+                  .entries
+                  .map((entry) {
+                    final index = entry.key;
+                    final item = entry.value;
+                    final isSelected = index == currentIndex;
+                    return Expanded(
+                      child: _ModernNavItem(
+                        item: item,
+                        isSelected: isSelected,
+                        onTap: () => onTap(index),
+                      ),
+                    );
+                  }),
 
-            // Center action button
-            if (centerAction != null) centerAction!,
+              // Center action button
+              if (centerAction != null)
+                Expanded(child: Center(child: centerAction!)),
 
-            // Right items (second half)
-            ...items
-                .sublist((items.length / 2).floor())
-                .asMap()
-                .entries
-                .map((entry) {
-                  final index = entry.key + (items.length / 2).floor();
-                  final item = entry.value;
-                  final isSelected = index == currentIndex;
-                  return Expanded(
-                    child: _ModernNavItem(
-                      item: item,
-                      isSelected: isSelected,
-                      onTap: () => onTap(index),
-                    ),
-                  );
-                }),
-          ],
+              // Right items
+              ...items.sublist((items.length / 2).floor()).asMap().entries.map((
+                entry,
+              ) {
+                final index = entry.key + (items.length / 2).floor();
+                final item = entry.value;
+                final isSelected = index == currentIndex;
+                return Expanded(
+                  child: _ModernNavItem(
+                    item: item,
+                    isSelected: isSelected,
+                    onTap: () => onTap(index),
+                  ),
+                );
+              }),
+            ],
+          ),
         ),
       ),
     );
@@ -105,48 +99,49 @@ class _ModernNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 44,
-              height: 28,
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                item.icon,
-                size: 20,
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            item.icon,
+            size: 22,
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.4),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            item.label,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.4),
+              letterSpacing: 0.2,
             ),
+          ),
+          if (isSelected) ...[
             const SizedBox(height: 4),
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                letterSpacing: 0.2,
+            Container(
+              width: 4,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+                shape: BoxShape.circle,
               ),
-              child: Text(item.label),
             ),
           ],
-        ),
+        ],
       ),
     );
   }

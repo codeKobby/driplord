@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/app_dimensions.dart';
@@ -28,7 +27,7 @@ class OutfitHeroCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -98,10 +97,8 @@ class OutfitHeroCard extends StatelessWidget {
                       ),
                       child: Text(
                         outfit.occasionHint.toUpperCase(),
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
                           letterSpacing: 1.0,
                         ),
                       ),
@@ -113,10 +110,10 @@ class OutfitHeroCard extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.success.withOpacity(0.2),
+                        color: AppColors.success.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(100),
                         border: Border.all(
-                          color: AppColors.success.withOpacity(0.5),
+                          color: AppColors.success.withValues(alpha: 0.5),
                         ),
                       ),
                       child: Row(
@@ -130,11 +127,11 @@ class OutfitHeroCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             '${(outfit.confidenceScore * 100).toInt()}% MATCH',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.success,
-                            ),
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                  color: AppColors.success,
+                                ),
                           ),
                         ],
                       ),
@@ -146,10 +143,8 @@ class OutfitHeroCard extends StatelessWidget {
                 // Title
                 Text(
                   outfit.title,
-                  style: GoogleFonts.inter(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
                     height: 1.1,
                   ),
                 ),

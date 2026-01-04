@@ -12,7 +12,7 @@ import '../../features/outfits/screens/outfits_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../components/common/fixed_app_bar.dart';
 
-import '../../features/home/screens/daily_stylist_screen.dart';
+import '../../features/home/screens/daily_hub_screen.dart';
 import '../../features/home/screens/main_scaffold.dart';
 import '../../features/try_on/screens/style_composer_screen.dart';
 
@@ -190,7 +190,7 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/home',
-              builder: (context, state) => const DailyStylistScreen(),
+              builder: (context, state) => const DailyHubScreen(),
             ),
           ],
         ),

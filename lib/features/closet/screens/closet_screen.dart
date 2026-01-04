@@ -1,54 +1,50 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/components/cards/glass_card.dart';
 import '../../../core/components/buttons/primary_button.dart';
 import '../../../core/components/buttons/secondary_button.dart';
 import '../../../core/constants/app_dimensions.dart';
 import '../../../core/theme/app_colors.dart';
 import '../providers/closet_provider.dart';
-import '../../try_on/providers/mirror_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class _AppColors {
   static Color getBackground(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.background
-          : const Color(0xFFFBF9F6); // Light cream
+      ? AppColors.background
+      : const Color(0xFFFBF9F6); // Light cream
 
   static Color getSurface(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.surface
-          : Colors.white;
+      ? AppColors.surface
+      : Colors.white;
 
   static Color getTextPrimary(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.textPrimary
-          : Colors.black;
+      ? AppColors.textPrimary
+      : Colors.black;
 
   static Color getTextSecondary(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.textSecondary
-          : Colors.black54;
+      ? AppColors.textSecondary
+      : Colors.black54;
 
   static Color getGlassBorder(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.glassBorder
-          : AppColors.glassBorderDark;
+      ? AppColors.glassBorder
+      : AppColors.glassBorderDark;
 
   static Color getPrimary(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.primary
-          : Colors.black;
+      ? AppColors.primary
+      : Colors.black;
 
   static Color getTextOnPrimary(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? AppColors.textOnPrimary
-          : Colors.white;
+      ? AppColors.textOnPrimary
+      : Colors.white;
 }
 
 class ClosetScreen extends ConsumerStatefulWidget {
@@ -98,7 +94,11 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(LucideIcons.shirt, size: 80, color: _AppColors.getTextSecondary(context)),
+          Icon(
+            LucideIcons.shirt,
+            size: 80,
+            color: _AppColors.getTextSecondary(context),
+          ),
           const SizedBox(height: 24),
           Text(
             "Your closet is empty",
@@ -110,9 +110,9 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
           const SizedBox(height: 8),
           Text(
             "Add your first clothing item to get started",
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(color: _AppColors.getTextSecondary(context)),
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: _AppColors.getTextSecondary(context),
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 40),
@@ -153,13 +153,29 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
                   isSelected: ref.watch(selectedCategoryProvider) == "All",
                 ),
                 const SizedBox(width: 8),
-                _buildFilterChip(context, "Tops"),
+                _buildFilterChip(
+                  context,
+                  "Tops",
+                  isSelected: ref.watch(selectedCategoryProvider) == "Tops",
+                ),
                 const SizedBox(width: 8),
-                _buildFilterChip(context, "Bottoms"),
+                _buildFilterChip(
+                  context,
+                  "Bottoms",
+                  isSelected: ref.watch(selectedCategoryProvider) == "Bottoms",
+                ),
                 const SizedBox(width: 8),
-                _buildFilterChip(context, "Shoes"),
+                _buildFilterChip(
+                  context,
+                  "Shoes",
+                  isSelected: ref.watch(selectedCategoryProvider) == "Shoes",
+                ),
                 const SizedBox(width: 8),
-                _buildFilterChip(context, "Outerwear"),
+                _buildFilterChip(
+                  context,
+                  "Outerwear",
+                  isSelected: ref.watch(selectedCategoryProvider) == "Outerwear",
+                ),
               ],
             ),
           ),
@@ -186,28 +202,50 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
     );
   }
 
-  Widget _buildFilterChip(BuildContext context, String label, {bool isSelected = false}) {
+  Widget _buildFilterChip(
+    BuildContext context,
+    String label, {
+    bool isSelected = false,
+  }) {
     return FilterChip(
       label: Text(
         label,
         style: TextStyle(
-          color: isSelected ? _AppColors.getTextOnPrimary(context) : _AppColors.getTextPrimary(context),
+          color: isSelected
+              ? _AppColors.getTextOnPrimary(context)
+              : _AppColors.getTextPrimary(context),
           fontWeight: FontWeight.w600,
           fontSize: 12,
         ),
       ),
-      backgroundColor: isSelected ? _AppColors.getPrimary(context) : _AppColors.getSurface(context),
-      selectedColor: isSelected ? _AppColors.getPrimary(context) : _AppColors.getSurface(context),
+      labelStyle: TextStyle(
+        color: isSelected
+            ? _AppColors.getTextOnPrimary(context)
+            : _AppColors.getTextPrimary(context),
+        fontWeight: FontWeight.w600,
+        fontSize: 12,
+      ),
+      backgroundColor: _AppColors.getSurface(context),
+      selectedColor: _AppColors.getPrimary(context),
+      checkmarkColor: _AppColors.getTextOnPrimary(context),
+      side: BorderSide(
+        color: isSelected
+            ? _AppColors.getPrimary(context)
+            : _AppColors.getGlassBorder(context),
+        width: 1.5,
+      ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          color: isSelected ? Colors.transparent : _AppColors.getGlassBorder(context),
-        ),
       ),
       selected: isSelected,
       onSelected: (bool selected) {
         ref.read(selectedCategoryProvider.notifier).setCategory(label);
       },
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      elevation: 0,
+      pressElevation: 2,
+      shadowColor: Colors.transparent,
+      selectedShadowColor: Colors.transparent,
     );
   }
 
@@ -271,7 +309,9 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
                               color: _getColorFromString(item.color!),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: _AppColors.getSurface(context).withValues(alpha: 0.8),
+                                color: _AppColors.getSurface(
+                                  context,
+                                ).withValues(alpha: 0.8),
                                 width: 1,
                               ),
                             ),
@@ -281,7 +321,9 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: _AppColors.getSurface(context).withValues(alpha: 0.8),
+                            color: _AppColors.getSurface(
+                              context,
+                            ).withValues(alpha: 0.8),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Icon(
@@ -295,7 +337,10 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
                         if (isRecentlyAdded)
                           Container(
                             margin: const EdgeInsets.only(top: 4),
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: _AppColors.getPrimary(context),
                               borderRadius: BorderRadius.circular(8),
