@@ -201,30 +201,43 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         ),
                       ),
                     const SizedBox(height: 32),
-                    GestureDetector(
-                      onTap: () {
-                        // Navigate to Login
-                        context.push('/auth');
-                      },
-                      child: RichText(
-                        text: TextSpan(
-                          text: "Already have an account? ",
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.5),
-                              ),
-                          children: [
-                            TextSpan(
-                              text: "Sign in",
-                              style: Theme.of(context).textTheme.labelLarge
+                    Semantics(
+                      button: true,
+                      label: "Already have an account? Sign in",
+                      child: InkWell(
+                        onTap: () {
+                          // Navigate to Login
+                          context.push('/auth');
+                        },
+                        child: ExcludeSemantics(
+                          child: RichText(
+                            text: TextSpan(
+                              text: "Already have an account? ",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
                                   ?.copyWith(
-                                    fontWeight: FontWeight.w900,
-                                    decoration: TextDecoration.underline,
+                                    color: Theme.of(
+                                      context,
+                                    )
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.5),
                                   ),
+                              children: [
+                                TextSpan(
+                                  text: "Sign in",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelLarge
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w900,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
