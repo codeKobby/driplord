@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/components/cards/glass_card.dart';
 import '../../../core/components/buttons/primary_button.dart';
-import '../../../core/components/buttons/secondary_button.dart';
+
 import '../../../core/constants/app_dimensions.dart';
 import '../../../core/theme/app_colors.dart';
 import '../providers/closet_provider.dart';
@@ -42,7 +42,6 @@ class ClosetScreen extends ConsumerStatefulWidget {
 }
 
 class _ClosetScreenState extends ConsumerState<ClosetScreen> {
-  final ImagePicker _picker = ImagePicker();
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
@@ -186,45 +185,7 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
     );
   }
 
-  void _showAddOptions() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => GlassSurface(
-        padding: const EdgeInsets.all(AppDimensions.paddingLg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Add to Closet",
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            PrimaryButton(
-              text: "Add from Gallery",
-              onPressed: () {
-                Navigator.pop(context);
-                _addClothing();
-              },
-              icon: LucideIcons.image,
-            ),
-            const SizedBox(height: 12),
-            SecondaryButton(
-              text: "Take Photo",
-              onPressed: () {
-                Navigator.pop(context);
-                _addClothingFromCamera();
-              },
-              icon: LucideIcons.camera,
-            ),
-            const SizedBox(height: 32),
-          ],
-        ),
-      ),
-    );
-  }
+
 
   Widget _buildEmptyState() {
     return Padding(
@@ -256,7 +217,9 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
           const SizedBox(height: 40),
           PrimaryButton(
             text: "Get Started",
-            onPressed: _showAddOptions,
+            onPressed: () {
+              context.push('/closet/add');
+            },
             icon: LucideIcons.plus,
           ),
         ],
@@ -364,6 +327,7 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useRootNavigator: true,
       backgroundColor: Colors.transparent,
       builder: (context) => const ClosetFilterSheet(),
     );
@@ -528,53 +492,5 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
         .scale(begin: const Offset(0.95, 0.95), curve: Curves.easeOutBack);
   }
 
-  Future<void> _addClothing() async {
-    try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-      if (image != null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Image selected! (Upload coming soon)"),
-              backgroundColor: AppColors.success,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Failed to pick image: ${e.toString()}"),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    }
-  }
 
-  Future<void> _addClothingFromCamera() async {
-    try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-      if (image != null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Photo taken! (Upload coming soon)"),
-              backgroundColor: AppColors.success,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Failed to take photo: ${e.toString()}"),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    }
-  }
 }

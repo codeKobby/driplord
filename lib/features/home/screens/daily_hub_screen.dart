@@ -1,10 +1,10 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/constants/app_dimensions.dart';
-import '../../../core/theme/app_colors.dart';
 import '../providers/recommendation_provider.dart';
 import '../providers/saved_outfits_provider.dart';
 import '../providers/weather_provider.dart';
@@ -186,7 +186,9 @@ class DailyHubScreen extends ConsumerWidget {
         // Main Image
         Container(
           clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppDimensions.radiusSm)),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+          ),
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -241,13 +243,17 @@ class DailyHubScreen extends ConsumerWidget {
                           ),
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.surface,
-                            borderRadius: BorderRadius.circular(AppDimensions.radiusXs),
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusXs,
+                            ),
                           ),
                           child: Text(
                             "YOUR STYLE",
                             style: Theme.of(context).textTheme.labelSmall
                                 ?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                   fontWeight: FontWeight.w900,
                                   fontSize: 8,
                                   letterSpacing: 1,
@@ -284,53 +290,77 @@ class DailyHubScreen extends ConsumerWidget {
           bottom: 24,
           left: 24,
           right: 24,
-          child: Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () =>
-                      context.push('/try-on/ai/${recommendation.id}'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
-                    ),
-                  ),
-                  child: Text(
-                    "TRY ON",
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    width: 1,
                   ),
                 ),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () =>
-                      context.push('/try-on/edit/${recommendation.id}'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.onSurface,
-                    side: BorderSide(
-                      color: Theme.of(context).colorScheme.outline,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () =>
+                            context.push('/try-on/ai/${recommendation.id}'),
+                        icon: const Icon(LucideIcons.sparkles, size: 16),
+                        label: Text(
+                          "TRY ON",
+                          style: GoogleFonts.outfit(
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 2,
+                            fontSize: 12,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusMd,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextButton.icon(
+                        onPressed: () =>
+                            context.push('/try-on/edit/${recommendation.id}'),
+                        icon: const Icon(LucideIcons.edit3, size: 16),
+                        label: Text(
+                          "EDIT",
+                          style: GoogleFonts.outfit(
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 2,
+                            fontSize: 12,
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusMd,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                    minimumSize: const Size(80, 36),
-                  ),
-                  child: Text(
-                    "EDIT",
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ],
@@ -347,7 +377,9 @@ class DailyHubScreen extends ConsumerWidget {
       children: [
         // Newly Added Section (2x2 grid)
         if (recentlyAddedItems.isNotEmpty) ...[
-          _buildSectionHeader(context, "NEWLY ADDED", "VIEW ALL"),
+          _buildSectionHeader(context, "NEWLY ADDED", "VIEW ALL", onActionTap: () {
+            context.push('/home/newly-added');
+          }),
           const SizedBox(height: 20),
           _buildGridSection(context, recentlyAddedItems, () {
             context.push('/home/newly-added');
@@ -357,7 +389,9 @@ class DailyHubScreen extends ConsumerWidget {
 
         // Neglected Section (2x2 grid)
         if (unwornItems.isNotEmpty) ...[
-          _buildSectionHeader(context, "NEGLECTED PIECES", "VIEW ALL"),
+          _buildSectionHeader(context, "NEGLECTED PIECES", "VIEW ALL", onActionTap: () {
+            context.push('/home/neglected');
+          }),
           const SizedBox(height: 20),
           _buildGridSection(context, unwornItems, () {
             context.push('/home/neglected');
@@ -367,7 +401,9 @@ class DailyHubScreen extends ConsumerWidget {
 
         // Frequently Worn Section (2x2 grid)
         if (frequentlyWornItems.isNotEmpty) ...[
-          _buildSectionHeader(context, "FREQUENTLY WORN", "VIEW ALL"),
+          _buildSectionHeader(context, "FREQUENTLY WORN", "VIEW ALL", onActionTap: () {
+            context.push('/home/frequently-worn');
+          }),
           const SizedBox(height: 20),
           _buildGridSection(context, frequentlyWornItems, () {
             context.push('/home/frequently-worn');
@@ -380,8 +416,9 @@ class DailyHubScreen extends ConsumerWidget {
   Widget _buildSectionHeader(
     BuildContext context,
     String title,
-    String action,
-  ) {
+    String action, {
+    VoidCallback? onActionTap,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -395,7 +432,7 @@ class DailyHubScreen extends ConsumerWidget {
         ),
         GestureDetector(
           onTap: action == "VIEW ALL"
-              ? null
+              ? onActionTap
               : () {
                   if (action == "SCAN ALL") {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -408,7 +445,9 @@ class DailyHubScreen extends ConsumerWidget {
           child: Text(
             action,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.4),
               fontWeight: action == "VIEW ALL"
                   ? FontWeight.bold
                   : FontWeight.normal,
@@ -424,13 +463,13 @@ class DailyHubScreen extends ConsumerWidget {
   }
 
   Widget _buildGridSection(
-    BuildContext context, 
-    List<ClothingItem> items, 
-    VoidCallback onViewAllTap,
-    {bool showAll = false}
-  ) {
+    BuildContext context,
+    List<ClothingItem> items,
+    VoidCallback onViewAllTap, {
+    bool showAll = false,
+  }) {
     final itemsToShow = showAll ? items : items.take(4).toList();
-    
+
     return Container(
       height: showAll ? null : 240,
       constraints: BoxConstraints(
@@ -453,69 +492,76 @@ class DailyHubScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGridItemCard(BuildContext context, ClothingItem item, int index) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.1),
-          width: 1,
+  Widget _buildGridItemCard(
+    BuildContext context,
+    ClothingItem item,
+    int index,
+  ) {
+    return GestureDetector(
+      onTap: () => context.push('/closet/item/${item.id}'),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.1),
+            width: 1,
+          ),
         ),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.network(item.imageUrl, fit: BoxFit.cover),
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withValues(alpha: 0.6),
-                  ],
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.network(item.imageUrl, fit: BoxFit.cover),
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.6),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Positioned(
-            bottom: 12,
-            left: 12,
-            right: 12,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.name.toUpperCase(),
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Colors.white,
+            Positioned(
+              bottom: 12,
+              left: 12,
+              right: 12,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.name.toUpperCase(),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleSmall?.copyWith(color: Colors.white),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  item.category.toUpperCase(),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white70,
+                  const SizedBox(height: 4),
+                  Text(
+                    item.category.toUpperCase(),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.white70),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  item.lastWornAt != null
-                      ? "Last worn ${getRelativeTime(item.lastWornAt!)}"
-                      : "Never worn",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white54,
+                  const SizedBox(height: 4),
+                  Text(
+                    item.lastWornAt != null
+                        ? "Last worn ${getRelativeTime(item.lastWornAt!)}"
+                        : "Never worn",
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.white54),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -534,7 +580,9 @@ class DailyHubScreen extends ConsumerWidget {
                     color: Theme.of(
                       context,
                     ).colorScheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(AppDimensions.radiusInput),
+                    borderRadius: BorderRadius.circular(
+                      AppDimensions.radiusInput,
+                    ),
                     border: Border.all(
                       color: Theme.of(
                         context,
@@ -586,7 +634,7 @@ class DailyHubScreen extends ConsumerWidget {
                 )
               : const SizedBox.shrink(),
           loading: () => const SizedBox.shrink(),
-          error: (_, __) => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
         );
   }
 

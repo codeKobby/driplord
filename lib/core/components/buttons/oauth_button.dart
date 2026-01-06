@@ -39,7 +39,7 @@ class OAuthButton extends StatelessWidget {
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppDimensions.radiusPill),
-            side: BorderSide(color: borderColor, width: 1),
+            side: BorderSide(color: borderColor, width: 2),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: AppDimensions.paddingXl,
@@ -101,7 +101,7 @@ class GoogleOAuthButton extends StatelessWidget {
       isLoading: isLoading,
       backgroundColor: Colors.white,
       foregroundColor: Colors.black87,
-      borderColor: Colors.grey.shade300,
+      borderColor: Colors.grey.shade600,
     );
   }
 }
@@ -125,7 +125,7 @@ class AppleOAuthButton extends StatelessWidget {
       isLoading: isLoading,
       backgroundColor: Colors.black,
       foregroundColor: Colors.white,
-      borderColor: Colors.grey.shade800,
+      borderColor: Colors.white.withValues(alpha: 0.3),
     );
   }
 }

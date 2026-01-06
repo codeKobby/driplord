@@ -12,6 +12,8 @@ Before implementing ANY feature, coding ANY solution, or making ANY architectura
 
 **FAILURE TO USE MCP TOOLS BEFORE CODING WILL RESULT IN SUBOPTIMAL IMPLEMENTATIONS**
 
+**NON-NEGOTIABLE REQUIREMENT**: **context7** and **web search** MUST be used for all relevant knowledge acquisition. Do not proceed with implementation without first researching through these tools. This is mandatory for every task involving new concepts, frameworks, packages, or patterns.
+
 ---
 
 ## 📚 CONTEXT7 USAGE - HIGHEST PRIORITY
@@ -121,6 +123,7 @@ Before implementing ANY feature, coding ANY solution, or making ANY architectura
 - `read_file` - Analyze existing code before modifications
 - `write_to_file` - Create new files with proper structure
 - `replace_in_file` - Make targeted edits to existing files
+- **PROHIBITED**: Do not create new versions of existing files unless explicitly told to do so. Always modify existing files in place using `replace_in_file` when possible.
 
 ---
 
@@ -178,6 +181,7 @@ Before implementing ANY feature, coding ANY solution, or making ANY architectura
 - **CONST CONSTRUCTORS**: Use whenever possible
 - **LINT RULES**: Follow `analysis_options.yaml` (flutter_lints ^6.0.0)
 - **ASYNC/AWAIT**: Always proper error handling
+- **THEME COLORS MANDATORY**: **NON-NEGOTIABLE** - Never use hardcoded colors. Always use theme colors from `lib/core/theme/app_colors.dart` and `lib/core/theme/app_theme.dart`. No exceptions. Use `Theme.of(context)` or theme extension methods. Hardcoded colors will result in immediate rejection.
 
 ---
 

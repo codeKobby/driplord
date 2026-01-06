@@ -7,7 +7,7 @@ This document outlines the complete routing architecture for DripLord, including
 ## 🗂️ Current Navigation Structure (January 2026)
 
 **Main Navigation (StatefulShellRoute with Bottom Tabs):**
-- **Home** → DailyStylistScreen (AI outfit carousel, vibe selectors, history)
+- **Home** → DailyHubScreen (AI outfit carousel, vibe selectors, history)
 - **Closet** → ClosetScreen (wardrobe grid, filtering, image picker)
 - **Outfits** → OutfitsScreen (saved outfits, history tracking)
 - **Profile** → ProfileScreen (theme toggle, statistics, settings)
@@ -17,8 +17,8 @@ This document outlines the complete routing architecture for DripLord, including
 - Home → WeatherSettingsScreen, VibeSettingsScreen, VibeCustomizationScreen
 - Closet → AddItemScreen (camera/gallery/URL modes), ItemDetailScreen
 - Closet → ClosetInsightsScreen, UnwornItemsScreen, RecentItemsScreen
-- Outfits → OutfitDetailScreen, StyleComposerScreen (multiple modes)
-- Try-on → StyleComposerScreen (tryOn, view, edit, manual, ai modes)
+- Outfits → OutfitDetailScreen, EnhancedStyleComposerScreen (multiple modes)
+- Try-on → EnhancedStyleComposerScreen (tryOn, view, edit, manual, ai modes)
 - Auth → AuthScreen, SignUpScreen, ForgotPasswordScreen
 - Onboarding → WelcomeScreen, StylePreferenceScreen, BodyMeasurementsScreen, ScanClothesScreen
 
@@ -288,11 +288,11 @@ bool validateReplacement(ClothingItem oldItem, ClothingItem newItem, OutfitConte
 #### **Composer Modes**
 
 ```
-/try-on → StyleComposerScreen (main studio)
-/try-on/item/:id → StyleComposerScreen(mode: ComposerMode.tryOn)
-/try-on/outfit/:id → StyleComposerScreen(mode: ComposerMode.view)
-/try-on/compose → StyleComposerScreen(mode: ComposerMode.manual)
-/try-on/ai/:vibe → StyleComposerScreen(mode: ComposerMode.ai)
+/try-on → EnhancedStyleComposerScreen (main studio)
+/try-on/item/:id → EnhancedStyleComposerScreen(mode: ComposerMode.tryOn)
+/try-on/outfit/:id → EnhancedStyleComposerScreen(mode: ComposerMode.view)
+/try-on/compose → EnhancedStyleComposerScreen(mode: ComposerMode.manual)
+/try-on/ai/:vibe → EnhancedStyleComposerScreen(mode: ComposerMode.ai)
 ```
 
 **Mode Definitions:**
@@ -308,7 +308,7 @@ bool validateReplacement(ClothingItem oldItem, ClothingItem newItem, OutfitConte
 ```dart
 // Try single item
 Navigator.push(context, MaterialPageRoute(
-  builder: (_) => StyleComposerScreen(
+  builder: (_) => EnhancedStyleComposerScreen(
     mode: ComposerMode.tryOn,
     initialItemId: item.id,
   ),
@@ -316,7 +316,7 @@ Navigator.push(context, MaterialPageRoute(
 
 // Manual composition starting with item
 Navigator.push(context, MaterialPageRoute(
-  builder: (_) => StyleComposerScreen(
+  builder: (_) => EnhancedStyleComposerScreen(
     mode: ComposerMode.manual,
     initialItems: [item],
   ),
@@ -327,7 +327,7 @@ Navigator.push(context, MaterialPageRoute(
 ```dart
 // View complete outfit
 Navigator.push(context, MaterialPageRoute(
-  builder: (_) => StyleComposerScreen(
+  builder: (_) => EnhancedStyleComposerScreen(
     mode: ComposerMode.view,
     outfitId: outfit.id,
   ),
@@ -335,7 +335,7 @@ Navigator.push(context, MaterialPageRoute(
 
 // Edit existing outfit
 Navigator.push(context, MaterialPageRoute(
-  builder: (_) => StyleComposerScreen(
+  builder: (_) => EnhancedStyleComposerScreen(
     mode: ComposerMode.edit,
     outfitId: outfit.id,
   ),
@@ -346,7 +346,7 @@ Navigator.push(context, MaterialPageRoute(
 ```dart
 // AI-generated composition
 Navigator.push(context, MaterialPageRoute(
-  builder: (_) => StyleComposerScreen(
+  builder: (_) => EnhancedStyleComposerScreen(
     mode: ComposerMode.ai,
     vibe: selectedVibe,
     weatherContext: currentWeather,
@@ -464,7 +464,7 @@ Navigator.push(context, MaterialPageRoute(
 
 **Main Tab Navigation (StatefulShellRoute):**
 ```
-/home → DailyStylistScreen (Home tab)
+/home → DailyHubScreen (Home tab)
 /closet → ClosetScreen (Closet tab)
 /outfits → OutfitsScreen (Outfits tab)
 /profile → ProfileScreen (Profile tab)
@@ -498,17 +498,17 @@ Navigator.push(context, MaterialPageRoute(
 **Outfits Subpages:**
 ```
 /outfits/:id → OutfitDetailScreen
-/outfits/create → StyleComposerScreen(mode: ComposerMode.manual)
+/outfits/create → EnhancedStyleComposerScreen(mode: ComposerMode.manual)
 ```
 
 **Style Composer / Try-On Routes:**
 ```
-/try-on → StyleComposerScreen(mode: ComposerMode.manual)
-/try-on/item/:id → StyleComposerScreen(mode: ComposerMode.tryOn)
-/try-on/outfit/:id → StyleComposerScreen(mode: ComposerMode.view)
-/try-on/edit/:id → StyleComposerScreen(mode: ComposerMode.edit)
-/try-on/compose → StyleComposerScreen(mode: ComposerMode.manual)
-/try-on/ai/:vibe → StyleComposerScreen(mode: ComposerMode.ai)
+/try-on → EnhancedStyleComposerScreen(mode: ComposerMode.manual)
+/try-on/item/:id → EnhancedStyleComposerScreen(mode: ComposerMode.tryOn)
+/try-on/outfit/:id → EnhancedStyleComposerScreen(mode: ComposerMode.view)
+/try-on/edit/:id → EnhancedStyleComposerScreen(mode: ComposerMode.edit)
+/try-on/compose → EnhancedStyleComposerScreen(mode: ComposerMode.manual)
+/try-on/ai/:vibe → EnhancedStyleComposerScreen(mode: ComposerMode.ai)
 ```
 
 **Planned Premium Routes:**

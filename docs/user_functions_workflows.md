@@ -5,9 +5,9 @@
 This document outlines the major functions and workflows users can perform in DripLord. The document reflects the current MVP implementation status, distinguishing between implemented features, mock implementations, and planned premium features.
 
 **🎯 Phase-2 MVP Status (Current Priority):**
-- ✅ **Implemented**: Core wardrobe management, outfit recommendations, basic UI/UX
-- 🔄 **Mock Data**: Outfit suggestions use static data (AI integration planned)
-- ❌ **Not Implemented**: Supabase database integration, Gemini AI, premium features
+- ✅ **Implemented**: Complete UI/UX with sophisticated design system, navigation, and mock data
+- 🔄 **Mock Data**: Outfit suggestions use static/placeholder data (AI integration planned)
+- ❌ **Not Implemented**: Supabase database integration, Gemini AI backend, premium features
 
 **📋 Document Structure:**
 - **Phase-2 MVP Features**: Core functionality for initial launch
@@ -42,17 +42,29 @@ This document outlines the major functions and workflows users can perform in Dr
 
 **User Journey:**
 1. Tap "+" FAB on Closet screen
-2. Choose: Camera, Gallery, or URL
-3. Capture/upload image
-4. AI suggests: category, color, brand, style
-5. User confirms/edits metadata
-6. Item saved to closet
+2. Bottom sheet appears with Camera, Gallery, and URL options
+3. **Camera**: Opens rear camera directly → captures photo → AI processing → review screen
+4. **Gallery**: Opens gallery picker directly → selects image → AI processing → review screen
+5. **URL**: Shows input modal → enter URL → validates → AI processing → review screen
+6. **AI Processing**: Shows loading screen while analyzing image for clothing items
+7. **Review Screen**: Displays detected items with confidence scores → user selects which to add
+8. **Confirmation**: Selected items saved to closet with success feedback
 
 **Key Features:**
-- Image picker integration
-- AI-powered auto-tagging
-- Manual metadata editing
-- Duplicate detection
+- Direct camera/gallery access (no intermediate selection screen)
+- URL input validation with visual feedback
+- AI-powered clothing detection and auto-tagging
+- Multi-item detection (can add multiple clothing items from one image)
+- User approval workflow (select/deselect detected items)
+- Confidence scoring for AI suggestions
+- Error handling for processing failures
+
+**Technical Implementation:**
+- `image_picker` with `preferredCameraDevice: CameraDevice.rear`
+- Google Gemini AI for clothing analysis
+- Modal bottom sheets for URL input
+- Route-based parameter passing for image files and URLs
+- Segmented review screen with selection UI
 
 ### **Premium Function: Auto-Detection & Social Integration**
 

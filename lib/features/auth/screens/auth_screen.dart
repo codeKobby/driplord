@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/components/common/driplord_scaffold.dart';
-import '../../closet/providers/closet_provider.dart';
 import '../services/auth_service.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
@@ -123,12 +122,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   void _navigateBasedOnCloset() {
-    final closet = ref.read(closetProvider);
-    if (closet.isEmpty) {
-      context.go('/onboarding/scan');
-    } else {
-      context.go('/home');
-    }
+    // Always navigate to home after authentication - no onboarding flow
+    context.go('/home');
   }
 
   @override
@@ -141,21 +136,17 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  IconButton(
-                    visualDensity: VisualDensity.compact,
-                    icon: Icon(
-                      LucideIcons.arrowLeft,
-                      color: Theme.of(context).colorScheme.onSurface,
-                      size: 20,
+                  // Only show back button when in email form, not on initial auth screen
+                  if (_showEmailForm)
+                    IconButton(
+                      visualDensity: VisualDensity.compact,
+                      icon: Icon(
+                        LucideIcons.arrowLeft,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        size: 20,
+                      ),
+                      onPressed: () => setState(() => _showEmailForm = false),
                     ),
-                    onPressed: () {
-                      if (_showEmailForm) {
-                        setState(() => _showEmailForm = false);
-                      } else {
-                        context.pop();
-                      }
-                    },
-                  ),
                 ],
               ),
             ),
@@ -289,7 +280,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 _isLogin = true;
                 _showEmailForm = true;
               }),
-              child: const Text("SIGN IN WITH PASSWORD"),
+              child: const Text("SIGN IN WITH EMAIL"),
             ),
           ).animate().fadeIn(delay: 700.ms),
 

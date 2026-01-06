@@ -31,3 +31,4 @@ class MirrorNotifier extends Notifier<MirrorItem?> {
 final mirrorProvider = NotifierProvider<MirrorNotifier, MirrorItem?>(() {
   return MirrorNotifier();
 });
+

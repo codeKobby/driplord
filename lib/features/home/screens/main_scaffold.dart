@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../core/components/navigation/floating_nav_bar.dart';
 import '../../closet/providers/closet_provider.dart';
 
@@ -91,7 +92,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
           shape: BoxShape.circle,
         ),
         child: Icon(
-          LucideIcons.plus,
+          LucideIcons.sparkles,
           color: Theme.of(context).colorScheme.onPrimary,
           size: 20,
         ),
@@ -107,15 +108,131 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
         title: "Add Clothing",
         options: [
           _BottomSheetOption(LucideIcons.camera, "Take Photo", () {
-            context.push('/closet/add/camera');
+            _takePhoto();
           }),
           _BottomSheetOption(LucideIcons.image, "Upload from Gallery", () {
-            context.push('/closet/add/gallery');
+            _pickFromGallery();
           }),
           _BottomSheetOption(LucideIcons.link, "Import from URL", () {
-            context.push('/closet/add/url');
+            _showUrlInputModal(context);
           }),
         ],
+      ),
+    );
+  }
+
+  Future<void> _takePhoto() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.rear, // Use rear camera
+      );
+      if (image != null && mounted) {
+        // Navigate to processing screen with the image
+        context.push('/closet/add/camera/${Uri.encodeComponent(image.path)}');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to take photo: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _pickFromGallery() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      if (image != null && mounted) {
+        // Navigate to processing screen with the image
+        context.push('/closet/add/gallery/${Uri.encodeComponent(image.path)}');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to pick image: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showUrlInputModal(BuildContext context) {
+    final TextEditingController urlController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 32,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              "Import from URL",
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
+            const SizedBox(height: 24),
+            TextField(
+              controller: urlController,
+              decoration: InputDecoration(
+                hintText: "Paste image URL from online store",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                prefixIcon: Icon(LucideIcons.link),
+              ),
+              keyboardType: TextInputType.url,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("Cancel"),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final url = urlController.text.trim();
+                      if (url.isNotEmpty) {
+                        Navigator.pop(context);
+                        // Navigate to processing screen with URL
+                        context.push('/closet/add/url/${Uri.encodeComponent(url)}');
+                      }
+                    },
+                    child: const Text("Process URL"),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }
@@ -147,15 +264,11 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
       builder: (context) => _buildMinimalBottomSheet(
         title: "Style & Create",
         options: [
+          _BottomSheetOption(LucideIcons.sparkles, "AI Style Assistant", () {
+            context.push('/stylist');
+          }),
           _BottomSheetOption(LucideIcons.palette, "Create New Outfit", () {
             context.push('/outfits/create');
-          }),
-          _BottomSheetOption(LucideIcons.sparkles, "AI Style Assistant", () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("AI Style Assistant coming soon..."),
-              ),
-            );
           }),
           _BottomSheetOption(LucideIcons.heart, "Add to Closet", () {
             _showAddItemOptions();

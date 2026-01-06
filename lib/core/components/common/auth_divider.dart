@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/app_dimensions.dart';
 
 class AuthDivider extends StatelessWidget {
@@ -16,8 +15,8 @@ class AuthDivider extends StatelessWidget {
       children: [
         Expanded(
           child: Divider(
-            color: AppColors.textTertiary.withValues(alpha: 0.3),
-            thickness: 1,
+            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+            thickness: 1.5,
           ),
         ),
         Padding(
@@ -25,7 +24,7 @@ class AuthDivider extends StatelessWidget {
           child: Text(
             text,
             style: TextStyle(
-              color: AppColors.textTertiary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
@@ -33,8 +32,8 @@ class AuthDivider extends StatelessWidget {
         ),
         Expanded(
           child: Divider(
-            color: AppColors.textTertiary.withValues(alpha: 0.3),
-            thickness: 1,
+            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+            thickness: 1.5,
           ),
         ),
       ],

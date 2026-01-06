@@ -58,10 +58,11 @@ Advanced capabilities (all remain in scope):
     - [x] Create Welcome Carousel <!-- id: 22 -->
     - [x] Create Style Preference Selection screen <!-- id: 23 -->
     - [x] Implement Body Measurements input (Manual) <!-- id: 8 -->
-  - [ ] **Authentication**
+- [ ] **Authentication**
     - [ ] Implement Sign Up / Login with Supabase (Post-onboarding) <!-- id: 6 -->
     - [x] Create Auth Screens (UI complete, needs API keys)
     - [x] Setup Google/Apple OAuth UI components
+    - [ ] **Backend Integration**: Supabase auth service implementation
   - [x] **Profile**
     - [x] Create User Profile screen with theme toggle <!-- id: 7 -->
     - [x] Implement profile statistics cards
@@ -76,16 +77,19 @@ Advanced capabilities (all remain in scope):
     - [x] Add outfit history tracking and display
     - [x] Implement "Why this works" expandable reasoning
   - [x] **Digital Wardrobe**
-    - [x] Implement Camera/Gallery picker <!-- id: 9 -->
+    - [x] Implement Camera/Gallery picker with rear camera preference <!-- id: 9 -->
     - [x] Create Clothing Item model & provider
     - [x] Implement Wardrobe Grid View with filtering <!-- id: 12 -->
     - [x] Build empty state UI with call-to-actions
     - [x] Add category filtering chips
     - [ ] Create Image Upload service (Supabase Storage) <!-- id: 10 -->
     - [ ] Create Clothing Item database table <!-- id: 11 -->
-  - [ ] **AI Integration**
-    - [ ] Create Gemini Service for Image Analysis (Categorization) <!-- id: 13 -->
-    - [ ] Implement Auto-tagging for uploaded clothes <!-- id: 14 -->
+  - [x] **AI Integration**
+    - [x] Create Gemini Service for Image Analysis (Categorization) <!-- id: 13 -->
+    - [x] Implement Auto-tagging for uploaded clothes <!-- id: 14 -->
+    - [x] Add multi-item detection from single image
+    - [x] Implement user approval workflow for AI suggestions
+    - [x] Create SegmentedItemsReviewScreen for item selection
   - [x] **Outfit Recommendation**
     - [x] Design Recommendation UI with providers <!-- id: 15 -->
     - [x] Create mock outfit data and recommendation logic

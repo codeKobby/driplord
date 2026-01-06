@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import '../../../core/theme/app_colors.dart';
 
 class FixedAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
   final bool showBackButton;
-  final Color backgroundColor;
-  final Color foregroundColor;
   final double elevation;
   final SystemUiOverlayStyle? systemOverlayStyle;
 
@@ -18,30 +15,28 @@ class FixedAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.title,
     this.actions,
     this.showBackButton = true,
-    this.backgroundColor = AppColors.background,
-    this.foregroundColor = AppColors.textPrimary,
     this.elevation = 0,
     this.systemOverlayStyle,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final backgroundColor = colorScheme.surface;
+    final foregroundColor = colorScheme.onSurface;
+
     return AppBar(
       backgroundColor: backgroundColor,
       foregroundColor: foregroundColor,
       elevation: elevation,
-      shadowColor: backgroundColor == AppColors.background
-          ? Colors.transparent
-          : null,
+      shadowColor: elevation == 0 ? Colors.transparent : null,
       surfaceTintColor: backgroundColor,
       systemOverlayStyle: systemOverlayStyle ?? SystemUiOverlayStyle(
         statusBarColor: backgroundColor,
-        statusBarIconBrightness: backgroundColor == AppColors.background
+        statusBarIconBrightness: Theme.of(context).brightness == Brightness.dark
             ? Brightness.light
             : Brightness.dark,
-        statusBarBrightness: backgroundColor == AppColors.background
-            ? Brightness.dark
-            : Brightness.light,
+        statusBarBrightness: Theme.of(context).brightness,
       ),
       leading: showBackButton ? IconButton(
         icon: Icon(

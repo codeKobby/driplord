@@ -1,13 +1,15 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
-import '../../features/onboarding/screens/welcome_screen.dart';
-import '../../features/onboarding/screens/scan_clothes_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../features/auth/screens/auth_screen.dart';
 import '../../features/auth/screens/forgot_password_screen.dart';
+import '../../features/onboarding/screens/welcome_screen.dart';
 
 import '../../features/home/screens/weather_settings_screen.dart';
 import '../../features/home/screens/notification_screen.dart';
 import '../../features/closet/screens/closet_screen.dart';
+import '../../features/closet/screens/add_item_screen.dart';
+import '../../features/closet/screens/item_detail_screen.dart';
 import '../../features/outfits/screens/outfits_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../components/common/fixed_app_bar.dart';
@@ -17,7 +19,9 @@ import '../../features/home/screens/main_scaffold.dart';
 import '../../features/home/screens/frequently_worn_screen.dart';
 import '../../features/home/screens/newly_added_screen.dart';
 import '../../features/home/screens/neglected_screen.dart';
-import '../../features/try_on/screens/style_composer_screen.dart';
+import '../../features/try_on/screens/professional_canvas_screen.dart';
+import '../../features/stylist/screens/stylist_chat_screen.dart';
+import '../../features/try_on/models/outfit_item.dart';
 
 // =============================================================================
 // PLACEHOLDER SCREENS (Simple - no nav bar needed since outside shell route)
@@ -100,43 +104,9 @@ class RecentItemsScreen extends StatelessWidget {
   }
 }
 
-class ItemDetailScreen extends StatelessWidget {
-  const ItemDetailScreen({super.key, required this.id});
-  final String id;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const FixedAppBar(title: 'Item Details'),
-      body: Center(child: Text('Item Detail: $id')),
-    );
-  }
-}
 
-class AddItemScreen extends StatelessWidget {
-  const AddItemScreen({
-    super.key,
-    this.camera = false,
-    this.gallery = false,
-    this.url = false,
-  });
 
-  final bool camera;
-  final bool gallery;
-  final bool url;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const FixedAppBar(title: 'Add Item'),
-      body: Center(
-        child: Text(
-          'Add Item Screen - Camera: $camera, Gallery: $gallery, URL: $url',
-        ),
-      ),
-    );
-  }
-}
 
 class OutfitDetailScreen extends StatelessWidget {
   const OutfitDetailScreen({super.key, required this.id});
@@ -156,16 +126,51 @@ class OutfitDetailScreen extends StatelessWidget {
 // =============================================================================
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/home',
+  initialLocation: '/',
+  redirect: (BuildContext context, GoRouterState state) {
+    final bool isAuthenticated = Supabase.instance.client.auth.currentSession != null;
+
+    // If authenticated and on welcome screen, redirect to home
+    if (isAuthenticated && state.uri.path == '/') {
+      return '/home';
+    }
+
+    // Define protected routes (main app routes that require authentication)
+    final protectedRoutes = [
+      '/home',
+      '/closet',
+      '/outfits',
+      '/profile',
+      '/try-on',
+    ];
+
+    // Check if current location is a protected route
+    final isProtectedRoute = protectedRoutes.any((route) => state.uri.path.startsWith(route));
+
+    // If trying to access protected route without authentication, redirect to sign in
+    if (isProtectedRoute && !isAuthenticated) {
+      return '/auth/signin';
+    }
+
+    // If authenticated and trying to access auth routes, redirect to home
+    if (isAuthenticated && state.uri.path.startsWith('/auth/')) {
+      return '/home';
+    }
+
+    return null; // No redirect needed
+  },
   routes: [
     // =========================================================================
-    // ONBOARDING & AUTH ROUTES (Fullscreen, no nav bar)
+    // WELCOME SCREEN (Intro page - no nav bar)
     // =========================================================================
-    GoRoute(path: '/', builder: (context, state) => const WelcomeScreen()),
     GoRoute(
-      path: '/onboarding/scan',
-      builder: (context, state) => const ScanClothesScreen(),
+      path: '/',
+      builder: (context, state) => const WelcomeScreen(),
     ),
+
+    // =========================================================================
+    // AUTH ROUTES (Fullscreen, no nav bar)
+    // =========================================================================
     GoRoute(
       path: '/auth/signin',
       builder: (context, state) => const AuthScreen(initialIsLogin: true),
@@ -177,6 +182,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/auth/forgot-password',
       builder: (context, state) => const ForgotPasswordScreen(),
+    ),
+    GoRoute(
+      path: '/stylist',
+      builder: (context, state) => const StylistChatScreen(),
     ),
 
     // =========================================================================
@@ -269,16 +278,25 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const AddItemScreen(),
     ),
     GoRoute(
-      path: '/closet/add/camera',
-      builder: (context, state) => const AddItemScreen(camera: true),
+      path: '/closet/add/camera/:path',
+      builder: (context, state) {
+        final path = Uri.decodeComponent(state.pathParameters['path']!);
+        return AddItemScreen(imagePath: path, source: 'camera');
+      },
     ),
     GoRoute(
-      path: '/closet/add/gallery',
-      builder: (context, state) => const AddItemScreen(gallery: true),
+      path: '/closet/add/gallery/:path',
+      builder: (context, state) {
+        final path = Uri.decodeComponent(state.pathParameters['path']!);
+        return AddItemScreen(imagePath: path, source: 'gallery');
+      },
     ),
     GoRoute(
-      path: '/closet/add/url',
-      builder: (context, state) => const AddItemScreen(url: true),
+      path: '/closet/add/url/:url',
+      builder: (context, state) {
+        final url = Uri.decodeComponent(state.pathParameters['url']!);
+        return AddItemScreen(initialUrl: url);
+      },
     ),
     GoRoute(
       path: '/closet/insights',
@@ -309,7 +327,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/outfits/create',
       builder: (context, state) =>
-          const StyleComposerScreen(mode: ComposerMode.manual),
+          const ProfessionalCanvasScreen(mode: ComposerMode.manual),
     ),
     GoRoute(
       path: '/outfits/:id',
@@ -318,15 +336,17 @@ final GoRouter appRouter = GoRouter(
     ),
 
     // --- Try-On / Style Composer (Fullscreen) ---
-    // Note: ComposerMode enum is defined in style_composer_screen.dart
+    // Note: ComposerMode enum is defined in professional_canvas_screen.dart
     GoRoute(
       path: '/try-on',
-      builder: (context, state) =>
-          const StyleComposerScreen(mode: ComposerMode.manual),
+      builder: (context, state) => ProfessionalCanvasScreen(
+        mode: ComposerMode.manual,
+        initialItems: state.extra as List<OutfitStackItem>?,
+      ),
     ),
     GoRoute(
       path: '/try-on/item/:id',
-      builder: (context, state) => StyleComposerScreen(
+      builder: (context, state) => ProfessionalCanvasScreen(
         mode: ComposerMode.tryOn,
         initialItemId: state.pathParameters['id'],
       ),
@@ -336,7 +356,7 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) {
         // Check extra query param to distinguish 'view' vs 'edit' if needed
         // For now default to 'view', user can toggle to edit in UI
-        return StyleComposerScreen(
+        return ProfessionalCanvasScreen(
           mode: ComposerMode.view,
           outfitId: state.pathParameters['id'],
         );
@@ -344,7 +364,7 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/try-on/edit/:id',
-      builder: (context, state) => StyleComposerScreen(
+      builder: (context, state) => ProfessionalCanvasScreen(
         mode: ComposerMode.edit,
         outfitId: state.pathParameters['id'],
       ),
@@ -352,11 +372,11 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/try-on/compose',
       builder: (context, state) =>
-          const StyleComposerScreen(mode: ComposerMode.manual),
+          const ProfessionalCanvasScreen(mode: ComposerMode.manual),
     ),
     GoRoute(
       path: '/try-on/ai/:vibe',
-      builder: (context, state) => StyleComposerScreen(
+      builder: (context, state) => ProfessionalCanvasScreen(
         mode: ComposerMode.ai,
         vibe: state.pathParameters['vibe'],
       ),
