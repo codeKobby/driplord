@@ -2,10 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/services/database_service.dart';
 import '../../../core/services/cache_service.dart';
 
+import '../models/clothing_category.dart';
 class ClothingItem {
   final String id;
   final String name;
-  final String category;
+  final ClothingCategory category;
   final String imageUrl;
   final String? color;
   final String? brand;
@@ -31,7 +32,9 @@ class ClothingItem {
     return ClothingItem(
       id: json['id'],
       name: json['name'],
-      category: json['category'],
+      category: ClothingCategory.values.firstWhere(
+          (e) => e.toString() == 'ClothingCategory.${json['category']}',
+          orElse: () => ClothingCategory.unknown),
       imageUrl: json['image_url'],
       color: json['color'],
       brand: json['brand'],
@@ -48,7 +51,7 @@ class ClothingItem {
     return {
       'id': id,
       'name': name,
-      'category': category,
+      'category': category.toString().split('.').last,
       'image_url': imageUrl,
       'color': color,
       'brand': brand,
@@ -123,7 +126,7 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
     ClothingItem(
       id: "1",
       name: "Classic White Tee",
-      category: "Tops",
+      category: ClothingCategory.tops,
       imageUrl:
           "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
       color: "White",
@@ -137,7 +140,7 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
     ClothingItem(
       id: "2",
       name: "Black Hoodie",
-      category: "Outerwear",
+      category: ClothingCategory.outerwear,
       imageUrl:
           "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400",
       color: "Black",
@@ -151,7 +154,7 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
     ClothingItem(
       id: "3",
       name: "Slim Fit Jeans",
-      category: "Bottoms",
+      category: ClothingCategory.bottoms,
       imageUrl:
           "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400",
       color: "Blue",
@@ -165,7 +168,7 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
     ClothingItem(
       id: "4",
       name: "Leather Jacket",
-      category: "Outerwear",
+      category: ClothingCategory.outerwear,
       imageUrl:
           "https://images.unsplash.com/photo-1520975661595-6453be3f7070?w=400",
       color: "Black",
@@ -179,7 +182,7 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
     ClothingItem(
       id: "5",
       name: "Sneakers",
-      category: "Shoes",
+      category: ClothingCategory.shoes,
       imageUrl:
           "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400",
       color: "White",
@@ -195,7 +198,7 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
     ClothingItem(
       id: "6",
       name: "Oversized Flannel",
-      category: "Tops",
+      category: ClothingCategory.tops,
       imageUrl:
           "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400",
       color: "Red",
@@ -211,7 +214,7 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
     ClothingItem(
       id: "7",
       name: "Denim Jacket",
-      category: "Outerwear",
+      category: ClothingCategory.outerwear,
       imageUrl:
           "https://images.unsplash.com/photo-1544966503-7cc5ac882d5e?w=400",
       color: "Blue",
@@ -225,7 +228,7 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
     ClothingItem(
       id: "8",
       name: "Plaid Shirt",
-      category: "Tops",
+      category: ClothingCategory.tops,
       imageUrl:
           "https://images.unsplash.com/photo-1584273140824-2fa4dc3f15e7?w=400",
       color: "Blue",
