@@ -5,16 +5,31 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/components/common/driplord_scaffold.dart';
 import '../../../core/components/cards/glass_card.dart';
 import '../../closet/providers/closet_provider.dart';
-import '../providers/canvas_provider.dart';
 
-class OutfitBuilderScreen extends ConsumerWidget {
+class OutfitBuilderScreen extends ConsumerStatefulWidget {
   const OutfitBuilderScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OutfitBuilderScreen> createState() =>
+      _OutfitBuilderScreenState();
+}
+
+class _OutfitBuilderScreenState extends ConsumerState<OutfitBuilderScreen> {
+  final List<ClothingItem> _selectedItems = [];
+
+  void _toggleSelection(ClothingItem item) {
+    setState(() {
+      if (_selectedItems.any((i) => i.id == item.id)) {
+        _selectedItems.removeWhere((i) => i.id == item.id);
+      } else {
+        _selectedItems.add(item);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final closetItems = ref.watch(closetProvider);
-    final canvasItems = ref.watch(canvasProvider);
-    final canvasNotifier = ref.read(canvasProvider.notifier);
 
     return DripLordScaffold(
       body: CustomScrollView(
@@ -38,17 +53,7 @@ class OutfitBuilderScreen extends ConsumerWidget {
             ),
             centerTitle: true,
             actions: [
-              if (canvasItems.isNotEmpty) ...[
-                TextButton(
-                  onPressed: () => canvasNotifier.autoArrange(),
-                  child: Text(
-                    "Auto-Arrange",
-                    style: GoogleFonts.outfit(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                ),
+              if (_selectedItems.isNotEmpty)
                 TextButton(
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -64,7 +69,6 @@ class OutfitBuilderScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-              ]
             ],
           ),
           SliverToBoxAdapter(
@@ -73,7 +77,7 @@ class OutfitBuilderScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildPreviewSection(context, canvasItems, canvasNotifier),
+                  _buildPreviewSection(),
                   const SizedBox(height: 32),
                   Text(
                     "Select items from your closet",
@@ -98,10 +102,8 @@ class OutfitBuilderScreen extends ConsumerWidget {
               ),
               delegate: SliverChildBuilderDelegate((context, index) {
                 final item = closetItems[index];
-                final isSelected =
-                    canvasItems.any((i) => i.clothingItem.id == item.id);
-                return _buildItemSelectionCard(
-                    context, item, isSelected, canvasNotifier);
+                final isSelected = _selectedItems.any((i) => i.id == item.id);
+                return _buildItemSelectionCard(item, isSelected);
               }, childCount: closetItems.length),
             ),
           ),
@@ -111,153 +113,89 @@ class OutfitBuilderScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPreviewSection(BuildContext context, List<CanvasItem> canvasItems,
-      CanvasNotifier canvasNotifier) {
+  Widget _buildPreviewSection() {
     return GlassCard(
       padding: const EdgeInsets.all(20),
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: Consumer(
-          builder: (context, ref, _) {
-            final selectedItemId = ref.watch(selectedCanvasItemProvider);
-
-            return GestureDetector(
-              onTap: () {
-                ref.read(selectedCanvasItemProvider.notifier).state = null;
-              },
-              child: Stack(
-                children: [
-                  if (canvasItems.isEmpty)
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Text(
-                          "Choose items below to compose your look",
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.outfit(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.5),
+      child: Column(
+        children: [
+          if (_selectedItems.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text(
+                  "Choose items below to compose your look",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.outfit(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+            )
+          else
+            SizedBox(
+              height: 120,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: _selectedItems.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            image: DecorationImage(
+                              image: NetworkImage(
+                                _selectedItems[index].imageUrl,
+                              ),
+                              fit: BoxFit.cover,
+                            ),
+                            border: Border.all(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.3),
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                  else
-                    ...() {
-                      final sortedItems = [...canvasItems]..sort(
-                          (a, b) => a.zIndex.compareTo(b.zIndex),
-                        );
-                      return sortedItems.map((item) {
-                        final isSelected =
-                            item.clothingItem.id == selectedItemId;
-                        return Positioned(
-                          left: item.position.dx,
-                        top: item.position.dy,
-                        child: Transform.scale(
-                          scale: item.scale,
-                          child: Transform.rotate(
-                            angle: item.rotation,
-                            child: GestureDetector(
-                              onTap: () {
-                                ref
-                                    .read(selectedCanvasItemProvider.notifier)
-                                    .state = item.clothingItem.id;
-                              },
-                                onPanUpdate: (details) {
-                                  canvasNotifier.updateItem(
-                                    item.copyWith(
-                                      position: item.position + details.delta,
-                                    ),
-                                  );
-                                },
-                              onScaleUpdate: (details) {
-                                  final newScale =
-                                      item.scale * details.scale;
-                                canvasNotifier.updateItem(
-                                  item.copyWith(
-                                      position: item.position +
-                                          details.focalPointDelta,
-                                      scale: newScale.clamp(0.2, 5.0),
-                                      rotation:
-                                          item.rotation + details.rotation,
-                                  ),
-                                );
-                              },
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    width: 100,
-                                    height: 150,
-                                    decoration: BoxDecoration(
-                                      border: isSelected
-                                          ? Border.all(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                              width: 2,
-                                            )
-                                          : null,
-                                    ),
-                                    child: Image.network(
-                                      item.clothingItem.imageUrl,
-                                      fit: BoxFit.contain,
-                                    ),
-                                  ),
-                                  if (isSelected)
-                                    Positioned(
-                                      top: 0,
-                                      right: 0,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          canvasNotifier
-                                              .removeItem(item.clothingItem.id);
-                                          ref
-                                              .read(selectedCanvasItemProvider
-                                                  .notifier)
-                                              .state = null;
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(
-                                            LucideIcons.x,
-                                            color: Colors.white,
-                                            size: 16,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                ],
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: GestureDetector(
+                            onTap: () =>
+                                _toggleSelection(_selectedItems[index]),
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                LucideIcons.x,
+                                size: 12,
+                                color: Colors.white,
                               ),
                             ),
                           ),
                         ),
-                      );
-                    }).toList(),
-                ],
+                      ],
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
+            ),
+        ],
       ),
     );
   }
 
-  Widget _buildItemSelectionCard(BuildContext context, ClothingItem item,
-      bool isSelected, CanvasNotifier canvasNotifier) {
+  Widget _buildItemSelectionCard(ClothingItem item, bool isSelected) {
     return GestureDetector(
-      onTap: () {
-        if (isSelected) {
-          canvasNotifier.removeItem(item.id);
-        } else {
-          canvasNotifier.addItem(item);
-        }
-      },
+      onTap: () => _toggleSelection(item),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
