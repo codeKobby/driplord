@@ -101,7 +101,7 @@ class GoogleOAuthButton extends StatelessWidget {
       isLoading: isLoading,
       backgroundColor: Colors.white,
       foregroundColor: Colors.black87,
-      borderColor: Colors.grey.shade600,
+      borderColor: Theme.of(context).colorScheme.outline,
     );
   }
 }

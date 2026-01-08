@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/services/database_service.dart';
+import '../../../core/services/cache_service.dart';
 
 class ClothingItem {
   final String id;
@@ -59,6 +60,8 @@ class ClothingItem {
 }
 
 class ClosetNotifier extends Notifier<List<ClothingItem>> {
+  final CacheService _cacheService = CacheService();
+
   @override
   List<ClothingItem> build() {
     // Start empty to force the "Scan" onboarding flow for new users
@@ -69,16 +72,49 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
 
   Future<void> _loadClosetItems() async {
     try {
+      // First try to get from cache
+      final cachedItems = await _cacheService.get<List>('closet_items', config: CacheConfig.userData);
+      if (cachedItems != null && cachedItems.isNotEmpty) {
+        state = cachedItems.map((item) => ClothingItem.fromJson(item)).toList();
+        // Refresh from server in background
+        _refreshFromServer();
+        return;
+      }
+
+      // If not in cache, fetch from server
       final items = await DatabaseService().getClosetItems();
-      // If database is empty, fall back to mock items for testing
+
       if (items.isEmpty) {
+        // Use mock items for new users
         state = mockItems;
+        // Cache mock items for faster subsequent loads
+        await _cacheService.set('closet_items', mockItems.map((item) => item.toJson()).toList(), config: CacheConfig.userData);
       } else {
         state = items;
+        // Cache the fetched items
+        await _cacheService.set('closet_items', items.map((item) => item.toJson()).toList(), config: CacheConfig.userData);
       }
     } catch (e) {
-      // Fall back to mock data if Supabase fails
-      state = mockItems;
+      // Fall back to cache if available, otherwise mock data
+      final cachedItems = await _cacheService.get<List>('closet_items', config: CacheConfig.userData);
+      if (cachedItems != null && cachedItems.isNotEmpty) {
+        state = cachedItems.map((item) => ClothingItem.fromJson(item)).toList();
+      } else {
+        state = mockItems;
+      }
+    }
+  }
+
+  Future<void> _refreshFromServer() async {
+    try {
+      final items = await DatabaseService().getClosetItems();
+      if (items.isNotEmpty) {
+        state = items;
+        // Update cache with fresh data
+        await _cacheService.set('closet_items', items.map((item) => item.toJson()).toList(), config: CacheConfig.userData);
+      }
+    } catch (e) {
+      // Silently fail - we already have cached data
     }
   }
 
@@ -202,16 +238,37 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
     ),
   ];
 
-  void addItem(ClothingItem item) {
+  Future<void> addItem(ClothingItem item) async {
     state = [...state, item];
+    // Update cache
+    await _updateCache();
   }
 
-  void addItems(List<ClothingItem> items) {
+  Future<void> addItems(List<ClothingItem> items) async {
     state = [...state, ...items];
+    // Update cache
+    await _updateCache();
   }
 
-  void removeItem(String id) {
+  Future<void> removeItem(String id) async {
     state = state.where((item) => item.id != id).toList();
+    // Update cache
+    await _updateCache();
+  }
+
+  Future<void> updateItem(ClothingItem updatedItem) async {
+    state = state.map((item) => item.id == updatedItem.id ? updatedItem : item).toList();
+    // Update cache
+    await _updateCache();
+  }
+
+  Future<void> _updateCache() async {
+    try {
+      final itemsJson = state.map((item) => item.toJson()).toList();
+      await _cacheService.set('closet_items', itemsJson, config: CacheConfig.userData);
+    } catch (e) {
+      // Silently fail - cache update is not critical
+    }
   }
 }
 

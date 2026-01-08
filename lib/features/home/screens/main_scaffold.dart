@@ -48,9 +48,9 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
         items: _navItems,
         centerAction: _buildCenterAction(),
       ),
-      floatingActionButton: widget.navigationShell.currentIndex == 1
+      floatingActionButton: (widget.navigationShell.currentIndex == 1 || widget.navigationShell.currentIndex == 2)
           ? _buildFloatingButton()
-          : null, // Only show FAB on Closet page
+          : null, // Show FAB on Closet and Outfits pages
     );
   }
 

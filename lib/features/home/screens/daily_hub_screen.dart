@@ -277,7 +277,7 @@ class DailyHubScreen extends ConsumerWidget {
           child: Text(
             recommendation.title.toUpperCase(),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               letterSpacing: 2,
             ),
             maxLines: 2,
@@ -320,8 +320,8 @@ class DailyHubScreen extends ConsumerWidget {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
+                          backgroundColor: Theme.of(context).colorScheme.surface,
+                          foregroundColor: Theme.of(context).colorScheme.onSurface,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
@@ -347,7 +347,7 @@ class DailyHubScreen extends ConsumerWidget {
                           ),
                         ),
                         style: TextButton.styleFrom(
-                          foregroundColor: Colors.white,
+                          foregroundColor: Theme.of(context).colorScheme.surface,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
@@ -377,37 +377,52 @@ class DailyHubScreen extends ConsumerWidget {
       children: [
         // Newly Added Section (2x2 grid)
         if (recentlyAddedItems.isNotEmpty) ...[
-          _buildSectionHeader(context, "NEWLY ADDED", "VIEW ALL", onActionTap: () {
-            context.push('/home/newly-added');
-          }),
+          _buildSectionHeader(
+            context,
+            "NEWLY ADDED",
+            "VIEW ALL",
+            onActionTap: () {
+              context.push('/home/newly-added');
+            },
+          ),
           const SizedBox(height: 20),
           _buildGridSection(context, recentlyAddedItems, () {
             context.push('/home/newly-added');
-          }),
+          }, sectionType: 'newly-added'),
           const SizedBox(height: 48),
         ],
 
         // Neglected Section (2x2 grid)
         if (unwornItems.isNotEmpty) ...[
-          _buildSectionHeader(context, "NEGLECTED PIECES", "VIEW ALL", onActionTap: () {
-            context.push('/home/neglected');
-          }),
+          _buildSectionHeader(
+            context,
+            "NEGLECTED PIECES",
+            "VIEW ALL",
+            onActionTap: () {
+              context.push('/home/neglected');
+            },
+          ),
           const SizedBox(height: 20),
           _buildGridSection(context, unwornItems, () {
             context.push('/home/neglected');
-          }),
+          }, sectionType: 'neglected'),
           const SizedBox(height: 48),
         ],
 
         // Frequently Worn Section (2x2 grid)
         if (frequentlyWornItems.isNotEmpty) ...[
-          _buildSectionHeader(context, "FREQUENTLY WORN", "VIEW ALL", onActionTap: () {
-            context.push('/home/frequently-worn');
-          }),
+          _buildSectionHeader(
+            context,
+            "FREQUENTLY WORN",
+            "VIEW ALL",
+            onActionTap: () {
+              context.push('/home/frequently-worn');
+            },
+          ),
           const SizedBox(height: 20),
           _buildGridSection(context, frequentlyWornItems, () {
             context.push('/home/frequently-worn');
-          }),
+          }, sectionType: 'frequently-worn'),
         ],
       ],
     );
@@ -467,6 +482,7 @@ class DailyHubScreen extends ConsumerWidget {
     List<ClothingItem> items,
     VoidCallback onViewAllTap, {
     bool showAll = false,
+    required String sectionType,
   }) {
     final itemsToShow = showAll ? items : items.take(4).toList();
 
@@ -485,7 +501,7 @@ class DailyHubScreen extends ConsumerWidget {
           final item = itemsToShow[index];
           return SizedBox(
             width: 180, // Fixed width for each item
-            child: _buildGridItemCard(context, item, index),
+            child: _buildGridItemCard(context, item, index, sectionType),
           );
         },
       ),
@@ -496,9 +512,24 @@ class DailyHubScreen extends ConsumerWidget {
     BuildContext context,
     ClothingItem item,
     int index,
+    String sectionType,
   ) {
     return GestureDetector(
-      onTap: () => context.push('/closet/item/${item.id}'),
+      onTap: () {
+        switch (sectionType) {
+          case 'newly-added':
+            context.push('/home/newly-added/item/${item.id}');
+            break;
+          case 'neglected':
+            context.push('/home/neglected/item/${item.id}');
+            break;
+          case 'frequently-worn':
+            context.push('/home/frequently-worn/item/${item.id}');
+            break;
+          default:
+            context.push('/closet/item/${item.id}');
+        }
+      },
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
@@ -537,7 +568,7 @@ class DailyHubScreen extends ConsumerWidget {
                     item.name.toUpperCase(),
                     style: Theme.of(
                       context,
-                    ).textTheme.titleSmall?.copyWith(color: Colors.white),
+                    ).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.surface),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -546,16 +577,7 @@ class DailyHubScreen extends ConsumerWidget {
                     item.category.toUpperCase(),
                     style: Theme.of(
                       context,
-                    ).textTheme.bodySmall?.copyWith(color: Colors.white70),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    item.lastWornAt != null
-                        ? "Last worn ${getRelativeTime(item.lastWornAt!)}"
-                        : "Never worn",
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: Colors.white54),
+                    ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8)),
                   ),
                 ],
               ),

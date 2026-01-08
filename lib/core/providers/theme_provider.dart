@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ThemeNotifier extends Notifier<ThemeMode> {
   @override
-  ThemeMode build() => ThemeMode.dark;
+  ThemeMode build() => ThemeMode.light;
 
   void toggle(ThemeMode mode) => state = mode;
 }

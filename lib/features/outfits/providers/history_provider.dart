@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../home/providers/recommendation_provider.dart';
 import '../../../core/services/database_service.dart';
+import '../../../core/services/cache_service.dart';
 
 class HistoryEntry {
   final Recommendation outfit;
@@ -10,6 +11,8 @@ class HistoryEntry {
 }
 
 class HistoryNotifier extends Notifier<List<HistoryEntry>> {
+  final CacheService _cacheService = CacheService();
+
   @override
   List<HistoryEntry> build() {
     _loadHistory();
@@ -18,11 +21,49 @@ class HistoryNotifier extends Notifier<List<HistoryEntry>> {
 
   Future<void> _loadHistory() async {
     try {
+      // Check cache first
+      final cachedHistory = await _cacheService.get<List>('outfit_history', config: CacheConfig.sessionData);
+      if (cachedHistory != null && cachedHistory.isNotEmpty) {
+        state = cachedHistory.map((entry) => _historyEntryFromJson(entry)).toList();
+        // Refresh from server in background
+        _refreshFromServer();
+        return;
+      }
+
+      // If not in cache, fetch from server
       final history = await DatabaseService().getHistory();
-      state = history;
+
+      if (history.isNotEmpty) {
+        state = history;
+        // Cache the fetched history
+        await _cacheService.set('outfit_history', history.map((entry) => _historyEntryToJson(entry)).toList(), config: CacheConfig.sessionData);
+      } else {
+        // Use mock data for new users
+        state = _mockHistory;
+        // Cache mock history
+        await _cacheService.set('outfit_history', _mockHistory.map((entry) => _historyEntryToJson(entry)).toList(), config: CacheConfig.sessionData);
+      }
     } catch (e) {
-      // Fall back to mock data if Supabase fails
-      state = _mockHistory;
+      // Fall back to cache if available, otherwise mock data
+      final cachedHistory = await _cacheService.get<List>('outfit_history', config: CacheConfig.sessionData);
+      if (cachedHistory != null && cachedHistory.isNotEmpty) {
+        state = cachedHistory.map((entry) => _historyEntryFromJson(entry)).toList();
+      } else {
+        state = _mockHistory;
+      }
+    }
+  }
+
+  Future<void> _refreshFromServer() async {
+    try {
+      final history = await DatabaseService().getHistory();
+      if (history.isNotEmpty) {
+        state = history;
+        // Update cache with fresh data
+        await _cacheService.set('outfit_history', history.map((entry) => _historyEntryToJson(entry)).toList(), config: CacheConfig.sessionData);
+      }
+    } catch (e) {
+      // Silently fail - we already have cached data
     }
   }
 
@@ -63,6 +104,9 @@ class HistoryNotifier extends Notifier<List<HistoryEntry>> {
     final newEntry = HistoryEntry(outfit: reco, wornAt: DateTime.now());
     state = [newEntry, ...state];
 
+    // Update cache
+    await _updateCache();
+
     // Save to Supabase in background
     try {
       await DatabaseService().addToHistory(reco);
@@ -70,6 +114,48 @@ class HistoryNotifier extends Notifier<List<HistoryEntry>> {
       // If Supabase fails, the local state will still be updated
       // In a production app, you might want to show an error or retry
     }
+  }
+
+  Future<void> _updateCache() async {
+    try {
+      final historyJson = state.map((entry) => _historyEntryToJson(entry)).toList();
+      await _cacheService.set('outfit_history', historyJson, config: CacheConfig.sessionData);
+    } catch (e) {
+      // Silently fail - cache update is not critical
+    }
+  }
+
+  Map<String, dynamic> _historyEntryToJson(HistoryEntry entry) {
+    return {
+      'outfit': {
+        'id': entry.outfit.id,
+        'title': entry.outfit.title,
+        'imageUrl': entry.outfit.imageUrl,
+        'personalImageUrl': entry.outfit.personalImageUrl,
+        'tags': entry.outfit.tags,
+        'confidenceScore': entry.outfit.confidenceScore,
+        'reasoning': entry.outfit.reasoning,
+      },
+      'wornAt': entry.wornAt.toIso8601String(),
+    };
+  }
+
+  HistoryEntry _historyEntryFromJson(Map<String, dynamic> json) {
+    final outfitData = json['outfit'] as Map<String, dynamic>;
+    final outfit = Recommendation(
+      id: outfitData['id'],
+      title: outfitData['title'],
+      imageUrl: outfitData['imageUrl'],
+      personalImageUrl: outfitData['personalImageUrl'] ?? outfitData['imageUrl'],
+      tags: List<String>.from(outfitData['tags'] ?? []),
+      confidenceScore: (outfitData['confidenceScore'] as num?)?.toDouble() ?? 0.0,
+      reasoning: outfitData['reasoning'] ?? '',
+    );
+
+    return HistoryEntry(
+      outfit: outfit,
+      wornAt: DateTime.parse(json['wornAt']),
+    );
   }
 }
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../closet/providers/closet_provider.dart';
 
 class NeglectedScreen extends ConsumerWidget {
@@ -80,12 +79,12 @@ class NeglectedScreen extends ConsumerWidget {
 
   Widget _buildNeglectedCard(BuildContext context, ClothingItem item) {
     return GestureDetector(
-      onTap: () => context.push('/closet/item/${item.id}'),
+      onTap: () => context.push('/home/neglected/item/${item.id}'),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
@@ -102,7 +101,7 @@ class NeglectedScreen extends ConsumerWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withValues(alpha: 0.6),
+                      Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
                     ],
                   ),
                 ),
@@ -117,11 +116,9 @@ class NeglectedScreen extends ConsumerWidget {
                 children: [
                   Text(
                     item.name.toUpperCase(),
-                    style: GoogleFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 12,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w900,
-                      letterSpacing: 1,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -129,11 +126,8 @@ class NeglectedScreen extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Text(
                     item.category.toUpperCase(),
-                    style: GoogleFonts.outfit(
-                      color: Colors.white70,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 1,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -141,11 +135,9 @@ class NeglectedScreen extends ConsumerWidget {
                     item.lastWornAt != null
                         ? "Last worn ${_getRelativeTime(item.lastWornAt!)}"
                         : "Never worn",
-                    style: GoogleFonts.outfit(
-                      color: Colors.white54,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 8,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 1,
                     ),
                   ),
                 ],

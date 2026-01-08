@@ -112,9 +112,7 @@ class _ModernNavItem extends StatelessWidget {
             size: 22,
             color: isSelected
                 ? Theme.of(context).colorScheme.primary
-                : Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.4),
+                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
           ),
           const SizedBox(height: 4),
           Text(
@@ -124,9 +122,7 @@ class _ModernNavItem extends StatelessWidget {
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               color: isSelected
                   ? Theme.of(context).colorScheme.primary
-                  : Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.4),
+                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               letterSpacing: 0.2,
             ),
           ),

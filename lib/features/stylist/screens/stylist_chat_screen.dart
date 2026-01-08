@@ -12,6 +12,43 @@ import '../models/style_proposal.dart';
 import '../../closet/providers/closet_provider.dart';
 import '../../home/providers/saved_outfits_provider.dart';
 
+class _StylistChatColors {
+  static Color getBackground(BuildContext context) =>
+      Theme.of(context).scaffoldBackgroundColor;
+
+  static Color getSurface(BuildContext context) =>
+      Theme.of(context).colorScheme.surface;
+
+  static Color getTextPrimary(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurface;
+
+  static Color getTextSecondary(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurfaceVariant;
+
+  static Color getGlassBorder(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? AppColors.glassBorder
+      : AppColors.glassBorderDark;
+
+  static Color getTransparent(BuildContext context) =>
+      AppColors.transparent;
+
+  static Color getPureBlack(BuildContext context) =>
+      AppColors.pureBlack;
+
+  static Color getPureWhite(BuildContext context) =>
+      AppColors.pureWhite;
+
+  static Color getSuccess(BuildContext context) =>
+      AppColors.success;
+
+  static Color getWarning(BuildContext context) =>
+      AppColors.warning;
+
+  static Color getInfo(BuildContext context) =>
+      AppColors.info;
+}
+
 class StylistChatScreen extends ConsumerStatefulWidget {
   const StylistChatScreen({super.key});
 
@@ -46,7 +83,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
   void _showAttachmentMenu() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: _StylistChatColors.getTransparent(context),
       builder: (context) => _buildAttachmentMenu(),
     );
   }
@@ -54,9 +91,9 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
   Widget _buildAttachmentMenu() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: _StylistChatColors.getBackground(context),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: _StylistChatColors.getGlassBorder(context)),
       ),
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -66,7 +103,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: AppColors.textSecondary.withValues(alpha: 0.2),
+              color: _StylistChatColors.getTextSecondary(context).withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -76,7 +113,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
             style: GoogleFonts.outfit(
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: _StylistChatColors.getTextPrimary(context),
             ),
           ),
           const SizedBox(height: 32),
@@ -130,11 +167,11 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: _StylistChatColors.getSurface(context),
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.glassBorder),
+                border: Border.all(color: _StylistChatColors.getGlassBorder(context)),
               ),
-              child: Icon(icon, color: AppColors.textPrimary, size: 24),
+              child: Icon(icon, color: _StylistChatColors.getTextPrimary(context), size: 24),
             ),
             const SizedBox(height: 12),
             Text(
@@ -142,7 +179,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
+                color: _StylistChatColors.getTextSecondary(context),
               ),
             ),
           ],
@@ -155,7 +192,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: _StylistChatColors.getTransparent(context),
       builder: (context) {
         return DraggableScrollableSheet(
           initialChildSize: 0.7,
@@ -167,7 +204,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                 final closet = ref.watch(closetProvider);
                 return Container(
                   decoration: BoxDecoration(
-                    color: AppColors.background,
+                    color: _StylistChatColors.getBackground(context),
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(32),
                     ),
@@ -179,7 +216,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                         width: 40,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: AppColors.textSecondary.withValues(alpha: 0.2),
+                          color: _StylistChatColors.getTextSecondary(context).withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -190,7 +227,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                           style: GoogleFonts.outfit(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
+                            color: _StylistChatColors.getTextPrimary(context),
                           ),
                         ),
                       ),
@@ -220,7 +257,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                                   Expanded(
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: AppColors.surface,
+                                        color: _StylistChatColors.getSurface(context),
                                         borderRadius: BorderRadius.circular(16),
                                         image: DecorationImage(
                                           image: NetworkImage(item.imageUrl),
@@ -234,7 +271,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                                     item.name,
                                     style: GoogleFonts.inter(
                                       fontSize: 10,
-                                      color: AppColors.textSecondary,
+                                      color: _StylistChatColors.getTextSecondary(context),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -260,7 +297,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: _StylistChatColors.getTransparent(context),
       builder: (context) {
         return DraggableScrollableSheet(
           initialChildSize: 0.7,
@@ -272,7 +309,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                 final outfits = ref.watch(savedOutfitsProvider);
                 return Container(
                   decoration: BoxDecoration(
-                    color: AppColors.background,
+                    color: _StylistChatColors.getBackground(context),
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(32),
                     ),
@@ -284,7 +321,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                         width: 40,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: AppColors.textSecondary.withValues(alpha: 0.2),
+                          color: _StylistChatColors.getTextSecondary(context).withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -295,7 +332,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                           style: GoogleFonts.outfit(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
+                            color: _StylistChatColors.getTextPrimary(context),
                           ),
                         ),
                       ),
@@ -329,7 +366,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                                   Expanded(
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: AppColors.surface,
+                                        color: _StylistChatColors.getSurface(context),
                                         borderRadius: BorderRadius.circular(20),
                                         image: DecorationImage(
                                           image: NetworkImage(
@@ -346,7 +383,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                                     style: GoogleFonts.outfit(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
-                                      color: AppColors.textPrimary,
+                                      color: _StylistChatColors.getTextPrimary(context),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -380,7 +417,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: _StylistChatColors.getBackground(context),
       appBar: _buildAppBar(),
       body: Column(
         children: [
@@ -406,11 +443,11 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: AppColors.surface,
+      backgroundColor: _StylistChatColors.getSurface(context),
       elevation: 0,
       centerTitle: true,
       leading: IconButton(
-        icon: Icon(LucideIcons.chevronLeft, color: AppColors.textPrimary),
+        icon: Icon(LucideIcons.chevronLeft, color: _StylistChatColors.getTextPrimary(context)),
         onPressed: () => context.pop(),
       ),
       title: Column(
@@ -420,7 +457,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
             style: GoogleFonts.outfit(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: _StylistChatColors.getTextPrimary(context),
             ),
           ),
           Row(
@@ -429,8 +466,8 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
               Container(
                 width: 6,
                 height: 6,
-                decoration: const BoxDecoration(
-                  color: Colors.green,
+                decoration: BoxDecoration(
+                  color: _StylistChatColors.getSuccess(context),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -439,7 +476,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                 "Online",
                 style: GoogleFonts.inter(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: _StylistChatColors.getTextSecondary(context),
                 ),
               ),
             ],
@@ -448,7 +485,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
       ),
       actions: [
         IconButton(
-          icon: Icon(LucideIcons.moreVertical, color: AppColors.textPrimary),
+          icon: Icon(LucideIcons.moreVertical, color: _StylistChatColors.getTextPrimary(context)),
           onPressed: () {},
         ),
       ],
@@ -483,20 +520,20 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isUser ? AppColors.pureBlack : AppColors.surface,
+        color: isUser ? _StylistChatColors.getPureBlack(context) : _StylistChatColors.getSurface(context),
         borderRadius: BorderRadius.only(
           topLeft: const Radius.circular(20),
           topRight: const Radius.circular(20),
           bottomLeft: Radius.circular(isUser ? 20 : 4),
           bottomRight: Radius.circular(isUser ? 4 : 20),
         ),
-        border: isUser ? null : Border.all(color: AppColors.glassBorder),
+        border: isUser ? null : Border.all(color: _StylistChatColors.getGlassBorder(context)),
       ),
       child: Text(
         text,
         style: GoogleFonts.inter(
           fontSize: 14,
-          color: isUser ? AppColors.pureWhite : AppColors.textPrimary,
+          color: isUser ? _StylistChatColors.getPureWhite(context) : _StylistChatColors.getTextPrimary(context),
           height: 1.4,
         ),
       ),
@@ -521,9 +558,9 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: _StylistChatColors.getSurface(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: _StylistChatColors.getGlassBorder(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -535,10 +572,10 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       LucideIcons.sparkles,
                       size: 16,
-                      color: Colors.amber,
+                      color: _StylistChatColors.getWarning(context),
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -547,7 +584,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1.2,
-                        color: AppColors.textSecondary,
+                        color: _StylistChatColors.getTextSecondary(context),
                       ),
                     ),
                   ],
@@ -558,7 +595,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: _StylistChatColors.getTextPrimary(context),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -566,7 +603,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                   proposal.description,
                   style: GoogleFonts.inter(
                     fontSize: 13,
-                    color: AppColors.textSecondary,
+                    color: _StylistChatColors.getTextSecondary(context),
                     height: 1.4,
                   ),
                 ),
@@ -588,7 +625,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                       width: 90,
                       height: 90,
                       decoration: BoxDecoration(
-                        color: AppColors.background,
+                        color: _StylistChatColors.getBackground(context),
                         borderRadius: BorderRadius.circular(16),
                         image: DecorationImage(
                           image: NetworkImage(item.imageUrl),
@@ -601,7 +638,7 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                       item.name,
                       style: GoogleFonts.inter(
                         fontSize: 10,
-                        color: AppColors.textSecondary,
+                        color: _StylistChatColors.getTextSecondary(context),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -621,8 +658,8 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                       context.push('/try-on', extra: proposal.items);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.pureBlack,
-                      foregroundColor: AppColors.pureWhite,
+                      backgroundColor: _StylistChatColors.getPureBlack(context),
+                      foregroundColor: _StylistChatColors.getPureWhite(context),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -638,14 +675,14 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.background,
+                    color: _StylistChatColors.getBackground(context),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.glassBorder),
+                    border: Border.all(color: _StylistChatColors.getGlassBorder(context)),
                   ),
                   child: Icon(
                     LucideIcons.heart,
                     size: 20,
-                    color: AppColors.textPrimary,
+                    color: _StylistChatColors.getTextPrimary(context),
                   ),
                 ),
               ],
@@ -662,13 +699,13 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: _StylistChatColors.getSurface(context),
           shape: BoxShape.circle,
         ),
-        child: const SizedBox(
+        child: SizedBox(
           width: 20,
           height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.blue),
+          child: CircularProgressIndicator(strokeWidth: 2, color: _StylistChatColors.getInfo(context)),
         ),
       ),
     );
@@ -683,8 +720,8 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
         MediaQuery.of(context).padding.bottom + 12,
       ),
       decoration: BoxDecoration(
-        color: AppColors.background,
-        border: Border(top: BorderSide(color: AppColors.glassBorder)),
+        color: _StylistChatColors.getBackground(context),
+        border: Border(top: BorderSide(color: _StylistChatColors.getGlassBorder(context))),
       ),
       child: Row(
         children: [
@@ -692,11 +729,11 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
             onPressed: _showAttachmentMenu,
             icon: Icon(
               LucideIcons.plus,
-              color: AppColors.textPrimary,
+              color: _StylistChatColors.getTextPrimary(context),
               size: 24,
             ),
             style: IconButton.styleFrom(
-              backgroundColor: AppColors.surface,
+              backgroundColor: _StylistChatColors.getSurface(context),
               padding: const EdgeInsets.all(12),
             ),
           ),
@@ -705,22 +742,22 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
             child: Container(
               height: 52,
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: _StylistChatColors.getSurface(context),
                 borderRadius: BorderRadius.circular(26),
                 border: Border.all(
-                  color: AppColors.glassBorder.withValues(alpha: 0.5),
+                  color: _StylistChatColors.getGlassBorder(context).withValues(alpha: 0.5),
                 ),
               ),
               child: TextField(
                 controller: _controller,
                 style: GoogleFonts.inter(
                   fontSize: 14,
-                  color: AppColors.textPrimary,
+                  color: _StylistChatColors.getTextPrimary(context),
                 ),
                 decoration: InputDecoration(
                   hintText: "Ask your stylist...",
                   hintStyle: GoogleFonts.inter(
-                    color: AppColors.textSecondary.withValues(alpha: 0.6),
+                    color: _StylistChatColors.getTextSecondary(context).withValues(alpha: 0.6),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -743,15 +780,15 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
           Container(
             height: 52,
             width: 52,
-            decoration: const BoxDecoration(
-              color: AppColors.pureBlack,
+            decoration: BoxDecoration(
+              color: _StylistChatColors.getPureBlack(context),
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: const Icon(
+              icon: Icon(
                 LucideIcons.send,
                 size: 20,
-                color: AppColors.pureWhite,
+                color: _StylistChatColors.getPureWhite(context),
               ),
               onPressed: () {
                 if (_controller.text.trim().isNotEmpty) {

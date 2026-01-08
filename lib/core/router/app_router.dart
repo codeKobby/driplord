@@ -9,8 +9,10 @@ import '../../features/home/screens/weather_settings_screen.dart';
 import '../../features/home/screens/notification_screen.dart';
 import '../../features/closet/screens/closet_screen.dart';
 import '../../features/closet/screens/add_item_screen.dart';
-import '../../features/closet/screens/item_detail_screen.dart';
+import '../../features/closet/screens/closet_item_detail_screen.dart';
+
 import '../../features/outfits/screens/outfits_screen.dart';
+import '../../features/outfits/screens/outfit_detail_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../components/common/fixed_app_bar.dart';
 
@@ -23,6 +25,9 @@ import '../../features/try_on/screens/professional_canvas_screen.dart';
 import '../../features/stylist/screens/stylist_chat_screen.dart';
 import '../../features/try_on/models/outfit_item.dart';
 
+import '../../features/home/screens/newly_added_item_detail_screen.dart';
+import '../../features/home/screens/neglected_item_detail_screen.dart';
+import '../../features/home/screens/frequently_worn_item_detail_screen.dart';
 // =============================================================================
 // PLACEHOLDER SCREENS (Simple - no nav bar needed since outside shell route)
 // =============================================================================
@@ -105,21 +110,6 @@ class RecentItemsScreen extends StatelessWidget {
 }
 
 
-
-
-
-class OutfitDetailScreen extends StatelessWidget {
-  const OutfitDetailScreen({super.key, required this.id});
-  final String id;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const FixedAppBar(title: 'Outfit Details'),
-      body: Center(child: Text('Outfit Detail: $id')),
-    );
-  }
-}
 
 // =============================================================================
 // ROUTER CONFIGURATION
@@ -249,11 +239,7 @@ final GoRouter appRouter = GoRouter(
       path: '/home/notifications',
       builder: (context, state) => const NotificationScreen(),
     ),
-    GoRoute(
-      path: '/home/notifications/:id',
-      builder: (context, state) =>
-          NotificationDetailScreen(id: state.pathParameters['id']!),
-    ),
+
     GoRoute(
       path: '/home/weather',
       builder: (context, state) => const WeatherSettingsScreen(),
@@ -267,12 +253,7 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const VibeCustomizationScreen(),
     ),
 
-    // --- Closet Subpages ---
-    GoRoute(
-      path: '/closet/item/:id',
-      builder: (context, state) =>
-          ItemDetailScreen(id: state.pathParameters['id']!),
-    ),
+
     GoRoute(
       path: '/closet/add',
       builder: (context, state) => const AddItemScreen(),
@@ -299,6 +280,11 @@ final GoRouter appRouter = GoRouter(
       },
     ),
     GoRoute(
+      path: '/closet/item/:id',
+      builder: (context, state) =>
+         ClosetItemDetailScreen(itemId: state.pathParameters['id']!),
+    ),
+    GoRoute(
       path: '/closet/insights',
       builder: (context, state) => const ClosetInsightsScreen(),
     ),
@@ -321,6 +307,21 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/home/frequently-worn',
       builder: (context, state) => const FrequentlyWornScreen(),
+    ),
+    GoRoute(
+      path: '/home/newly-added/item/:id',
+      builder: (context, state) =>
+         NewlyAddedItemDetailScreen(itemId: state.pathParameters['id']!),
+    ),
+    GoRoute(
+      path: '/home/neglected/item/:id',
+      builder: (context, state) =>
+         NeglectedItemDetailScreen(itemId: state.pathParameters['id']!),
+    ),
+    GoRoute(
+      path: '/home/frequently-worn/item/:id',
+      builder: (context, state) =>
+         FrequentlyWornItemDetailScreen(itemId: state.pathParameters['id']!),
     ),
 
     // --- Outfits Subpages ---

@@ -17,7 +17,7 @@ DripLord aims to be your personal AI stylist, helping you:
 - **Framework**: Flutter (Dart SDK ^3.10.4)
 - **State Management**: Riverpod 3.0.3 with code generation
 - **Backend**: Supabase (PostgreSQL + Auth + Storage)
-- **AI Integration**: Google Generative AI API (planned)
+- **AI Integration**: Google Generative AI API (implemented)
 - **Routing**: GoRouter 17.0.1 with StatefulShellRoute
 - **UI Framework**: Custom luxury dual-theme system with glassmorphism
 
@@ -76,11 +76,11 @@ flutter run
 ## 📱 Features
 
 ### Core Features
-- **AI-Powered Styling**: Daily outfit recommendations with explanations
-- **Virtual Try-On**: Normalized clothing visualization on user avatars
-- **Smart Closet**: AI-assisted wardrobe organization and categorization
+- **AI-Powered Styling**: Daily outfit recommendations with Gemini AI analysis
+- **Virtual Try-On**: Professional canvas with layering controls and composition tools
+- **Smart Closet**: AI-assisted wardrobe organization with automated categorization
 - **Weather Integration**: Real-time weather-based outfit suggestions
-- **Style Learning**: AI that learns from user preferences and interactions
+- **Style Learning**: AI-powered clothing detection and tagging system
 
 ### Authentication
 - Email/password authentication

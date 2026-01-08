@@ -5,19 +5,42 @@ import '../models/style_proposal.dart';
 import '../../try_on/models/outfit_item.dart';
 import '../../closet/providers/closet_provider.dart';
 
+enum AttachmentType { closetItem, outfit, image }
+
+class StagedAttachment {
+  final AttachmentType type;
+  final String preview;
+  final String? name;
+  final String? data;
+
+  StagedAttachment({
+    required this.type,
+    required this.preview,
+    this.name,
+    this.data,
+  });
+}
+
 class StylistAssistantState {
   final List<StylistMessage> messages;
   final bool isTyping;
+  final StagedAttachment? stagedAttachment;
 
-  StylistAssistantState({this.messages = const [], this.isTyping = false});
+  StylistAssistantState({
+    this.messages = const [],
+    this.isTyping = false,
+    this.stagedAttachment,
+  });
 
   StylistAssistantState copyWith({
     List<StylistMessage>? messages,
     bool? isTyping,
+    StagedAttachment? stagedAttachment,
   }) {
     return StylistAssistantState(
       messages: messages ?? this.messages,
       isTyping: isTyping ?? this.isTyping,
+      stagedAttachment: stagedAttachment ?? this.stagedAttachment,
     );
   }
 }
@@ -34,17 +57,38 @@ class StylistAssistantNotifier extends Notifier<StylistAssistantState> {
     );
   }
 
-  Future<void> sendMessage(String text) async {
-    final userMessage = StylistMessage.userText(text);
-    state = state.copyWith(
-      messages: [...state.messages, userMessage],
-      isTyping: true,
-    );
+  void setStagedAttachment(StagedAttachment? attachment) {
+    state = state.copyWith(stagedAttachment: attachment);
+  }
+
+  void clearStagedAttachment() {
+    state = state.copyWith(stagedAttachment: null);
+  }
+
+  Future<void> sendMessage(String text, {StagedAttachment? attachment}) async {
+    // Create combined message if attachment exists
+    if (attachment != null) {
+      final combinedMessage = StylistMessage.userCombined(
+        text: text,
+        attachment: attachment,
+      );
+      state = state.copyWith(
+        messages: [...state.messages, combinedMessage],
+        isTyping: true,
+        stagedAttachment: null, // Clear staged attachment after sending
+      );
+    } else {
+      final userMessage = StylistMessage.userText(text);
+      state = state.copyWith(
+        messages: [...state.messages, userMessage],
+        isTyping: true,
+      );
+    }
 
     // Provide a small delay to simulate thinking
     await Future.delayed(const Duration(seconds: 1));
 
-    _processInput(text);
+    _processInput(text, attachment: attachment);
   }
 
   Future<void> sendImage(String path) async {
@@ -68,6 +112,32 @@ class StylistAssistantNotifier extends Notifier<StylistAssistantState> {
 
     await Future.delayed(const Duration(seconds: 1));
     _processInput("find something similar to this image");
+  }
+
+  void stageClosetItem(String imageUrl, String name) {
+    setStagedAttachment(
+      StagedAttachment(
+        type: AttachmentType.closetItem,
+        preview: imageUrl,
+        name: name,
+      ),
+    );
+  }
+
+  void stageOutfit(String imageUrl, String title) {
+    setStagedAttachment(
+      StagedAttachment(
+        type: AttachmentType.outfit,
+        preview: imageUrl,
+        name: title,
+      ),
+    );
+  }
+
+  void stageImage(String imageUrl) {
+    setStagedAttachment(
+      StagedAttachment(type: AttachmentType.image, preview: imageUrl),
+    );
   }
 
   Future<void> sendClosetItem(String imageUrl, String name) async {
@@ -114,7 +184,7 @@ class StylistAssistantNotifier extends Notifier<StylistAssistantState> {
     );
   }
 
-  void _processInput(String input) {
+  void _processInput(String input, {StagedAttachment? attachment}) {
     final lowerInput = input.toLowerCase();
 
     if (lowerInput.contains("outfit") ||
@@ -242,6 +312,37 @@ class StylistAssistantNotifier extends Notifier<StylistAssistantState> {
     state = state.copyWith(
       isTyping: false,
       messages: [...state.messages, StylistMessage.assistantProposal(proposal)],
+    );
+  }
+
+  // Canvas integration - background agent simulation
+  Future<void> processCanvasAgent(List<OutfitStackItem> items) async {
+    state = state.copyWith(
+      isTyping: true,
+      messages: [
+        ...state.messages,
+        StylistMessage.assistantText(
+          "🎨 I'm creating a styled look in the canvas for you...",
+        ),
+      ],
+    );
+
+    // Simulate agent processing time
+    await Future.delayed(const Duration(seconds: 3));
+
+    // Return placeholder result
+    final placeholderImageUrl =
+        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=600&fit=crop";
+
+    state = state.copyWith(
+      isTyping: false,
+      messages: [
+        ...state.messages,
+        StylistMessage.assistantText(
+          "✨ Your styled look is ready! Here's what I created:",
+        ),
+        StylistMessage.userImage(placeholderImageUrl),
+      ],
     );
   }
 }

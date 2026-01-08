@@ -33,7 +33,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   AddItemPhase _currentPhase = AddItemPhase.selection;
   XFile? _selectedImage;
   String? _imageUrl;
-  bool _isProcessing = false;
   String? _processingError;
 
   @override
@@ -48,7 +47,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
       // Image file from camera/gallery - process immediately
       _selectedImage = XFile(widget.imagePath!);
       _currentPhase = AddItemPhase.processing;
-      _isProcessing = true;
       _processImage();
     }
   }
@@ -272,7 +270,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
       _currentPhase = AddItemPhase.selection;
       _selectedImage = null;
       _imageUrl = null;
-      _isProcessing = false;
       _processingError = null;
       _urlController.clear();
     });
@@ -285,7 +282,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         setState(() {
           _selectedImage = image;
           _currentPhase = AddItemPhase.processing;
-          _isProcessing = true;
         });
         await _processImage();
       }
@@ -306,7 +302,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         setState(() {
           _selectedImage = image;
           _currentPhase = AddItemPhase.processing;
-          _isProcessing = true;
         });
         await _processImage();
       }
@@ -340,7 +335,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     setState(() {
       _imageUrl = url;
       _currentPhase = AddItemPhase.processing;
-      _isProcessing = true;
     });
 
     await _processImage();
@@ -393,7 +387,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     } catch (e) {
       setState(() {
         _processingError = e.toString();
-        _isProcessing = false;
       });
     }
   }

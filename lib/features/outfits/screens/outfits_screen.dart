@@ -18,24 +18,10 @@ class _AppColors {
       : const Color(0xFFFBF9F6);
 
   static Color getTextPrimary(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark
-      ? AppColors.textPrimary
-      : Colors.black;
+      Theme.of(context).colorScheme.onSurface;
 
   static Color getTextSecondary(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark
-      ? AppColors.textSecondary
-      : Colors.black54;
-
-  static Color getPrimary(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark
-      ? AppColors.primary
-      : Colors.black;
-
-  static Color getTextOnPrimary(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark
-      ? AppColors.textOnPrimary
-      : Colors.white;
+      Theme.of(context).colorScheme.onSurfaceVariant;
 }
 
 class OutfitsScreen extends ConsumerWidget {
@@ -261,6 +247,10 @@ class OutfitsScreen extends ConsumerWidget {
 
     return GlassCard(
       padding: EdgeInsets.zero,
+      onTap: () {
+        // Navigate to outfit detail screen
+        context.push('/outfits/${outfit.id}');
+      },
       child: Stack(
         children: [
           // Outfit image (full card background)
@@ -287,6 +277,7 @@ class OutfitsScreen extends ConsumerWidget {
                   Colors.transparent,
                   Colors.black.withValues(alpha: 0.7),
                 ],
+                stops: const [0.6, 1.0],
               ),
             ),
           ),
@@ -360,226 +351,25 @@ class OutfitsScreen extends ConsumerWidget {
                           ),
                       ],
                     ),
-
-                    // Action menu
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: IconButton(
-                        onPressed: () {},
-                        icon: const Icon(LucideIcons.moreVertical, size: 16),
-                        padding: EdgeInsets.zero,
-                        color: Colors.white,
-                      ),
-                    ),
                   ],
                 ),
 
                 const Spacer(),
 
-                // Bottom content
+                // Bottom content - Just outfit title (following closet pattern)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Outfit title
                     Text(
                       outfit.title,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.5),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
                       ),
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    // Action buttons row
-                    Row(
-                      children: [
-                        // Try On button (primary action)
-                        Expanded(
-                          child: Container(
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: _AppColors.getPrimary(context),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: TextButton(
-                              onPressed: () {
-                                // Navigate to try-on with this outfit
-                                context.push('/try-on/outfit/${outfit.id}');
-                              },
-                              style: TextButton.styleFrom(
-                                padding: EdgeInsets.zero,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                              child: Text(
-                                'Try On',
-                                style: TextStyle(
-                                  color: _AppColors.getTextOnPrimary(context),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(width: 6),
-
-                        // Mark as Worn button
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: IconButton(
-                            onPressed: () {
-                              // Mark outfit as worn today
-                              ref
-                                  .read(historyProvider.notifier)
-                                  .addEntry(outfit);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Outfit marked as worn today!'),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            },
-                            icon: const Icon(LucideIcons.check, size: 16),
-                            padding: EdgeInsets.zero,
-                            color: Colors.white,
-                            tooltip: 'Mark as Worn',
-                          ),
-                        ),
-
-                        const SizedBox(width: 6),
-
-                        // More actions menu
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: PopupMenuButton<String>(
-                            onSelected: (value) {
-                              switch (value) {
-                                case 'edit':
-                                  context.push('/try-on/edit/${outfit.id}');
-                                  break;
-                                case 'share':
-                                  // TODO: Implement share functionality
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Share coming soon!'),
-                                    ),
-                                  );
-                                  break;
-                                case 'delete':
-                                  // Show delete confirmation
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: const Text('Delete Outfit'),
-                                      content: const Text(
-                                        'Are you sure you want to delete this outfit?',
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                          child: const Text('Cancel'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            // Remove from saved outfits using toggleFavorite
-                                            ref
-                                                .read(
-                                                  savedOutfitsProvider.notifier,
-                                                )
-                                                .toggleFavorite(outfit);
-                                            Navigator.pop(context);
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                  'Outfit removed from saved',
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          style: TextButton.styleFrom(
-                                            foregroundColor: Colors.red,
-                                          ),
-                                          child: const Text('Delete'),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                  break;
-                              }
-                            },
-                            itemBuilder: (context) => [
-                              const PopupMenuItem(
-                                value: 'edit',
-                                child: Row(
-                                  children: [
-                                    Icon(LucideIcons.edit, size: 16),
-                                    SizedBox(width: 8),
-                                    Text('Edit'),
-                                  ],
-                                ),
-                              ),
-                              const PopupMenuItem(
-                                value: 'share',
-                                child: Row(
-                                  children: [
-                                    Icon(LucideIcons.share, size: 16),
-                                    SizedBox(width: 8),
-                                    Text('Share'),
-                                  ],
-                                ),
-                              ),
-                              const PopupMenuItem(
-                                value: 'delete',
-                                child: Row(
-                                  children: [
-                                    Icon(LucideIcons.trash, size: 16),
-                                    SizedBox(width: 8),
-                                    Text('Delete'),
-                                  ],
-                                ),
-                              ),
-                            ],
-                            icon: const Icon(
-                              LucideIcons.moreVertical,
-                              size: 16,
-                            ),
-                            padding: EdgeInsets.zero,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
                     ),
                   ],
                 ),

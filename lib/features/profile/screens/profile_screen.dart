@@ -234,9 +234,7 @@ class ProfileScreen extends ConsumerWidget {
                   ListTile(
                     leading: Icon(
                       entry.value.icon,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                       size: 20,
                     ),
                     title: Text(
@@ -254,9 +252,7 @@ class ProfileScreen extends ConsumerWidget {
                         Icon(
                           LucideIcons.chevronRight,
                           size: 16,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.24),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                         ),
                   ),
                   if (!isLast)

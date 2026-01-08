@@ -19,14 +19,10 @@ class _AppColors {
       : const Color(0xFFFBF9F6); // Light cream
 
   static Color getTextPrimary(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark
-      ? AppColors.textPrimary
-      : Colors.black;
+      Theme.of(context).colorScheme.onSurface;
 
   static Color getTextSecondary(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark
-      ? AppColors.textSecondary
-      : Colors.black54;
+      Theme.of(context).colorScheme.onSurfaceVariant;
 
   static Color getGlassBorder(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
@@ -336,7 +332,6 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
   Widget _buildFilterChip(String label) {
     final currentCategory = ref.watch(selectedCategoryProvider);
     final isSelected = currentCategory == label;
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return ChoiceChip(
       label: Text(label),
@@ -346,11 +341,11 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
           ref.read(selectedCategoryProvider.notifier).setCategory(label);
         }
       },
-      selectedColor: isDarkMode ? Colors.white : Colors.black,
+      selectedColor: Theme.of(context).colorScheme.primary,
       backgroundColor: Colors.transparent,
       labelStyle: TextStyle(
         color: isSelected
-            ? (isDarkMode ? Colors.black : Colors.white)
+            ? Theme.of(context).colorScheme.onPrimary
             : _AppColors.getTextPrimary(context),
         fontSize: 13,
         fontWeight: FontWeight.w600,
@@ -359,7 +354,7 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
           color: isSelected
-              ? (isDarkMode ? Colors.white : Colors.black)
+              ? Theme.of(context).colorScheme.primary
               : _AppColors.getGlassBorder(context),
           width: 1.2,
         ),
@@ -376,7 +371,7 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
     return GlassCard(
           padding: EdgeInsets.zero,
           onTap: () {
-            // TODO: Open item details
+            context.push('/closet/item/${item.id}');
           },
           child: Stack(
             children: [

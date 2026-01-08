@@ -2,7 +2,7 @@ import 'style_proposal.dart';
 
 enum MessageSender { user, assistant }
 
-enum MessageType { text, image, styleProposal, loading }
+enum MessageType { text, image, styleProposal, loading, combined }
 
 class StylistMessage {
   final String id;
@@ -12,6 +12,7 @@ class StylistMessage {
   final String? imageUrl;
   final StyleProposal? proposal;
   final DateTime timestamp;
+  final dynamic attachment;
 
   StylistMessage({
     required this.id,
@@ -20,6 +21,7 @@ class StylistMessage {
     this.text,
     this.imageUrl,
     this.proposal,
+    this.attachment,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 
@@ -47,6 +49,16 @@ class StylistMessage {
       sender: MessageSender.user,
       type: MessageType.image,
       imageUrl: imageUrl,
+    );
+  }
+
+  factory StylistMessage.userCombined({required String text, required dynamic attachment}) {
+    return StylistMessage(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      sender: MessageSender.user,
+      type: MessageType.combined,
+      text: text,
+      attachment: attachment,
     );
   }
 

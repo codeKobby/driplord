@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:image_picker/image_picker.dart';
+import 'cache_service.dart';
 
 /// Represents a detected clothing item from AI analysis
 class DetectedClothingItem {
@@ -82,6 +83,7 @@ class AiImageService {
   AiImageService._internal();
 
   GenerativeModel? _model;
+  final CacheService _cacheService = CacheService();
 
   /// Initialize the AI model (call this in main.dart or app initialization)
   void initialize(String apiKey) {
@@ -92,12 +94,26 @@ class AiImageService {
   }
 
   /// Analyze an image file for clothing items
-  Future<ImageAnalysisResult> analyzeImageFile(XFile imageFile) async {
+  Future<ImageAnalysisResult> analyzeImageFile(XFile imageFile, {bool forceRefresh = false}) async {
     if (_model == null) {
       return ImageAnalysisResult.error('AI service not initialized');
     }
 
     try {
+      // Generate cache key based on image path/hash
+      final cacheKey = CacheUtils.generateImageAnalysisKey(imageFile.path);
+
+      // Check cache first (unless force refresh)
+      if (!forceRefresh) {
+        final cachedResult = await _cacheService.get<Map<String, dynamic>>(cacheKey, config: CacheConfig.apiResponse);
+        if (cachedResult != null) {
+          final items = (cachedResult['items'] as List<dynamic>?)
+              ?.map((item) => DetectedClothingItem.fromJson(item as Map<String, dynamic>))
+              .toList() ?? [];
+          return ImageAnalysisResult.success(items);
+        }
+      }
+
       // Read image bytes
       final bytes = await imageFile.readAsBytes();
 
@@ -151,14 +167,23 @@ Example format:
       final items = itemsJson
           .map((item) => DetectedClothingItem.fromJson({
                 ...item as Map<String, dynamic>,
-                'id': DateTime.now().millisecondsSinceEpoch.toString() +
-                    '_' +
-                    itemsJson.indexOf(item).toString(),
+                'id': '${DateTime.now().millisecondsSinceEpoch}_${itemsJson.indexOf(item)}',
               }))
           .where((item) => item.confidence > 0.5) // Filter low confidence items
           .toList();
 
-      return ImageAnalysisResult.success(items);
+      final result = ImageAnalysisResult.success(items);
+
+      // Cache the successful result
+      if (result.success) {
+        final cacheData = {
+          'items': items.map((item) => item.toJson()).toList(),
+          'timestamp': DateTime.now().toIso8601String(),
+        };
+        await _cacheService.set(cacheKey, cacheData, config: CacheConfig.apiResponse);
+      }
+
+      return result;
 
     } catch (e) {
       debugPrint('AI Image Analysis Error: $e');
@@ -215,9 +240,7 @@ Format:
       final items = itemsJson
           .map((item) => DetectedClothingItem.fromJson({
                 ...item as Map<String, dynamic>,
-                'id': DateTime.now().millisecondsSinceEpoch.toString() +
-                    '_' +
-                    itemsJson.indexOf(item).toString(),
+                'id': '${DateTime.now().millisecondsSinceEpoch}_${itemsJson.indexOf(item)}',
               }))
           .where((item) => item.confidence > 0.5)
           .toList();

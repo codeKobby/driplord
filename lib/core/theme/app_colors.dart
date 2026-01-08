@@ -30,6 +30,7 @@ class AppColors {
   // Constants
   static const Color pureWhite = Color(0xFFFFFFFF);
   static const Color pureBlack = Color(0xFF000000);
+  static const Color transparent = Color(0x00000000);
   static const Color favoriteRed = Color(0xFFEF4444);
 
   // Legacy Glassmorphism Aliases (pointing to new minimalist colors)
