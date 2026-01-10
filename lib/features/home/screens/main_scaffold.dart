@@ -83,18 +83,25 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
   }
 
   Widget _buildCenterAction() {
-    return GestureDetector(
-      onTap: _showStylingOptions,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          LucideIcons.sparkles,
-          color: Theme.of(context).colorScheme.onPrimary,
-          size: 20,
+    return Semantics(
+      label: "Open styling options",
+      button: true,
+      child: InkWell(
+        onTap: _showStylingOptions,
+        customBorder: const CircleBorder(),
+        child: ExcludeSemantics(
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              LucideIcons.sparkles,
+              color: Theme.of(context).colorScheme.onPrimary,
+              size: 20,
+            ),
+          ),
         ),
       ),
     );
