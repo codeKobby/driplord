@@ -125,6 +125,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           title: "Take a Photo",
           subtitle: "Use your camera to capture an item",
           onTap: _takePhoto,
+          semanticLabel: "Take a Photo",
         ),
         const SizedBox(height: 16),
         _buildOptionCard(
@@ -133,6 +134,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           title: "Choose from Gallery",
           subtitle: "Select a photo from your library",
           onTap: _chooseFromGallery,
+          semanticLabel: "Choose from Gallery",
         ),
         const SizedBox(height: 16),
         _buildUrlInputCard(context),
@@ -444,9 +446,11 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
+    String? semanticLabel,
   }) {
     return GlassCard(
       onTap: onTap,
+      semanticLabel: semanticLabel,
       child: Row(
         children: [
           Container(
