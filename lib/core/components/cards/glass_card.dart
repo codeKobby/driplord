@@ -12,6 +12,7 @@ class GlassCard extends StatelessWidget {
   final double? width;
   final double? height;
   final Color? color;
+  final String? semanticLabel;
 
   const GlassCard({
     super.key,
@@ -23,6 +24,7 @@ class GlassCard extends StatelessWidget {
     this.width,
     this.height,
     this.color,
+    this.semanticLabel,
   });
 
   @override
@@ -41,6 +43,7 @@ class GlassCard extends StatelessWidget {
         padding: padding,
         showBorder: showBorder,
         color: color,
+        semanticLabel: semanticLabel,
         child: child,
       ),
     );
@@ -55,6 +58,7 @@ class GlassEffect extends StatelessWidget {
   final double borderRadius;
   final bool showBorder;
   final Color? color;
+  final String? semanticLabel;
 
   const GlassEffect({
     super.key,
@@ -64,27 +68,41 @@ class GlassEffect extends StatelessWidget {
     required this.borderRadius,
     this.showBorder = true,
     this.color,
+    this.semanticLabel,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: padding ?? const EdgeInsets.all(AppDimensions.paddingLg),
-        decoration: BoxDecoration(
-          color: color ?? Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(borderRadius),
-          border: showBorder
-              ? Border.all(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.outline.withValues(alpha: 0.5),
-                  width: 1,
-                )
-              : null,
+    Widget content = Container(
+      padding: padding ?? const EdgeInsets.all(AppDimensions.paddingLg),
+      decoration: BoxDecoration(
+        color: color ?? Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: showBorder
+            ? Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.5),
+                width: 1,
+              )
+            : null,
+      ),
+      child: child,
+    );
+
+    if (onTap == null) {
+      return content;
+    }
+
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: ExcludeSemantics(
+          child: content,
         ),
-        child: child,
       ),
     );
   }
