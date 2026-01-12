@@ -431,6 +431,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               Colors.red,
               onTap: _handleGoogleSignIn,
               isLoading: _isGoogleLoading,
+              semanticLabel: 'Continue with Google',
             ),
             const SizedBox(width: 16),
             _buildSmallSocialButton(
@@ -438,6 +439,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               Theme.of(context).colorScheme.onSurface,
               onTap: _handleAppleSignIn,
               isLoading: _isAppleLoading,
+              semanticLabel: 'Continue with Apple',
             ),
           ],
         ),
@@ -497,33 +499,43 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     IconData icon,
     Color color, {
     required VoidCallback? onTap,
+    required String semanticLabel,
     bool isLoading = false,
   }) {
-    return GestureDetector(
-      onTap: isLoading ? null : onTap,
-      child: Container(
-        width: 100,
-        height: 60,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
-            width: 1,
+    // Using Semantics to make this custom button accessible.
+    // The Ink and InkWell widgets provide material-style visual feedback on tap.
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: ExcludeSemantics(
+        child: Ink(
+          width: 100,
+          height: 60,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+              width: 1,
+            ),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: isLoading ? null : onTap,
+            child: isLoading
+                ? Center(
+                    child: SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  )
+                : Center(child: FaIcon(icon, color: color, size: 22)),
           ),
         ),
-        child: isLoading
-            ? Center(
-                child: SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              )
-            : Center(child: FaIcon(icon, color: color, size: 22)),
       ),
     );
   }
