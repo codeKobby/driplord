@@ -1,11 +1,11 @@
-# DripLord Phase-2 MVP — Current Implementation Status
+# DripLord Phase-2 MVP — Implementation Roadmap
 
-**🎯 Document Status: Current MVP Implementation Scope & Priority**
+**🎯 Document Status: Updated for 3-Phase Implementation Timeline**
 
-This document defines the **Phase-2 MVP focus** for DripLord, emphasizing the daily hub experience with streamlined user flows. Updated to reflect current implementation status as of January 2026.
+This document defines the **Phase-2 MVP focus** for DripLord, emphasizing the daily hub experience with streamlined user flows. Updated to align with master system design as of January 2026.
 
-**📋 Relationship to Comprehensive PRD:**
-See `drip_lord_product_requirements_document_prd.md` for long-term vision, premium features, and advanced capabilities beyond current MVP scope.
+**📋 Relationship to Master Design:**
+See `master_system_design.md` for comprehensive architecture including Google ADK agent framework, vector databases, and hybrid cloud topology.
 
 ---
 
@@ -239,42 +239,46 @@ Email → Reset Link Sent → Return to Login ✅
 
 ---
 
-## 🚀 Current MVP Status Summary
+## 🚀 Implementation Roadmap (3-Phase Approach)
 
-### ✅ Fully Implemented Features
-1. **Complete Authentication System** - Supabase integration ready
-2. **Daily Hub Experience** - AI outfit recommendations working
-3. **Closet Management** - Full wardrobe organization system
-4. **Style Composer** - Advanced outfit composition tools
-5. **Virtual Try-On** - Multiple try-on modes implemented
-6. **AI Stylist** - Conversational AI integration ready
-7. **Outfit Management** - Complete outfit lifecycle
-8. **Navigation System** - StatefulShellRoute with deep linking
-9. **Design System** - Luxury dual-theme with glassmorphism
-10. **State Management** - Riverpod 3.0.3 architecture
+### Phase 1: The Core (Weeks 1-2) ✅ CURRENT PHASE
+**Status:** In Progress - Flutter UI/UX Layer Complete
 
-### 🔧 Ready for Configuration
-1. **External APIs** - Google Generative AI keys needed
-2. **OAuth Providers** - Google/Apple client IDs ready for setup
-3. **Supabase** - Database schema ready, credentials needed
-4. **Production Build** - All features ready for deployment
+**Completed:**
+- **Supabase Schema**: Deployed with pgvector enabled
+- **Flutter Frontend**: Complete UI/UX implementation
+- **Authentication**: Ready for Supabase integration
+- **State Management**: Riverpod 3.0.3 architecture implemented
+- **Navigation**: StatefulShellRoute with deep linking
+- **Design System**: Luxury dual-theme with glassmorphism
 
-### 📋 Next Implementation Phase
-1. **AI Training** - Style learning algorithms
-2. **Performance Optimization** - Image processing optimization
-3. **Testing** - Comprehensive QA across all features
-4. **Documentation** - User guides and developer documentation
+**Next Steps:**
+- Deploy Supabase Edge Functions (process-upload)
+- Connect CanvasProvider to local asset logic
+- Supabase authentication integration
 
-## 🎯 MVP Achievement
+### Phase 2: The Brain (Weeks 3-4) 🔄 NEXT PHASE
+**Status:** Ready for Implementation
 
-**DripLord Phase-2 MVP is now 100% implemented and ready for production deployment.**
+**Goals:**
+- Deploy Google ADK Agent Service (Cloud Run/Python)
+- Implement conversational AI with tool use
+- Connect Flutter StylistProvider to ADK WebSocket/HTTP stream
+- Implement Level 3 Memory (user_facts vector table)
 
-The application successfully delivers on all core promises:
-- ✅ Personal AI stylist experience
-- ✅ Smart wardrobe management
-- ✅ Virtual try-on capabilities
-- ✅ Daily outfit recommendations
-- ✅ Cross-platform support (Android, iOS, Web)
-- ✅ Modern, luxurious user interface
+**Architecture:**
+- Google Agent Development Kit (ADK)
+- LangChain framework for reasoning
+- RAG queries against user_facts and closet_items
+- Tool-based outfit generation and recommendations
 
-**Ready for beta testing and production release.**
+### Phase 3: The Monetization (Weeks 5-6) 📋 FUTURE PHASE
+**Status:** Planned
+
+**Goals:**
+- Deploy try-on-gateway Edge Function
+- Integrate Fashn.ai API for virtual try-on
+- Implement credit-based system
+- Add "Watch Ad / Pay Credit" modal
+
+**Features:**

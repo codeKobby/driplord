@@ -207,17 +207,32 @@ Anything on the canvas:
 - Does not preserve original pose
 - Prioritizes clarity and realism over pose fidelity
 
-#### 5.5.2 Pose Variants
+#### 5.5.2 Technology Stack (Master Design)
+
+**Fashn.ai API Integration:**
+- Professional virtual try-on service
+- Smart cost control with caching system
+- Hash-based duplicate prevention (BodyID + ItemIDs)
+- Credit consumption model for API calls
+
+**Gateway Architecture:**
+- Supabase Edge Function (try-on-gateway)
+- Cache-first approach to minimize costs
+- User credit validation before API calls
+- Result storage in Supabase Storage
+
+#### 5.5.3 Pose Variants
 
 - Predefined pose library
 - User taps to re-render outfit in different pose
 - Same outfit, same clothes, different stance
 
-#### 5.5.3 Try-On Inputs
+#### 5.5.4 Try-On Inputs
 
-- User base image
+- User base image (body model)
 - Outfit canvas layers
 - Accessories included
+- Pose specification
 
 ### 5.6 AI Stylist (Chat Companion)
 
@@ -235,7 +250,20 @@ Anything on the canvas:
 - Supportive
 - Feels like your stylist, not a bot
 
-#### 5.6.3 Capabilities
+#### 5.6.3 Architecture (Master Design)
+
+**Google ADK Agent Framework:**
+- Google Agent Development Kit (ADK) with Python/Cloud Run
+- LangChain framework for reasoning and tool use
+- RAG queries against user_facts vector table
+- Tool-based outfit generation and recommendations
+
+**Level 3 Memory:**
+- Persists user facts ("User hates yellow") into user_facts vector table
+- Semantic search across user preferences and closet items
+- Background creation of outfit payloads
+
+#### 5.6.4 Capabilities
 
 Recommend outfits
 Explain why something works
@@ -245,12 +273,18 @@ Answer contextual questions:
 - Occasion
 - Weather
 - Calendar events
+- Trend analysis from IG scraping
 
 **Phase-2 MVP Actions:**
 - Try outfit
 - Edit canvas
 - Add clothes
 - Save looks
+
+**Advanced Actions (Future):**
+- Search closet with natural language
+- Generate outfit from trend recipes
+- Personal styling advice based on memory
 
 ### 5.7 Recommendations
 
