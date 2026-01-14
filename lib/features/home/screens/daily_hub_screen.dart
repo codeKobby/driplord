@@ -4,8 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/app_dimensions.dart';
-import '../providers/recommendation_provider.dart';
+import 'package:driplord/features/home/providers/recommendation_provider.dart';
 import '../providers/saved_outfits_provider.dart';
 import '../providers/weather_provider.dart';
 import '../../closet/providers/closet_provider.dart';
@@ -269,19 +270,110 @@ class DailyHubScreen extends ConsumerWidget {
           ),
         ),
 
-        // Title Overlay (moved to avoid PiP conflict)
+        // Title Overlay
         Positioned(
           top: 24,
           left: 24,
-          right: 24,
+          right: 140, // Ensure it doesn't overlap with the source button
           child: Text(
             recommendation.title.toUpperCase(),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: Theme.of(context).colorScheme.surface,
               letterSpacing: 2,
+              shadows: [
+                Shadow(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  offset: const Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ],
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
+          ),
+        ),
+
+        // Source Link (Top Right Icon)
+        Positioned(
+          top: 24,
+          right: 24,
+          child: GestureDetector(
+            onTap: () {
+              if (recommendation.sourceUrl.isNotEmpty) {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusMd,
+                      ),
+                    ),
+                    title: Text(
+                      "View Source?",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    content: Text(
+                      "Would you like to view the original image source on ${recommendation.source}?",
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          "CANCEL",
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          final uri = Uri.parse(recommendation.sourceUrl);
+                          try {
+                            await launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          } catch (e) {
+                            debugPrint(
+                              'Could not launch ${recommendation.sourceUrl}',
+                            );
+                          }
+                        },
+                        child: Text(
+                          "VIEW SOURCE",
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  width: 1,
+                ),
+              ),
+              child: const Icon(
+                LucideIcons.info,
+                size: 16,
+                color: Colors.white,
+              ),
+            ),
           ),
         ),
 
@@ -320,8 +412,12 @@ class DailyHubScreen extends ConsumerWidget {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.surface,
-                          foregroundColor: Theme.of(context).colorScheme.onSurface,
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.surface,
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onSurface,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
@@ -347,7 +443,9 @@ class DailyHubScreen extends ConsumerWidget {
                           ),
                         ),
                         style: TextButton.styleFrom(
-                          foregroundColor: Theme.of(context).colorScheme.surface,
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.surface,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
@@ -566,18 +664,20 @@ class DailyHubScreen extends ConsumerWidget {
                 children: [
                   Text(
                     item.name.toUpperCase(),
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.surface),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.surface,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     item.category.toUpperCase(),
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8)),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surface.withValues(alpha: 0.8),
+                    ),
                   ),
                 ],
               ),

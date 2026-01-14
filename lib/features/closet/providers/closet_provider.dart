@@ -29,18 +29,22 @@ class ClothingItem {
 
   factory ClothingItem.fromJson(Map<String, dynamic> json) {
     return ClothingItem(
-      id: json['id'],
-      name: json['name'],
-      category: json['category'],
-      imageUrl: json['image_url'],
-      color: json['color'],
-      brand: json['brand'],
+      id:
+          json['id']?.toString() ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
+      name: json['name']?.toString() ?? 'Unnamed Item',
+      category: json['category']?.toString() ?? 'Misc',
+      imageUrl: json['image_url']?.toString() ?? '',
+      color: json['color']?.toString(),
+      brand: json['brand']?.toString(),
       purchasePrice: (json['purchase_price'] as num?)?.toDouble(),
       lastWornAt: json['last_worn_date'] != null
-          ? DateTime.parse(json['last_worn_date'])
+          ? DateTime.tryParse(json['last_worn_date'] as String)
           : null,
-      addedDate: DateTime.parse(json['created_at']),
-      isAutoAdded: false, // Default for now
+      addedDate: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
+          : DateTime.now(),
+      isAutoAdded: json['is_auto_added'] ?? false,
     );
   }
 
@@ -73,7 +77,10 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
   Future<void> _loadClosetItems() async {
     try {
       // First try to get from cache
-      final cachedItems = await _cacheService.get<List>('closet_items', config: CacheConfig.userData);
+      final cachedItems = await _cacheService.get<List>(
+        'closet_items',
+        config: CacheConfig.userData,
+      );
       if (cachedItems != null && cachedItems.isNotEmpty) {
         state = cachedItems.map((item) => ClothingItem.fromJson(item)).toList();
         // Refresh from server in background
@@ -88,15 +95,26 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
         // Use mock items for new users
         state = mockItems;
         // Cache mock items for faster subsequent loads
-        await _cacheService.set('closet_items', mockItems.map((item) => item.toJson()).toList(), config: CacheConfig.userData);
+        await _cacheService.set(
+          'closet_items',
+          mockItems.map((item) => item.toJson()).toList(),
+          config: CacheConfig.userData,
+        );
       } else {
         state = items;
         // Cache the fetched items
-        await _cacheService.set('closet_items', items.map((item) => item.toJson()).toList(), config: CacheConfig.userData);
+        await _cacheService.set(
+          'closet_items',
+          items.map((item) => item.toJson()).toList(),
+          config: CacheConfig.userData,
+        );
       }
     } catch (e) {
       // Fall back to cache if available, otherwise mock data
-      final cachedItems = await _cacheService.get<List>('closet_items', config: CacheConfig.userData);
+      final cachedItems = await _cacheService.get<List>(
+        'closet_items',
+        config: CacheConfig.userData,
+      );
       if (cachedItems != null && cachedItems.isNotEmpty) {
         state = cachedItems.map((item) => ClothingItem.fromJson(item)).toList();
       } else {
@@ -111,7 +129,11 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
       if (items.isNotEmpty) {
         state = items;
         // Update cache with fresh data
-        await _cacheService.set('closet_items', items.map((item) => item.toJson()).toList(), config: CacheConfig.userData);
+        await _cacheService.set(
+          'closet_items',
+          items.map((item) => item.toJson()).toList(),
+          config: CacheConfig.userData,
+        );
       }
     } catch (e) {
       // Silently fail - we already have cached data
@@ -257,7 +279,9 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
   }
 
   Future<void> updateItem(ClothingItem updatedItem) async {
-    state = state.map((item) => item.id == updatedItem.id ? updatedItem : item).toList();
+    state = state
+        .map((item) => item.id == updatedItem.id ? updatedItem : item)
+        .toList();
     // Update cache
     await _updateCache();
   }
@@ -265,7 +289,11 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
   Future<void> _updateCache() async {
     try {
       final itemsJson = state.map((item) => item.toJson()).toList();
-      await _cacheService.set('closet_items', itemsJson, config: CacheConfig.userData);
+      await _cacheService.set(
+        'closet_items',
+        itemsJson,
+        config: CacheConfig.userData,
+      );
     } catch (e) {
       // Silently fail - cache update is not critical
     }

@@ -87,6 +87,7 @@ class DatabaseService {
         'confidence_score': outfit.confidenceScore,
         'reasoning': outfit.reasoning,
         'tags': outfit.tags,
+        'source': outfit.source,
       },
     });
   }
@@ -149,6 +150,8 @@ class DatabaseService {
               'confidence_score': outfit.confidenceScore,
               'reasoning': outfit.reasoning,
               'tags': outfit.tags,
+              'source': outfit.source,
+              'source_url': outfit.sourceUrl,
             },
             'last_worn_at': DateTime.now().toIso8601String(),
           })
@@ -206,14 +209,19 @@ class DatabaseService {
     final metaData = json['meta_data'] as Map<String, dynamic>? ?? {};
 
     return Recommendation(
-      id: json['id'],
-      title: json['title'],
-      imageUrl: json['image_url'] ?? '',
-      personalImageUrl: json['personal_image_url'] ?? json['image_url'] ?? '',
+      id:
+          json['id']?.toString() ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
+      title: json['title']?.toString() ?? 'Unknown Outfit',
+      imageUrl: json['image_url']?.toString() ?? '',
+      personalImageUrl:
+          json['personal_image_url']?.toString() ?? json['image_url'] ?? '',
       tags: List<String>.from(metaData['tags'] ?? []),
       confidenceScore:
           (metaData['confidence_score'] as num?)?.toDouble() ?? 0.0,
-      reasoning: metaData['reasoning'] ?? '',
+      reasoning: metaData['reasoning']?.toString() ?? '',
+      source: metaData['source']?.toString() ?? 'Unknown',
+      sourceUrl: metaData['source_url']?.toString() ?? '',
     );
   }
 

@@ -22,9 +22,14 @@ class HistoryNotifier extends Notifier<List<HistoryEntry>> {
   Future<void> _loadHistory() async {
     try {
       // Check cache first
-      final cachedHistory = await _cacheService.get<List>('outfit_history', config: CacheConfig.sessionData);
+      final cachedHistory = await _cacheService.get<List>(
+        'outfit_history',
+        config: CacheConfig.sessionData,
+      );
       if (cachedHistory != null && cachedHistory.isNotEmpty) {
-        state = cachedHistory.map((entry) => _historyEntryFromJson(entry)).toList();
+        state = cachedHistory
+            .map((entry) => _historyEntryFromJson(entry))
+            .toList();
         // Refresh from server in background
         _refreshFromServer();
         return;
@@ -36,18 +41,31 @@ class HistoryNotifier extends Notifier<List<HistoryEntry>> {
       if (history.isNotEmpty) {
         state = history;
         // Cache the fetched history
-        await _cacheService.set('outfit_history', history.map((entry) => _historyEntryToJson(entry)).toList(), config: CacheConfig.sessionData);
+        await _cacheService.set(
+          'outfit_history',
+          history.map((entry) => _historyEntryToJson(entry)).toList(),
+          config: CacheConfig.sessionData,
+        );
       } else {
         // Use mock data for new users
         state = _mockHistory;
         // Cache mock history
-        await _cacheService.set('outfit_history', _mockHistory.map((entry) => _historyEntryToJson(entry)).toList(), config: CacheConfig.sessionData);
+        await _cacheService.set(
+          'outfit_history',
+          _mockHistory.map((entry) => _historyEntryToJson(entry)).toList(),
+          config: CacheConfig.sessionData,
+        );
       }
     } catch (e) {
       // Fall back to cache if available, otherwise mock data
-      final cachedHistory = await _cacheService.get<List>('outfit_history', config: CacheConfig.sessionData);
+      final cachedHistory = await _cacheService.get<List>(
+        'outfit_history',
+        config: CacheConfig.sessionData,
+      );
       if (cachedHistory != null && cachedHistory.isNotEmpty) {
-        state = cachedHistory.map((entry) => _historyEntryFromJson(entry)).toList();
+        state = cachedHistory
+            .map((entry) => _historyEntryFromJson(entry))
+            .toList();
       } else {
         state = _mockHistory;
       }
@@ -60,7 +78,11 @@ class HistoryNotifier extends Notifier<List<HistoryEntry>> {
       if (history.isNotEmpty) {
         state = history;
         // Update cache with fresh data
-        await _cacheService.set('outfit_history', history.map((entry) => _historyEntryToJson(entry)).toList(), config: CacheConfig.sessionData);
+        await _cacheService.set(
+          'outfit_history',
+          history.map((entry) => _historyEntryToJson(entry)).toList(),
+          config: CacheConfig.sessionData,
+        );
       }
     } catch (e) {
       // Silently fail - we already have cached data
@@ -80,6 +102,9 @@ class HistoryNotifier extends Notifier<List<HistoryEntry>> {
         confidenceScore: 0.95,
         reasoning:
             "Professional look that commands respect in business settings.",
+        source: "Unsplash",
+        sourceUrl:
+            "https://unsplash.com/photos/man-wearing-black-blazer-and-white-dress-shirt-X_M_U9Y6-oY",
       ),
       wornAt: DateTime.now().subtract(const Duration(days: 1)),
     ),
@@ -94,6 +119,9 @@ class HistoryNotifier extends Notifier<List<HistoryEntry>> {
         tags: ["Chill", "Cotton"],
         confidenceScore: 0.88,
         reasoning: "Relaxed weekend vibe with comfortable, breathable fabrics.",
+        source: "Unsplash",
+        sourceUrl:
+            "https://unsplash.com/photos/woman-wearing-white-tank-top-X_M_U9Y6-oY",
       ),
       wornAt: DateTime.now().subtract(const Duration(days: 3)),
     ),
@@ -118,8 +146,14 @@ class HistoryNotifier extends Notifier<List<HistoryEntry>> {
 
   Future<void> _updateCache() async {
     try {
-      final historyJson = state.map((entry) => _historyEntryToJson(entry)).toList();
-      await _cacheService.set('outfit_history', historyJson, config: CacheConfig.sessionData);
+      final historyJson = state
+          .map((entry) => _historyEntryToJson(entry))
+          .toList();
+      await _cacheService.set(
+        'outfit_history',
+        historyJson,
+        config: CacheConfig.sessionData,
+      );
     } catch (e) {
       // Silently fail - cache update is not critical
     }
@@ -135,26 +169,38 @@ class HistoryNotifier extends Notifier<List<HistoryEntry>> {
         'tags': entry.outfit.tags,
         'confidenceScore': entry.outfit.confidenceScore,
         'reasoning': entry.outfit.reasoning,
+        'source': entry.outfit.source,
+        'sourceUrl': entry.outfit.sourceUrl,
       },
       'wornAt': entry.wornAt.toIso8601String(),
     };
   }
 
   HistoryEntry _historyEntryFromJson(Map<String, dynamic> json) {
-    final outfitData = json['outfit'] as Map<String, dynamic>;
+    final outfitData = json['outfit'] as Map<String, dynamic>? ?? {};
     final outfit = Recommendation(
-      id: outfitData['id'],
-      title: outfitData['title'],
-      imageUrl: outfitData['imageUrl'],
-      personalImageUrl: outfitData['personalImageUrl'] ?? outfitData['imageUrl'],
+      id:
+          outfitData['id']?.toString() ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
+      title: outfitData['title']?.toString() ?? 'Unknown Outfit',
+      imageUrl: outfitData['imageUrl']?.toString() ?? '',
+      personalImageUrl:
+          outfitData['personalImageUrl']?.toString() ??
+          outfitData['imageUrl']?.toString() ??
+          '',
       tags: List<String>.from(outfitData['tags'] ?? []),
-      confidenceScore: (outfitData['confidenceScore'] as num?)?.toDouble() ?? 0.0,
-      reasoning: outfitData['reasoning'] ?? '',
+      confidenceScore:
+          (outfitData['confidenceScore'] as num?)?.toDouble() ?? 0.0,
+      reasoning: outfitData['reasoning']?.toString() ?? '',
+      source: outfitData['source']?.toString() ?? 'Unknown',
+      sourceUrl: outfitData['sourceUrl']?.toString() ?? '',
     );
 
     return HistoryEntry(
       outfit: outfit,
-      wornAt: DateTime.parse(json['wornAt']),
+      wornAt: json['wornAt'] != null
+          ? DateTime.tryParse(json['wornAt'] as String) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
 }

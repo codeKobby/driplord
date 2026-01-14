@@ -18,7 +18,6 @@ final vibeProvider = NotifierProvider<VibeNotifier, Vibe>(() {
 });
 
 // Mock data for recommendations based on vibe
-// Mock data for recommendations based on vibe
 class Recommendation {
   final String id;
   final String title;
@@ -27,6 +26,10 @@ class Recommendation {
   final List<String> tags;
   final double confidenceScore;
   final String reasoning;
+  final String source; // Image source for copyright attribution
+  final String? _sourceUrl; // Nullable for safe migration
+
+  String get sourceUrl => _sourceUrl ?? '';
 
   Recommendation({
     required this.id,
@@ -36,7 +39,9 @@ class Recommendation {
     required this.tags,
     required this.confidenceScore,
     required this.reasoning,
-  });
+    required this.source,
+    String? sourceUrl,
+  }) : _sourceUrl = sourceUrl;
 }
 
 final recommendationProvider = Provider<List<Recommendation>>((ref) {
@@ -55,6 +60,9 @@ final recommendationProvider = Provider<List<Recommendation>>((ref) {
           tags: ["Cotton", "Loose", "Neutral"],
           confidenceScore: 0.94,
           reasoning: "Perfect for today's forecast. Clean lines, zero stress.",
+          source: "Unsplash",
+          sourceUrl:
+              "https://unsplash.com/photos/woman-wearing-white-tank-top-X_M_U9Y6-oY",
         ),
         Recommendation(
           id: "chill_2",
@@ -66,6 +74,9 @@ final recommendationProvider = Provider<List<Recommendation>>((ref) {
           tags: ["Layered", "Soft", "Earthy"],
           confidenceScore: 0.88,
           reasoning: "A bit more warmth if the breeze picks up.",
+          source: "Unsplash",
+          sourceUrl:
+              "https://unsplash.com/photos/gray-and-black-textile-P4i-O7_9zsc",
         ),
       ];
     case Vibe.bold:
@@ -80,6 +91,9 @@ final recommendationProvider = Provider<List<Recommendation>>((ref) {
           tags: ["Graphic", "Oversized", "Vibrant"],
           confidenceScore: 0.96,
           reasoning: "Stand out without trying too hard.",
+          source: "Unsplash",
+          sourceUrl:
+              "https://unsplash.com/photos/woman-in-white-and-black-striped-long-sleeve-shirt-looking-at-mirror-mEZ3ToAat_4",
         ),
         Recommendation(
           id: "bold_2",
@@ -91,6 +105,9 @@ final recommendationProvider = Provider<List<Recommendation>>((ref) {
           tags: ["Tech", "Sharp", "Monochrome"],
           confidenceScore: 0.91,
           reasoning: "High impact, modern silhouette.",
+          source: "Unsplash",
+          sourceUrl:
+              "https://unsplash.com/photos/grayscale-photo-of-man-in-white-dress-shirt-and-black-suit-y_A_S7S-oY",
         ),
       ];
     case Vibe.work:
@@ -105,6 +122,9 @@ final recommendationProvider = Provider<List<Recommendation>>((ref) {
           tags: ["Tailored", "Blazer", "Monochrome"],
           confidenceScore: 0.95,
           reasoning: "Commands respect, but comfortable enough for 8 hours.",
+          source: "Unsplash",
+          sourceUrl:
+              "https://unsplash.com/photos/man-wearing-black-blazer-and-white-dress-shirt-X_M_U9Y6-oY",
         ),
         Recommendation(
           id: "work_2",
@@ -116,6 +136,9 @@ final recommendationProvider = Provider<List<Recommendation>>((ref) {
           tags: ["Structured", "Navy", "Crisp"],
           confidenceScore: 0.89,
           reasoning: "Professional without the stiffness.",
+          source: "Unsplash",
+          sourceUrl:
+              "https://unsplash.com/photos/man-in-blue-blazer-standing-on-road-P4i-O7_9zsc",
         ),
       ];
     case Vibe.hype:
@@ -130,6 +153,9 @@ final recommendationProvider = Provider<List<Recommendation>>((ref) {
           tags: ["Sneakers", "Denim", "Statement"],
           confidenceScore: 0.98,
           reasoning: "On trend. The silhouette everyone's after right now.",
+          source: "Unsplash",
+          sourceUrl:
+              "https://unsplash.com/photos/woman-in-white-denim-jacket-and-blue-denim-jeans-standing-on-gray-concrete-floor-during-daytime-mEZ3ToAat_4",
         ),
         Recommendation(
           id: "hype_2",
@@ -141,6 +167,9 @@ final recommendationProvider = Provider<List<Recommendation>>((ref) {
           tags: ["Cargo", "Oversized", "Techwear"],
           confidenceScore: 0.92,
           reasoning: "Functional, heavy-duty, clean.",
+          source: "Unsplash",
+          sourceUrl:
+              "https://unsplash.com/photos/man-in-black-jacket-standing-near-green-leaf-plants-y_A_S7S-oY",
         ),
       ];
   }

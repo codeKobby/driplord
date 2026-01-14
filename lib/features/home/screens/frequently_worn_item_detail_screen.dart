@@ -18,7 +18,7 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final items = ref.watch(closetProvider);
     final history = ref.watch(historyProvider);
-    
+
     final item = items.firstWhere(
       (item) => item.id == itemId,
       orElse: () => ClothingItem(
@@ -40,7 +40,10 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(LucideIcons.arrowLeft, color: Theme.of(context).colorScheme.onSurface),
+          icon: Icon(
+            LucideIcons.arrowLeft,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -67,7 +70,9 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.3),
                   width: 2,
                 ),
               ),
@@ -79,12 +84,13 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
                       ? Image.network(
                           item.imageUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            color: Theme.of(context).colorScheme.surface,
-                            child: const Center(
-                              child: Icon(LucideIcons.imageOff, size: 48),
-                            ),
-                          ),
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                color: Theme.of(context).colorScheme.surface,
+                                child: const Center(
+                                  child: Icon(LucideIcons.imageOff, size: 48),
+                                ),
+                              ),
                         )
                       : Container(
                           color: Theme.of(context).colorScheme.surface,
@@ -98,7 +104,10 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
                     top: 16,
                     right: 16,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.primary,
                         borderRadius: BorderRadius.circular(20),
@@ -106,7 +115,11 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(LucideIcons.star, color: Theme.of(context).colorScheme.onPrimary, size: 14),
+                          Icon(
+                            LucideIcons.star,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            size: 14,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             "WORN ${wearCount}x",
@@ -147,7 +160,9 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
             Text(
               "Added ${_getRelativeTime(item.addedDate)}",
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
 
@@ -160,7 +175,9 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),
@@ -194,16 +211,23 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
                           children: [
                             Text(
                               "Total Wears",
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.7),
+                                  ),
                             ),
                             Text(
                               "${wearCount}x",
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.w900,
-                              ),
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    fontWeight: FontWeight.w900,
+                                  ),
                             ),
                           ],
                         ),
@@ -214,16 +238,25 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
                           children: [
                             Text(
                               "Last Worn",
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.7),
+                                  ),
                             ),
                             Text(
-                              lastWornDate != null ? _getRelativeTime(lastWornDate) : "Never",
-                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontWeight: FontWeight.w700,
-                              ),
+                              lastWornDate != null
+                                  ? _getRelativeTime(lastWornDate)
+                                  : "Never",
+                              style: Theme.of(context).textTheme.titleSmall
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                             ),
                           ],
                         ),
@@ -234,7 +267,9 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
                   Text(
                     "Your favorite piece! Keep exploring new styling options.",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                 ],
@@ -261,8 +296,6 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
               icon: LucideIcons.palette,
             ),
             const SizedBox(height: 12),
-
-
 
             // View Wear History Button
             SecondaryButton(
@@ -340,7 +373,9 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -365,7 +400,9 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
                   Text(
                     subtitle,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                 ],
@@ -373,7 +410,9 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
             ),
             Icon(
               LucideIcons.chevronRight,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.4),
               size: 20,
             ),
           ],
@@ -385,7 +424,11 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
   int _calculateWearCount(List<HistoryEntry> history, String itemId) {
     // This is a simplified calculation - in real implementation,
     // you'd track actual wear events
-    return (DateTime.now().difference(DateTime.now().subtract(const Duration(days: 60))).inDays ~/ 7) + 1;
+    return (DateTime.now()
+                .difference(DateTime.now().subtract(const Duration(days: 60)))
+                .inDays ~/
+            7) +
+        1;
   }
 
   String _getRelativeTime(DateTime date) {
@@ -403,19 +446,11 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
     );
   }
 
-  void _tryOnItem(BuildContext context, ClothingItem item) {
-    context.push('/try-on/item/${item.id}');
-  }
-
   void _viewWearHistory(BuildContext context, ClothingItem item) {
     // TODO: Implement wear history view
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Viewing wear history for ${item.name}')),
     );
-  }
-
-  void _viewFullDetails(BuildContext context, ClothingItem item) {
-    context.push('/closet/item/${item.id}');
   }
 
   void _showStylingSuggestions(BuildContext context, ClothingItem item) {
@@ -425,9 +460,9 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
   }
 
   void _showTrendIdeas(BuildContext context, ClothingItem item) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Exploring trend ideas...')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Exploring trend ideas...')));
   }
 
   void _showItemDetailsBottomSheet(BuildContext context, ClothingItem item) {
@@ -451,7 +486,9 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -481,7 +518,11 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
             ],
             if (item.purchasePrice != null) ...[
               const SizedBox(height: 8),
-              _buildDetailRow(context, 'Purchase Price', '\$${item.purchasePrice}'),
+              _buildDetailRow(
+                context,
+                'Purchase Price',
+                '\$${item.purchasePrice}',
+              ),
             ],
             const SizedBox(height: 8),
             _buildDetailRow(context, 'Added', _getRelativeTime(item.addedDate)),
@@ -496,14 +537,18 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
                   Navigator.pop(context);
                   // TODO: Navigate to full edit screen
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Edit functionality coming soon')),
+                    const SnackBar(
+                      content: Text('Edit functionality coming soon'),
+                    ),
                   );
                 },
                 icon: const Icon(LucideIcons.edit3),
                 label: const Text('EDIT ITEM'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: BorderSide(color: Theme.of(context).colorScheme.outline),
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                   ),
@@ -523,7 +568,9 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
         Text(
           label.toUpperCase(),
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         Text(

@@ -39,6 +39,8 @@ class OutfitDetailScreen extends ConsumerWidget {
           tags: [],
           confidenceScore: 0.0,
           reasoning: '',
+          source: 'Unknown',
+          sourceUrl: '',
         );
         historyEntry = null;
       }
@@ -50,7 +52,10 @@ class OutfitDetailScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(LucideIcons.arrowLeft, color: Theme.of(context).colorScheme.onSurface),
+          icon: Icon(
+            LucideIcons.arrowLeft,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -81,7 +86,10 @@ class OutfitDetailScreen extends ConsumerWidget {
                 ),
               ),
             ],
-            icon: Icon(LucideIcons.moreVertical, color: Theme.of(context).colorScheme.onSurface),
+            icon: Icon(
+              LucideIcons.moreVertical,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
         ],
       ),
@@ -99,7 +107,9 @@ class OutfitDetailScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.3),
                   width: 2,
                 ),
               ),
@@ -140,7 +150,10 @@ class OutfitDetailScreen extends ConsumerWidget {
               children: [
                 if (savedOutfits.any((o) => o.id == id))
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.pink.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -164,7 +177,10 @@ class OutfitDetailScreen extends ConsumerWidget {
                 if (historyEntry != null) ...[
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.blue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -282,7 +298,9 @@ class OutfitDetailScreen extends ConsumerWidget {
                   color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outline.withValues(alpha: 0.1),
                   ),
                 ),
                 child: Text(
@@ -302,7 +320,12 @@ class OutfitDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAnalyticsCard(BuildContext context, String label, String value, IconData icon) {
+  Widget _buildAnalyticsCard(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -317,7 +340,9 @@ class OutfitDetailScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -334,7 +359,9 @@ class OutfitDetailScreen extends ConsumerWidget {
                 Text(
                   label,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
                 Text(
@@ -352,7 +379,11 @@ class OutfitDetailScreen extends ConsumerWidget {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, WidgetRef ref, Recommendation outfit) {
+  void _showDeleteConfirmation(
+    BuildContext context,
+    WidgetRef ref,
+    Recommendation outfit,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -363,14 +394,22 @@ class OutfitDetailScreen extends ConsumerWidget {
         ),
         content: Text(
           'Are you sure you want to delete "${outfit.title}"? This action cannot be undone.',
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8)),
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.8),
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               'CANCEL',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
             ),
           ),
           TextButton(
@@ -383,10 +422,7 @@ class OutfitDetailScreen extends ConsumerWidget {
                 SnackBar(content: Text('${outfit.title} deleted')),
               );
             },
-            child: const Text(
-              'DELETE',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('DELETE', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -401,7 +437,10 @@ class OutfitDetailScreen extends ConsumerWidget {
     return "${diff.inDays} days ago";
   }
 
-  Widget _buildOutfitItemsThumbnails(BuildContext context, Recommendation outfit) {
+  Widget _buildOutfitItemsThumbnails(
+    BuildContext context,
+    Recommendation outfit,
+  ) {
     // Mock item thumbnails based on outfit tags
     // In a real implementation, this would use actual item IDs from the outfit
     final mockItems = _getMockItemsForOutfit(outfit);
@@ -449,7 +488,9 @@ class OutfitDetailScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outline.withValues(alpha: 0.2),
                       width: 1,
                     ),
                   ),
@@ -462,7 +503,9 @@ class OutfitDetailScreen extends ConsumerWidget {
                         color: Theme.of(context).colorScheme.surface,
                         child: Icon(
                           LucideIcons.imageOff,
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.3),
                           size: 20,
                         ),
                       ),
@@ -476,7 +519,9 @@ class OutfitDetailScreen extends ConsumerWidget {
           Text(
             "${mockItems.length} items in this outfit",
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ],
@@ -490,24 +535,31 @@ class OutfitDetailScreen extends ConsumerWidget {
 
     // Add mock items based on tags
     for (final tag in outfit.tags) {
-      if (tag.toLowerCase().contains('cotton') || tag.toLowerCase().contains('loose')) {
+      if (tag.toLowerCase().contains('cotton') ||
+          tag.toLowerCase().contains('loose')) {
         mockItems.add({
-          'image': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200',
+          'image':
+              'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200',
           'name': 'Cotton T-Shirt',
         });
-      } else if (tag.toLowerCase().contains('blazer') || tag.toLowerCase().contains('tailored')) {
+      } else if (tag.toLowerCase().contains('blazer') ||
+          tag.toLowerCase().contains('tailored')) {
         mockItems.add({
-          'image': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
+          'image':
+              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
           'name': 'Tailored Blazer',
         });
-      } else if (tag.toLowerCase().contains('denim') || tag.toLowerCase().contains('jeans')) {
+      } else if (tag.toLowerCase().contains('denim') ||
+          tag.toLowerCase().contains('jeans')) {
         mockItems.add({
-          'image': 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=200',
+          'image':
+              'https://images.unsplash.com/photo-1542272604-787c3835535d?w=200',
           'name': 'Denim Jeans',
         });
       } else if (tag.toLowerCase().contains('sneakers')) {
         mockItems.add({
-          'image': 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=200',
+          'image':
+              'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=200',
           'name': 'White Sneakers',
         });
       }
@@ -516,7 +568,8 @@ class OutfitDetailScreen extends ConsumerWidget {
     // Ensure we have at least 2-4 items for demonstration
     while (mockItems.length < 3) {
       mockItems.add({
-        'image': 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=200',
+        'image':
+            'https://images.unsplash.com/photo-1445205170230-053b83016050?w=200',
         'name': 'Fashion Item',
       });
     }

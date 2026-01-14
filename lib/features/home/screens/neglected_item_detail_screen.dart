@@ -39,7 +39,10 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(LucideIcons.arrowLeft, color: Theme.of(context).colorScheme.onSurface),
+          icon: Icon(
+            LucideIcons.arrowLeft,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -66,7 +69,10 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
                 border: Border.all(
-                  color: _getSeverityColor(context, severity).withValues(alpha: 0.3),
+                  color: _getSeverityColor(
+                    context,
+                    severity,
+                  ).withValues(alpha: 0.3),
                   width: 2,
                 ),
               ),
@@ -78,12 +84,13 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
                       ? Image.network(
                           item.imageUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            color: Theme.of(context).colorScheme.surface,
-                            child: const Center(
-                              child: Icon(LucideIcons.imageOff, size: 48),
-                            ),
-                          ),
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                color: Theme.of(context).colorScheme.surface,
+                                child: const Center(
+                                  child: Icon(LucideIcons.imageOff, size: 48),
+                                ),
+                              ),
                         )
                       : Container(
                           color: Theme.of(context).colorScheme.surface,
@@ -97,7 +104,10 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
                     top: 16,
                     right: 16,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: _getSeverityColor(context, severity),
                         borderRadius: BorderRadius.circular(20),
@@ -105,7 +115,11 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(LucideIcons.alertTriangle, color: Theme.of(context).colorScheme.onPrimary, size: 14),
+                          Icon(
+                            LucideIcons.alertTriangle,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            size: 14,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             "${_getSeverityText(severity)} NEGLECTED",
@@ -146,7 +160,9 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
             Text(
               "Added ${_getRelativeTime(item.addedDate)}",
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
 
@@ -159,7 +175,10 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                 border: Border.all(
-                  color: _getSeverityColor(context, severity).withValues(alpha: 0.2),
+                  color: _getSeverityColor(
+                    context,
+                    severity,
+                  ).withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),
@@ -198,7 +217,9 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
                   Text(
                     "$daysSinceWorn days since last wear",
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                 ],
@@ -225,8 +246,6 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
               icon: LucideIcons.palette,
             ),
             const SizedBox(height: 12),
-
-
 
             // View Details Button
             SecondaryButton(
@@ -296,7 +315,9 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -321,7 +342,9 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
                   Text(
                     subtitle,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                 ],
@@ -329,7 +352,9 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
             ),
             Icon(
               LucideIcons.chevronRight,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.4),
               size: 20,
             ),
           ],
@@ -348,23 +373,35 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
 
   String _getSeverityText(int severity) {
     switch (severity) {
-      case 1: return "MILD";
-      case 2: return "MODERATE";
-      case 3: return "SIGNIFICANT";
-      case 4: return "SEVERE";
-      case 5: return "CRITICAL";
-      default: return "UNKNOWN";
+      case 1:
+        return "MILD";
+      case 2:
+        return "MODERATE";
+      case 3:
+        return "SIGNIFICANT";
+      case 4:
+        return "SEVERE";
+      case 5:
+        return "CRITICAL";
+      default:
+        return "UNKNOWN";
     }
   }
 
   Color _getSeverityColor(BuildContext context, int severity) {
     switch (severity) {
-      case 1: return Theme.of(context).colorScheme.primary;
-      case 2: return Colors.orange;
-      case 3: return Colors.deepOrange;
-      case 4: return Theme.of(context).colorScheme.error;
-      case 5: return Colors.red.shade900;
-      default: return Theme.of(context).colorScheme.primary;
+      case 1:
+        return Theme.of(context).colorScheme.primary;
+      case 2:
+        return Colors.orange;
+      case 3:
+        return Colors.deepOrange;
+      case 4:
+        return Theme.of(context).colorScheme.error;
+      case 5:
+        return Colors.red.shade900;
+      default:
+        return Theme.of(context).colorScheme.primary;
     }
   }
 
@@ -381,21 +418,6 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Starting outfit creation with ${item.name}')),
     );
-  }
-
-  void _tryOnItem(BuildContext context, ClothingItem item) {
-    context.push('/try-on/item/${item.id}');
-  }
-
-  void _markAsWorn(BuildContext context, ClothingItem item) {
-    // TODO: Implement mark as worn functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Marked ${item.name} as worn today')),
-    );
-  }
-
-  void _viewFullDetails(BuildContext context, ClothingItem item) {
-    context.push('/closet/item/${item.id}');
   }
 
   void _suggestComplementaryItems(BuildContext context, ClothingItem item) {
@@ -431,7 +453,9 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -461,7 +485,11 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
             ],
             if (item.purchasePrice != null) ...[
               const SizedBox(height: 8),
-              _buildDetailRow(context, 'Purchase Price', '\$${item.purchasePrice}'),
+              _buildDetailRow(
+                context,
+                'Purchase Price',
+                '\$${item.purchasePrice}',
+              ),
             ],
             const SizedBox(height: 8),
             _buildDetailRow(context, 'Added', _getRelativeTime(item.addedDate)),
@@ -476,14 +504,18 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
                   Navigator.pop(context);
                   // TODO: Navigate to full edit screen
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Edit functionality coming soon')),
+                    const SnackBar(
+                      content: Text('Edit functionality coming soon'),
+                    ),
                   );
                 },
                 icon: const Icon(LucideIcons.edit3),
                 label: const Text('EDIT ITEM'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: BorderSide(color: Theme.of(context).colorScheme.outline),
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                   ),
@@ -503,7 +535,9 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
         Text(
           label.toUpperCase(),
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         Text(

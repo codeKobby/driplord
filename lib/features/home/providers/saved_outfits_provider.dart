@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'recommendation_provider.dart';
+import 'package:driplord/features/home/providers/recommendation_provider.dart';
 
 class SavedOutfitsNotifier extends Notifier<List<Recommendation>> {
   @override
