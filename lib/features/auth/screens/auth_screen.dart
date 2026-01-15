@@ -429,6 +429,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             _buildSmallSocialButton(
               FontAwesomeIcons.google,
               Colors.red,
+              label: "Continue with Google",
               onTap: _handleGoogleSignIn,
               isLoading: _isGoogleLoading,
             ),
@@ -436,6 +437,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             _buildSmallSocialButton(
               FontAwesomeIcons.apple,
               Theme.of(context).colorScheme.onSurface,
+              label: "Continue with Apple",
               onTap: _handleAppleSignIn,
               isLoading: _isAppleLoading,
             ),
@@ -452,43 +454,54 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     required bool isLoading,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: isLoading ? null : onTap,
-      child: Container(
-        width: double.infinity,
-        height: 60,
-        decoration: BoxDecoration(
+    return Semantics(
+      button: true,
+      label: label,
+      child: ExcludeSemantics(
+        child: Material(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
-            width: 1,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color:
+                  Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+              width: 1,
+            ),
+          ),
+          child: InkWell(
+            onTap: isLoading ? null : onTap,
+            borderRadius: BorderRadius.circular(16),
+            child: SizedBox(
+              width: double.infinity,
+              height: 60,
+              child: isLoading
+                  ? Center(
+                      child: SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        FaIcon(icon, color: iconColor, size: 20),
+                        const SizedBox(width: 12),
+                        Text(
+                          label,
+                          style:
+                              Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                        ),
+                      ],
+                    ),
+            ),
           ),
         ),
-        child: isLoading
-            ? Center(
-                child: SizedBox(
-                  height: 24,
-                  width: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  FaIcon(icon, color: iconColor, size: 20),
-                  const SizedBox(width: 12),
-                  Text(
-                    label,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
       ),
     );
   }
@@ -496,34 +509,45 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   Widget _buildSmallSocialButton(
     IconData icon,
     Color color, {
+    required String label,
     required VoidCallback? onTap,
     bool isLoading = false,
   }) {
-    return GestureDetector(
-      onTap: isLoading ? null : onTap,
-      child: Container(
-        width: 100,
-        height: 60,
-        decoration: BoxDecoration(
+    return Semantics(
+      button: true,
+      label: label,
+      child: ExcludeSemantics(
+        child: Material(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
-            width: 1,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color:
+                  Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+              width: 1,
+            ),
+          ),
+          child: InkWell(
+            onTap: isLoading ? null : onTap,
+            borderRadius: BorderRadius.circular(16),
+            child: SizedBox(
+              width: 100,
+              height: 60,
+              child: isLoading
+                  ? Center(
+                      child: SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    )
+                  : Center(child: FaIcon(icon, color: color, size: 22)),
+            ),
           ),
         ),
-        child: isLoading
-            ? Center(
-                child: SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              )
-            : Center(child: FaIcon(icon, color: color, size: 22)),
       ),
     );
   }
