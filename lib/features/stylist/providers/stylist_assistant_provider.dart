@@ -4,6 +4,7 @@ import '../models/stylist_message.dart';
 import '../models/style_proposal.dart';
 import '../../try_on/models/outfit_item.dart';
 import '../../closet/providers/closet_provider.dart';
+import '../../../core/constants/app_constants.dart';
 
 enum AttachmentType { closetItem, outfit, image }
 
@@ -25,35 +26,43 @@ class StylistAssistantState {
   final List<StylistMessage> messages;
   final bool isTyping;
   final StagedAttachment? stagedAttachment;
+  final bool isMockMode;
 
   StylistAssistantState({
     this.messages = const [],
     this.isTyping = false,
     this.stagedAttachment,
+    this.isMockMode = true,
   });
 
   StylistAssistantState copyWith({
     List<StylistMessage>? messages,
     bool? isTyping,
     StagedAttachment? stagedAttachment,
+    bool? isMockMode,
   }) {
     return StylistAssistantState(
       messages: messages ?? this.messages,
       isTyping: isTyping ?? this.isTyping,
       stagedAttachment: stagedAttachment ?? this.stagedAttachment,
+      isMockMode: isMockMode ?? this.isMockMode,
     );
   }
 }
 
 class StylistAssistantNotifier extends Notifier<StylistAssistantState> {
+  /// Returns true if the AI service is not configured
+  bool get isMockMode => !AppConstants.isAiConfigured;
+
   @override
   StylistAssistantState build() {
+    final welcomeMessage = isMockMode
+        ? "Hey! I'm your AI Style Assistant (Demo Mode). I can help you find items in your closet or put together fresh looks. Full AI features will be available once configured!"
+        : "Hey! I'm your AI Style Assistant. I can help you find items in your closet or put together fresh looks. What are we vibing with today?";
+
     return StylistAssistantState(
-      messages: [
-        StylistMessage.assistantText(
-          "Hey! I'm your AI Style Assistant. I can help you find items in your closet or put together fresh looks. What are we vibing with today?",
-        ),
-      ],
+      isMockMode: isMockMode,
+      messages: [StylistMessage.assistantText(welcomeMessage)],
     );
   }
 
@@ -209,7 +218,8 @@ class StylistAssistantNotifier extends Notifier<StylistAssistantState> {
   }
 
   void _mockClosetSearch(String query) {
-    final closet = ref.read(closetProvider);
+    final asyncCloset = ref.read(closetProvider);
+    final closet = asyncCloset.value ?? [];
     // Simple mock search logic
     final foundItems = closet.where((item) {
       return query.contains(item.category.toLowerCase()) ||
@@ -242,7 +252,8 @@ class StylistAssistantNotifier extends Notifier<StylistAssistantState> {
   }
 
   void _mockOutfitRecommendation(String query) {
-    final closet = ref.read(closetProvider);
+    final asyncCloset = ref.read(closetProvider);
+    final closet = asyncCloset.value ?? [];
 
     // Try to pick one from each main category
     final tops = closet

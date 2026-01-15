@@ -11,6 +11,16 @@ class DatabaseService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
   // ===========================================================================
+  // AUTH HELPERS
+  // ===========================================================================
+
+  /// Returns true if a user is currently authenticated
+  bool get isAuthenticated => _supabase.auth.currentUser != null;
+
+  /// Returns the current user's ID, or null if not authenticated
+  String? get currentUserId => _supabase.auth.currentUser?.id;
+
+  // ===========================================================================
   // CLOSET ITEMS
   // ===========================================================================
 

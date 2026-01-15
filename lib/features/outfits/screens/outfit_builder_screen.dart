@@ -29,7 +29,8 @@ class _OutfitBuilderScreenState extends ConsumerState<OutfitBuilderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final closetItems = ref.watch(closetProvider);
+    final asyncClosetItems = ref.watch(closetProvider);
+    final closetItems = asyncClosetItems.value ?? [];
 
     return DripLordScaffold(
       body: CustomScrollView(

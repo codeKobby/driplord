@@ -29,7 +29,8 @@ class ProfessionalCanvasArea extends ConsumerStatefulWidget {
       _ProfessionalCanvasAreaState();
 }
 
-class _ProfessionalCanvasAreaState extends ConsumerState<ProfessionalCanvasArea> {
+class _ProfessionalCanvasAreaState
+    extends ConsumerState<ProfessionalCanvasArea> {
   Offset? _dragStartOffset;
   double? _baseScale;
   double? _baseRotation;
@@ -39,61 +40,21 @@ class _ProfessionalCanvasAreaState extends ConsumerState<ProfessionalCanvasArea>
   Widget build(BuildContext context) {
     final selectionState = ref.watch(selectionProvider);
 
-    return Listener(
-      onPointerDown: (event) {
-        // Handle marquee selection for multiple items
-        final renderBox = context.findRenderObject() as RenderBox?;
-        if (renderBox != null) {
-          final localPosition = renderBox.globalToLocal(event.position);
-          ref.read(selectionProvider.notifier).startMarquee(
-            Rect.fromPoints(localPosition, localPosition),
-          );
-        }
+    return GestureDetector(
+      onTap: () {
+        // Clear selection on background tap
+        ref.read(selectionProvider.notifier).clearSelection();
       },
-      onPointerMove: (event) {
-        // Update marquee selection
-        final renderBox = context.findRenderObject() as RenderBox?;
-        if (renderBox != null && selectionState.isMarqueeActive) {
-          final localPosition = renderBox.globalToLocal(event.position);
-          final currentRect = selectionState.marqueeRect;
-          if (currentRect != null) {
-            final newRect = Rect.fromPoints(currentRect.topLeft, localPosition);
-            ref.read(selectionProvider.notifier).updateMarquee(newRect);
+      child: Stack(
+        children: [
+          // Canvas items
+          ...widget.items.map((item) => _buildCanvasItem(item)),
 
-            // Select items within marquee
-            final selectedItems = <String>{};
-            for (final item in widget.items) {
-              final itemRect = Rect.fromCenter(
-                center: item.position,
-                width: item.scale * 100,
-                height: item.scale * 100,
-              );
-              if (newRect.overlaps(itemRect)) {
-                selectedItems.add(item.id);
-              }
-            }
-            ref.read(selectionProvider.notifier).selectMultiple(selectedItems);
-          }
-        }
-      },
-      onPointerUp: (event) {
-        ref.read(selectionProvider.notifier).endMarquee();
-      },
-      child: GestureDetector(
-        onTap: () {
-          // Clear selection on background tap
-          ref.read(selectionProvider.notifier).clearSelection();
-        },
-        child: Stack(
-          children: [
-            // Canvas items
-            ...widget.items.map((item) => _buildCanvasItem(item)),
-
-            // Selection marquee overlay
-            if (selectionState.isMarqueeActive && selectionState.marqueeRect != null)
-              _buildMarqueeOverlay(context, selectionState.marqueeRect!),
-          ],
-        ),
+          // Selection marquee overlay
+          if (selectionState.isMarqueeActive &&
+              selectionState.marqueeRect != null)
+            _buildMarqueeOverlay(context, selectionState.marqueeRect!),
+        ],
       ),
     );
   }
@@ -107,11 +68,18 @@ class _ProfessionalCanvasAreaState extends ConsumerState<ProfessionalCanvasArea>
     if (!isVisible) return const SizedBox.shrink();
 
     final itemSize = item.scale * 100;
-    final handleAreaSize = itemSize + 80; // Account for handles and rotation handle
+    final handleAreaSize =
+        itemSize + 80; // Account for handles and rotation handle
 
     return Positioned(
-      left: item.position.dx - (item.scale * 50) - 30, // Extra padding for handles
-      top: item.position.dy - (item.scale * 50) - 50, // Extra padding for rotation handle
+      left:
+          item.position.dx -
+          (item.scale * 50) -
+          30, // Extra padding for handles
+      top:
+          item.position.dy -
+          (item.scale * 50) -
+          50, // Extra padding for rotation handle
       width: handleAreaSize,
       height: handleAreaSize,
       child: Transform.rotate(
@@ -155,7 +123,10 @@ class _ProfessionalCanvasAreaState extends ConsumerState<ProfessionalCanvasArea>
                   height: itemSize,
                   decoration: BoxDecoration(
                     border: isSelected
-                        ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
+                        ? Border.all(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2,
+                          )
                         : null,
                     borderRadius: BorderRadius.circular(4),
                   ),
@@ -221,7 +192,7 @@ class _ProfessionalCanvasAreaState extends ConsumerState<ProfessionalCanvasArea>
 
           // Rotation handle (above the item)
           Positioned(
-            left: size/2 - 12, // Center horizontally
+            left: size / 2 - 12, // Center horizontally
             top: -45, // Above the top edge
             child: GestureDetector(
               onPanStart: (_) => _onRotateStart(),
@@ -277,16 +248,10 @@ class _ProfessionalCanvasAreaState extends ConsumerState<ProfessionalCanvasArea>
             ),
           ],
         ),
-        child: Icon(
-          LucideIcons.move,
-          size: 12,
-          color: colorScheme.primary,
-        ),
+        child: Icon(LucideIcons.move, size: 12, color: colorScheme.primary),
       ),
     );
   }
-
-
 
   Widget _buildMarqueeOverlay(BuildContext context, Rect rect) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -311,8 +276,10 @@ class _ProfessionalCanvasAreaState extends ConsumerState<ProfessionalCanvasArea>
     final selectionState = ref.read(selectionProvider);
     if (selectionState.hasSelection) {
       final selectedId = selectionState.selectedItems.first;
-      final item = widget.items.firstWhere((i) => i.id == selectedId);
-      _baseScale = item.scale;
+      final item = widget.items.where((i) => i.id == selectedId).firstOrNull;
+      if (item != null) {
+        _baseScale = item.scale;
+      }
     }
   }
 
@@ -324,9 +291,11 @@ class _ProfessionalCanvasAreaState extends ConsumerState<ProfessionalCanvasArea>
       final newScale = (_baseScale! * scaleFactor).clamp(0.1, 3.0);
 
       final selectedId = selectionState.selectedItems.first;
-      final item = widget.items.firstWhere((i) => i.id == selectedId);
-      final updatedItem = item.copyWith(scale: newScale);
-      widget.onItemUpdate(updatedItem);
+      final item = widget.items.where((i) => i.id == selectedId).firstOrNull;
+      if (item != null) {
+        final updatedItem = item.copyWith(scale: newScale);
+        widget.onItemUpdate(updatedItem);
+      }
     }
   }
 
@@ -338,9 +307,11 @@ class _ProfessionalCanvasAreaState extends ConsumerState<ProfessionalCanvasArea>
     final selectionState = ref.read(selectionProvider);
     if (selectionState.hasSelection) {
       final selectedId = selectionState.selectedItems.first;
-      final item = widget.items.firstWhere((i) => i.id == selectedId);
-      _baseRotation = item.rotation ?? 0.0;
-      _rotationCenter = item.position;
+      final item = widget.items.where((i) => i.id == selectedId).firstOrNull;
+      if (item != null) {
+        _baseRotation = item.rotation ?? 0.0;
+        _rotationCenter = item.position;
+      }
     }
   }
 

@@ -61,6 +61,10 @@ dependencies:
   flutter_box_transform: ^0.3.0
   vector_math: ^2.1.4
   url_launcher: ^6.3.1
+  table_calendar: ^3.2.0
+  googleapis: ^15.0.0
+  googleapis_auth: ^2.0.0
+  extension_google_sign_in_as_googleapis_auth: ^2.0.13
 
 dev_dependencies:
   flutter_test:

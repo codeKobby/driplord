@@ -14,7 +14,8 @@ class ClosetItemDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = ref.watch(closetProvider);
+    final asyncItems = ref.watch(closetProvider);
+    final items = asyncItems.value ?? [];
     final item = items.firstWhere(
       (item) => item.id == itemId,
       orElse: () => ClothingItem(
@@ -32,7 +33,10 @@ class ClosetItemDetailScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(LucideIcons.arrowLeft, color: Theme.of(context).colorScheme.onSurface),
+          icon: Icon(
+            LucideIcons.arrowLeft,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -59,7 +63,9 @@ class ClosetItemDetailScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.3),
                   width: 2,
                 ),
               ),
@@ -105,7 +111,9 @@ class ClosetItemDetailScreen extends ConsumerWidget {
             Text(
               "Added ${_getRelativeTime(item.addedDate)}",
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
 
@@ -198,7 +206,9 @@ class ClosetItemDetailScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -223,7 +233,9 @@ class ClosetItemDetailScreen extends ConsumerWidget {
                   Text(
                     subtitle,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                 ],
@@ -231,7 +243,9 @@ class ClosetItemDetailScreen extends ConsumerWidget {
             ),
             Icon(
               LucideIcons.chevronRight,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.4),
               size: 20,
             ),
           ],
@@ -270,7 +284,11 @@ class ClosetItemDetailScreen extends ConsumerWidget {
     );
   }
 
-  void _showItemDetailsBottomSheet(BuildContext context, WidgetRef ref, ClothingItem item) {
+  void _showItemDetailsBottomSheet(
+    BuildContext context,
+    WidgetRef ref,
+    ClothingItem item,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -281,16 +299,22 @@ class ClosetItemDetailScreen extends ConsumerWidget {
 }
 
 class ItemDetailsBottomSheet extends ConsumerStatefulWidget {
-  const ItemDetailsBottomSheet({super.key, required this.item, required this.ref});
+  const ItemDetailsBottomSheet({
+    super.key,
+    required this.item,
+    required this.ref,
+  });
 
   final ClothingItem item;
   final WidgetRef ref;
 
   @override
-  ConsumerState<ItemDetailsBottomSheet> createState() => _ItemDetailsBottomSheetState();
+  ConsumerState<ItemDetailsBottomSheet> createState() =>
+      _ItemDetailsBottomSheetState();
 }
 
-class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet> {
+class _ItemDetailsBottomSheetState
+    extends ConsumerState<ItemDetailsBottomSheet> {
   bool _isEditing = false;
 
   // Controllers for editing
@@ -301,11 +325,28 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
   String? _selectedColor;
 
   final List<String> _categories = [
-    'Tops', 'Bottoms', 'Shoes', 'Outerwear', 'Accessories', 'Dresses', 'Skirts'
+    'Tops',
+    'Bottoms',
+    'Shoes',
+    'Outerwear',
+    'Accessories',
+    'Dresses',
+    'Skirts',
   ];
 
   final List<String> _colors = [
-    'Black', 'White', 'Gray', 'Navy', 'Red', 'Blue', 'Green', 'Yellow', 'Pink', 'Purple', 'Brown', 'Beige'
+    'Black',
+    'White',
+    'Gray',
+    'Navy',
+    'Red',
+    'Blue',
+    'Green',
+    'Yellow',
+    'Pink',
+    'Purple',
+    'Brown',
+    'Beige',
   ];
 
   @override
@@ -313,7 +354,9 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
     super.initState();
     _nameController = TextEditingController(text: widget.item.name);
     _brandController = TextEditingController(text: widget.item.brand ?? '');
-    _priceController = TextEditingController(text: widget.item.purchasePrice?.toString() ?? '');
+    _priceController = TextEditingController(
+      text: widget.item.purchasePrice?.toString() ?? '',
+    );
     _selectedCategory = widget.item.category;
     _selectedColor = widget.item.color;
   }
@@ -349,7 +392,9 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -382,7 +427,9 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
                         child: Text(
                           'CANCEL',
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -408,7 +455,9 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
               // Editing Mode
               _buildTextField('Name', _nameController),
               const SizedBox(height: 16),
-              _buildDropdownField('Category', _selectedCategory, _categories, (value) {
+              _buildDropdownField('Category', _selectedCategory, _categories, (
+                value,
+              ) {
                 setState(() => _selectedCategory = value);
               }),
               const SizedBox(height: 16),
@@ -418,7 +467,11 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
               const SizedBox(height: 16),
               _buildTextField('Brand', _brandController),
               const SizedBox(height: 16),
-              _buildTextField('Purchase Price', _priceController, keyboardType: TextInputType.number),
+              _buildTextField(
+                'Purchase Price',
+                _priceController,
+                keyboardType: TextInputType.number,
+              ),
               const SizedBox(height: 24),
               _buildDeleteButton(),
             ] else ...[
@@ -436,10 +489,18 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
               ],
               if (widget.item.purchasePrice != null) ...[
                 const SizedBox(height: 12),
-                _buildDetailRow(context, 'Purchase Price', '\$${widget.item.purchasePrice}'),
+                _buildDetailRow(
+                  context,
+                  'Purchase Price',
+                  '\$${widget.item.purchasePrice}',
+                ),
               ],
               const SizedBox(height: 12),
-              _buildDetailRow(context, 'Added', _getRelativeTime(widget.item.addedDate)),
+              _buildDetailRow(
+                context,
+                'Added',
+                _getRelativeTime(widget.item.addedDate),
+              ),
               const SizedBox(height: 24),
               _buildDeleteButton(),
             ],
@@ -449,14 +510,20 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {TextInputType? keyboardType}) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    TextInputType? keyboardType,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label.toUpperCase(),
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
             letterSpacing: 2,
             fontWeight: FontWeight.w800,
           ),
@@ -470,17 +537,30 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
             fillColor: Theme.of(context).colorScheme.surface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-              borderSide: BorderSide(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)),
+              borderSide: BorderSide(
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.3),
+              ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-              borderSide: BorderSide(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)),
+              borderSide: BorderSide(
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.3),
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
           ),
           style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
@@ -488,14 +568,21 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
     );
   }
 
-  Widget _buildDropdownField(String label, String? value, List<String> options, Function(String?) onChanged) {
+  Widget _buildDropdownField(
+    String label,
+    String? value,
+    List<String> options,
+    Function(String?) onChanged,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label.toUpperCase(),
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
             letterSpacing: 2,
             fontWeight: FontWeight.w800,
           ),
@@ -505,7 +592,11 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
-            border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.3),
+            ),
             borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
           ),
           child: DropdownButton<String>(
@@ -515,7 +606,12 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
             items: options.map((option) {
               return DropdownMenuItem<String>(
                 value: option,
-                child: Text(option, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                child: Text(
+                  option,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
               );
             }).toList(),
             onChanged: onChanged,
@@ -533,7 +629,9 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
         Text(
           label.toUpperCase(),
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         Expanded(
@@ -555,10 +653,7 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
       child: OutlinedButton.icon(
         onPressed: _showDeleteConfirmation,
         icon: const Icon(LucideIcons.trash2, color: Colors.red),
-        label: const Text(
-          'DELETE ITEM',
-          style: TextStyle(color: Colors.red),
-        ),
+        label: const Text('DELETE ITEM', style: TextStyle(color: Colors.red)),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
           side: const BorderSide(color: Colors.red),
@@ -577,8 +672,12 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
       category: _selectedCategory ?? widget.item.category,
       imageUrl: widget.item.imageUrl,
       color: _selectedColor,
-      brand: _brandController.text.trim().isEmpty ? null : _brandController.text.trim(),
-      purchasePrice: _priceController.text.trim().isEmpty ? null : double.tryParse(_priceController.text.trim()),
+      brand: _brandController.text.trim().isEmpty
+          ? null
+          : _brandController.text.trim(),
+      purchasePrice: _priceController.text.trim().isEmpty
+          ? null
+          : double.tryParse(_priceController.text.trim()),
       lastWornAt: widget.item.lastWornAt,
       addedDate: widget.item.addedDate,
       isAutoAdded: widget.item.isAutoAdded,
@@ -589,9 +688,9 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
 
     setState(() => _isEditing = false);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Item updated successfully')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Item updated successfully')));
   }
 
   void _showDeleteConfirmation() {
@@ -605,14 +704,22 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
         ),
         content: Text(
           'Are you sure you want to delete "${widget.item.name}"? This action cannot be undone.',
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8)),
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.8),
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               'CANCEL',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
             ),
           ),
           TextButton(
@@ -620,15 +727,14 @@ class _ItemDetailsBottomSheetState extends ConsumerState<ItemDetailsBottomSheet>
               Navigator.pop(context); // Close dialog
               Navigator.pop(context); // Close bottom sheet
               // Delete the item
-              widget.ref.read(closetProvider.notifier).removeItem(widget.item.id);
+              widget.ref
+                  .read(closetProvider.notifier)
+                  .removeItem(widget.item.id);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('${widget.item.name} deleted')),
               );
             },
-            child: const Text(
-              'DELETE',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('DELETE', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

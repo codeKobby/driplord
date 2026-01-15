@@ -8,6 +8,7 @@ import '../../../core/components/buttons/primary_button.dart';
 import '../../../core/components/buttons/oauth_button.dart';
 import '../../../core/components/cards/glass_card.dart';
 import '../../../core/components/common/auth_divider.dart';
+import '../services/auth_service.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -22,6 +23,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _authService = AuthService();
   bool _isLoading = false;
   bool _isGoogleLoading = false;
   bool _isAppleLoading = false;
@@ -87,7 +89,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void> _handleGoogleSignIn() async {
     setState(() => _isGoogleLoading = true);
     try {
-      // TODO: Implement Google sign-in
+      await _authService.signInWithGoogle();
+      if (mounted) {
+        context.go('/onboarding');
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -105,7 +110,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void> _handleAppleSignIn() async {
     setState(() => _isAppleLoading = true);
     try {
-      // TODO: Implement Apple sign-in
+      await _authService.signInWithApple();
+      if (mounted) {
+        context.go('/onboarding');
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

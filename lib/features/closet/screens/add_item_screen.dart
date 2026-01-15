@@ -10,13 +10,18 @@ import '../../../core/services/ai_image_service.dart';
 import '../screens/segmented_items_review_screen.dart';
 
 enum AddItemPhase {
-  selection,    // Choose camera/gallery/URL
-  processing,   // AI analyzing image
-  review,       // User reviewing detected items
+  selection, // Choose camera/gallery/URL
+  processing, // AI analyzing image
+  review, // User reviewing detected items
 }
 
 class AddItemScreen extends ConsumerStatefulWidget {
-  const AddItemScreen({super.key, this.initialUrl, this.imagePath, this.source});
+  const AddItemScreen({
+    super.key,
+    this.initialUrl,
+    this.imagePath,
+    this.source,
+  });
 
   final String? initialUrl;
   final String? imagePath;
@@ -56,6 +61,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     _urlController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return DripLordScaffold(
@@ -141,7 +147,9 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           "AI will automatically detect and categorize clothing items from your photos.",
           textAlign: TextAlign.center,
           style: GoogleFonts.outfit(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.5),
             fontSize: 14,
           ),
         ),
@@ -165,10 +173,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         const SizedBox(height: 32),
         Text(
           "Analyzing your image...",
-          style: GoogleFonts.outfit(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
+          style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 16),
         Text(
@@ -176,7 +181,9 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           textAlign: TextAlign.center,
           style: GoogleFonts.outfit(
             fontSize: 16,
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         if (_processingError != null) ...[
@@ -186,11 +193,18 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3)),
+              border: Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.error.withValues(alpha: 0.3),
+              ),
             ),
             child: Column(
               children: [
-                Icon(LucideIcons.alertCircle, color: Theme.of(context).colorScheme.error),
+                Icon(
+                  LucideIcons.alertCircle,
+                  color: Theme.of(context).colorScheme.error,
+                ),
                 const SizedBox(height: 8),
                 Text(
                   _processingError!,
@@ -286,6 +300,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         await _processImage();
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to take photo: $e'),
@@ -306,6 +321,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         await _processImage();
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to pick image: $e'),
@@ -318,16 +334,20 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   Future<void> _processUrlInput() async {
     final url = _urlController.text.trim();
     if (url.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a URL')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter a URL')));
       return;
     }
 
     // Basic URL validation
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid URL starting with http:// or https://')),
+        const SnackBar(
+          content: Text(
+            'Please enter a valid URL starting with http:// or https://',
+          ),
+        ),
       );
       return;
     }
@@ -346,44 +366,59 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         _processingError = null;
       });
 
-      // TODO: Initialize AI service with API key from secure storage
-      // For now, we'll simulate processing
-      await Future.delayed(const Duration(seconds: 2));
+      List<DetectedClothingItem> detectedItems;
 
-      // Mock AI processing result
-      final mockItems = [
-        DetectedClothingItem(
-          id: '1',
-          name: 'Blue Cotton T-Shirt',
-          category: 'tops',
-          color: 'blue',
-          confidence: 0.95,
-        ),
-        DetectedClothingItem(
-          id: '2',
-          name: 'Black Jeans',
-          category: 'bottoms',
-          color: 'black',
-          confidence: 0.88,
-        ),
-      ];
+      // Use real AI service if initialized, otherwise use mock data
+      if (AiImageService().isInitialized) {
+        if (_selectedImage != null) {
+          final result = await AiImageService().analyzeImageFile(
+            _selectedImage!,
+          );
+          detectedItems = result.items;
+        } else if (_imageUrl != null) {
+          final result = await AiImageService().analyzeImageUrl(_imageUrl!);
+          detectedItems = result.items;
+        } else {
+          detectedItems = [];
+        }
+      } else {
+        // Mock AI processing when service is not configured
+        await Future.delayed(const Duration(seconds: 2));
+        detectedItems = [
+          DetectedClothingItem(
+            id: '1',
+            name: 'Blue Cotton T-Shirt',
+            category: 'tops',
+            color: 'blue',
+            confidence: 0.95,
+          ),
+          DetectedClothingItem(
+            id: '2',
+            name: 'Black Jeans',
+            category: 'bottoms',
+            color: 'black',
+            confidence: 0.88,
+          ),
+        ];
+      }
 
       // Navigate to review screen
       if (mounted) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => SegmentedItemsReviewScreen(
-              imageUrl: _imageUrl ?? 'mock_image_url', // TODO: Get actual image URL
-              detectedItems: mockItems,
-              source: _selectedImage != null ? 'camera' : 'url',
-            ),
-          ),
-        ).then((_) {
-          // When returning from review screen, reset to selection
-          _resetToSelection();
-        });
+        Navigator.of(context)
+            .push(
+              MaterialPageRoute(
+                builder: (context) => SegmentedItemsReviewScreen(
+                  imageUrl: _imageUrl ?? _selectedImage?.path ?? '',
+                  detectedItems: detectedItems,
+                  source: _selectedImage != null ? 'camera' : 'url',
+                ),
+              ),
+            )
+            .then((_) {
+              // When returning from review screen, reset to selection
+              _resetToSelection();
+            });
       }
-
     } catch (e) {
       setState(() {
         _processingError = e.toString();
@@ -400,7 +435,9 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -417,7 +454,9 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                     hintText: "Paste image URL from online store",
                     border: InputBorder.none,
                     hintStyle: GoogleFonts.outfit(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                   ),
                   style: GoogleFonts.outfit(
@@ -452,7 +491,9 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -477,7 +518,9 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                   subtitle,
                   style: GoogleFonts.outfit(
                     fontSize: 14,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
               ],
@@ -486,7 +529,9 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           Icon(
             LucideIcons.chevronRight,
             size: 16,
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.3),
           ),
         ],
       ),

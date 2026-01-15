@@ -11,6 +11,8 @@ import '../components/professional_closet_panel.dart';
 import '../components/professional_selection_system.dart';
 import '../components/selection_system.dart';
 import '../models/outfit_item.dart';
+import '../../home/providers/style_calendar_provider.dart';
+import '../../home/providers/recommendation_provider.dart';
 
 /// Mode for the Style Composer
 enum ComposerMode {
@@ -30,6 +32,8 @@ class ProfessionalCanvasScreen extends ConsumerStatefulWidget {
     this.outfitId,
     this.vibe,
     this.initialItems,
+    this.scheduledDate,
+    this.eventTitle,
   });
 
   final ComposerMode mode;
@@ -37,6 +41,8 @@ class ProfessionalCanvasScreen extends ConsumerStatefulWidget {
   final String? outfitId;
   final String? vibe;
   final List<OutfitStackItem>? initialItems;
+  final DateTime? scheduledDate;
+  final String? eventTitle;
 
   @override
   ConsumerState<ProfessionalCanvasScreen> createState() =>
@@ -88,7 +94,10 @@ class _ProfessionalCanvasScreenState
       } else if (widget.initialItems != null) {
         _initializeCanvasWithItems(widget.initialItems!);
       } else {
-        _initializeCanvas();
+        // Start with empty canvas - user adds items from closet
+        setState(() {
+          _canvasItems = [];
+        });
       }
     });
   }
@@ -198,6 +207,8 @@ class _ProfessionalCanvasScreenState
   }
 
   void _removeItem(String itemId) {
+    // Clear selection first to avoid stale references
+    ref.read(selectionProvider.notifier).deselectItem(itemId);
     setState(() {
       _canvasItems.removeWhere((i) => i.id == itemId);
     });
@@ -287,10 +298,12 @@ class _ProfessionalCanvasScreenState
   }
 
   void _reorderItems(String itemId) {
-    setState(() {
-      final item = _canvasItems.firstWhere((i) => i.id == itemId);
-      _bringToFront(item);
-    });
+    final item = _canvasItems.where((i) => i.id == itemId).firstOrNull;
+    if (item != null) {
+      setState(() {
+        _bringToFront(item);
+      });
+    }
   }
 
   void _saveOutfit() {
@@ -304,9 +317,40 @@ class _ProfessionalCanvasScreenState
       return;
     }
 
+    // 1. Create a Recommendation object from canvas items
+    // This is a simplified version for now
+    final mainItem = _canvasItems.first.data;
+    final composedRecommendation = Recommendation(
+      id: "outfit_${DateTime.now().millisecondsSinceEpoch}",
+      title: widget.eventTitle ?? "Composed Outfit",
+      imageUrl: mainItem.imageUrl,
+      personalImageUrl: mainItem.imageUrl,
+      tags: _canvasItems.map((e) => e.data.category).toSet().toList(),
+      confidenceScore: 0.95,
+      reasoning: "Manually composed on style canvas",
+      source: "Manual",
+    );
+
+    // 2. If we came from calendar, schedule it
+    if (widget.scheduledDate != null) {
+      ref
+          .read(styleCalendarProvider.notifier)
+          .scheduleOutfit(
+            date: widget.scheduledDate!,
+            outfit: composedRecommendation,
+            notes: widget.eventTitle != null
+                ? "For: ${widget.eventTitle}"
+                : null,
+          );
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Outfit saved successfully!'),
+      SnackBar(
+        content: Text(
+          widget.scheduledDate != null
+              ? 'Outfit scheduled for ${_formatDate(widget.scheduledDate!)}!'
+              : 'Outfit saved successfully!',
+        ),
         backgroundColor: AppColors.success,
       ),
     );
@@ -314,9 +358,17 @@ class _ProfessionalCanvasScreenState
     // Navigate back after a short delay
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
-        context.go('/home');
+        if (widget.scheduledDate != null) {
+          context.go('/home/calendar');
+        } else {
+          context.go('/home');
+        }
       }
     });
+  }
+
+  String _formatDate(DateTime date) {
+    return "${date.day}/${date.month}/${date.year}";
   }
 
   void _showTryOn() {
@@ -332,9 +384,9 @@ class _ProfessionalCanvasScreenState
   }
 
   void _onShare() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Share feature coming soon!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Share feature coming soon!')));
   }
 
   void _onBackgroundChange(Color color) {
@@ -344,19 +396,22 @@ class _ProfessionalCanvasScreenState
   }
 
   void _onUndo() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Undo coming soon!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Undo coming soon!')));
   }
 
   void _onRedo() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Redo coming soon!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Redo coming soon!')));
   }
 
   Widget _buildContextualToolbar(String selectedItemId) {
-    final selectedItem = _canvasItems.firstWhere((item) => item.id == selectedItemId);
+    final selectedItem = _canvasItems
+        .where((item) => item.id == selectedItemId)
+        .firstOrNull;
+    if (selectedItem == null) return const SizedBox.shrink();
     final isLocked = selectedItem.isLocked ?? false;
 
     return Container(
@@ -389,7 +444,11 @@ class _ProfessionalCanvasScreenState
               });
               // TODO: Implement item replacement logic
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Select a new item from the closet to replace this one')),
+                const SnackBar(
+                  content: Text(
+                    'Select a new item from the closet to replace this one',
+                  ),
+                ),
               );
             },
           ),
@@ -443,11 +502,7 @@ class _ProfessionalCanvasScreenState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 20,
-              color: buttonColor,
-            ),
+            Icon(icon, size: 20, color: buttonColor),
             const SizedBox(height: 2),
             Text(
               label,
@@ -502,7 +557,9 @@ class _ProfessionalCanvasScreenState
             decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.shadow.withValues(alpha: 0.05),
                   blurRadius: 2,
                   offset: const Offset(0, 1),
                 ),
@@ -564,28 +621,44 @@ class _ProfessionalCanvasScreenState
                       color: _backgroundColor,
                       boxShadow: [
                         BoxShadow(
-                          color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.shadow.withValues(alpha: 0.08),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    child: ProfessionalCanvasArea(
-                      items: _canvasItems,
-                      onItemSelect: (itemId) {
-                        ref.read(selectionProvider.notifier).toggleSelection(itemId);
-                      },
-                      onItemUpdate: (item) {
-                        setState(() {
-                          final index = _canvasItems.indexWhere((i) => i.id == item.id);
-                          if (index != -1) {
-                            _canvasItems[index] = item;
-                          }
-                        });
-                      },
-                      onBringToFront: _bringToFront,
-                      onSendToBack: _sendToBack,
-                      onRemoveItem: _removeItem,
+                    child: InteractiveViewer(
+                      constrained: false,
+                      boundaryMargin: const EdgeInsets.all(200),
+                      minScale: 0.5,
+                      maxScale: 3.0,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 2,
+                        height: MediaQuery.of(context).size.height * 2,
+                        child: ProfessionalCanvasArea(
+                          items: _canvasItems,
+                          onItemSelect: (itemId) {
+                            ref
+                                .read(selectionProvider.notifier)
+                                .toggleSelection(itemId);
+                          },
+                          onItemUpdate: (item) {
+                            setState(() {
+                              final index = _canvasItems.indexWhere(
+                                (i) => i.id == item.id,
+                              );
+                              if (index != -1) {
+                                _canvasItems[index] = item;
+                              }
+                            });
+                          },
+                          onBringToFront: _bringToFront,
+                          onSendToBack: _sendToBack,
+                          onRemoveItem: _removeItem,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -596,49 +669,47 @@ class _ProfessionalCanvasScreenState
           // Contextual Toolbar (when items selected)
           if (selectedItemId != null) _buildContextualToolbar(selectedItemId),
 
-            // Bottom Status Bar (Safe Area Compliant)
-            SafeArea(
-              top: false, // Don't add padding to top
-              bottom: true, // Add padding to bottom for home indicator/notch
-              child: Container(
-                height: 32,
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  border: Border(
-                    top: BorderSide(color: AppColors.glassBorder),
+          // Bottom Status Bar (Safe Area Compliant)
+          SafeArea(
+            top: false, // Don't add padding to top
+            bottom: true, // Add padding to bottom for home indicator/notch
+            child: Container(
+              height: 32,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                border: Border(top: BorderSide(color: AppColors.glassBorder)),
+              ),
+              child: Row(
+                children: [
+                  const SizedBox(width: 16),
+                  Icon(
+                    LucideIcons.palette,
+                    size: 16,
+                    color: AppColors.textSecondary,
                   ),
-                ),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 16),
-                    Icon(
-                      LucideIcons.palette,
-                      size: 16,
+                  const SizedBox(width: 8),
+                  Text(
+                    '${_canvasItems.length} items',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
                       color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w500,
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${_canvasItems.length} items',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
-                      ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    'Canvas',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w500,
                     ),
-                    const Spacer(),
-                    Text(
-                      'Canvas',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 16),
+                ],
               ),
             ),
+          ),
         ],
       ),
     );

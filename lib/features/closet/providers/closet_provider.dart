@@ -1,6 +1,19 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import '../../../core/services/database_service.dart';
 import '../../../core/services/cache_service.dart';
+
+/// State for tracking closet loading progress
+enum ClosetLoadState { loading, loaded, error }
+
+/// Tracks the loading state of the closet
+final closetLoadStateProvider = StateProvider<ClosetLoadState>((ref) {
+  return ClosetLoadState.loading;
+});
+
+/// Stores any error message from loading
+final closetErrorProvider = StateProvider<String?>((ref) => null);
 
 class ClothingItem {
   final String id;
@@ -63,18 +76,18 @@ class ClothingItem {
   }
 }
 
-class ClosetNotifier extends Notifier<List<ClothingItem>> {
+class ClosetNotifier extends AsyncNotifier<List<ClothingItem>> {
   final CacheService _cacheService = CacheService();
 
   @override
-  List<ClothingItem> build() {
-    // Start empty to force the "Scan" onboarding flow for new users
-    // TODO: Load from Supabase when user is authenticated
-    _loadClosetItems();
-    return [];
-  }
+  Future<List<ClothingItem>> build() async {
+    final dbService = DatabaseService();
 
-  Future<void> _loadClosetItems() async {
+    // If unauthenticated, use mock data for demo/preview mode
+    if (!dbService.isAuthenticated) {
+      return mockItems;
+    }
+
     try {
       // First try to get from cache
       final cachedItems = await _cacheService.get<List>(
@@ -82,44 +95,36 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
         config: CacheConfig.userData,
       );
       if (cachedItems != null && cachedItems.isNotEmpty) {
-        state = cachedItems.map((item) => ClothingItem.fromJson(item)).toList();
         // Refresh from server in background
         _refreshFromServer();
-        return;
+        return cachedItems.map((item) => ClothingItem.fromJson(item)).toList();
       }
 
       // If not in cache, fetch from server
-      final items = await DatabaseService().getClosetItems();
+      final items = await dbService.getClosetItems();
 
-      if (items.isEmpty) {
-        // Use mock items for new users
-        state = mockItems;
-        // Cache mock items for faster subsequent loads
-        await _cacheService.set(
-          'closet_items',
-          mockItems.map((item) => item.toJson()).toList(),
-          config: CacheConfig.userData,
-        );
-      } else {
-        state = items;
-        // Cache the fetched items
+      // Cache the fetched items
+      if (items.isNotEmpty) {
         await _cacheService.set(
           'closet_items',
           items.map((item) => item.toJson()).toList(),
           config: CacheConfig.userData,
         );
       }
+
+      return items;
     } catch (e) {
-      // Fall back to cache if available, otherwise mock data
+      debugPrint('Error loading closet items: $e');
+      // Fall back to cache if available
       final cachedItems = await _cacheService.get<List>(
         'closet_items',
         config: CacheConfig.userData,
       );
       if (cachedItems != null && cachedItems.isNotEmpty) {
-        state = cachedItems.map((item) => ClothingItem.fromJson(item)).toList();
-      } else {
-        state = mockItems;
+        return cachedItems.map((item) => ClothingItem.fromJson(item)).toList();
       }
+      // Re-throw to trigger AsyncValue.error
+      rethrow;
     }
   }
 
@@ -127,7 +132,7 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
     try {
       final items = await DatabaseService().getClosetItems();
       if (items.isNotEmpty) {
-        state = items;
+        state = AsyncValue.data(items);
         // Update cache with fresh data
         await _cacheService.set(
           'closet_items',
@@ -261,34 +266,35 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
   ];
 
   Future<void> addItem(ClothingItem item) async {
-    state = [...state, item];
-    // Update cache
+    final currentItems = state.value ?? [];
+    state = AsyncValue.data([...currentItems, item]);
     await _updateCache();
   }
 
   Future<void> addItems(List<ClothingItem> items) async {
-    state = [...state, ...items];
-    // Update cache
+    final currentItems = state.value ?? [];
+    state = AsyncValue.data([...currentItems, ...items]);
     await _updateCache();
   }
 
   Future<void> removeItem(String id) async {
-    state = state.where((item) => item.id != id).toList();
-    // Update cache
+    final currentItems = state.value ?? [];
+    state = AsyncValue.data(currentItems.where((item) => item.id != id).toList());
     await _updateCache();
   }
 
   Future<void> updateItem(ClothingItem updatedItem) async {
-    state = state
-        .map((item) => item.id == updatedItem.id ? updatedItem : item)
-        .toList();
-    // Update cache
+    final currentItems = state.value ?? [];
+    state = AsyncValue.data(
+      currentItems.map((item) => item.id == updatedItem.id ? updatedItem : item).toList(),
+    );
     await _updateCache();
   }
 
   Future<void> _updateCache() async {
     try {
-      final itemsJson = state.map((item) => item.toJson()).toList();
+      final items = state.value ?? [];
+      final itemsJson = items.map((item) => item.toJson()).toList();
       await _cacheService.set(
         'closet_items',
         itemsJson,
@@ -300,9 +306,10 @@ class ClosetNotifier extends Notifier<List<ClothingItem>> {
   }
 }
 
-final closetProvider = NotifierProvider<ClosetNotifier, List<ClothingItem>>(() {
-  return ClosetNotifier();
-});
+final closetProvider =
+    AsyncNotifierProvider<ClosetNotifier, List<ClothingItem>>(() {
+      return ClosetNotifier();
+    });
 
 class SelectedCategoryNotifier extends Notifier<String> {
   @override
@@ -371,7 +378,8 @@ final filterOptionsProvider =
 
 // Enhanced filtered provider that handles search, sort, category, and filters
 final filteredClosetProvider = Provider<List<ClothingItem>>((ref) {
-  final items = ref.watch(closetProvider);
+  final asyncItems = ref.watch(closetProvider);
+  final items = asyncItems.value ?? [];
   final searchQuery = ref.watch(searchQueryProvider);
   final category = ref.watch(selectedCategoryProvider);
   final sortOption = ref.watch(sortOptionProvider);
@@ -472,7 +480,8 @@ List<ClothingItem> _applySorting(List<ClothingItem> items, String sortOption) {
 
 // Items that haven't been worn in more than 30 days
 final unwornItemsProvider = Provider<List<ClothingItem>>((ref) {
-  final items = ref.watch(closetProvider);
+  final asyncItems = ref.watch(closetProvider);
+  final items = asyncItems.value ?? [];
   final now = DateTime.now();
   return items.where((item) {
     if (item.lastWornAt == null) return true; // Never worn items
@@ -482,7 +491,8 @@ final unwornItemsProvider = Provider<List<ClothingItem>>((ref) {
 
 // Items added in the last 7 days
 final recentlyAddedItemsProvider = Provider<List<ClothingItem>>((ref) {
-  final items = ref.watch(closetProvider);
+  final asyncItems = ref.watch(closetProvider);
+  final items = asyncItems.value ?? [];
   final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
   return items.where((item) => item.addedDate.isAfter(sevenDaysAgo)).toList();
 });
@@ -495,7 +505,8 @@ final autoAddedItemsProvider = Provider<List<ClothingItem>>((ref) {
 
 // Items that have been worn most frequently (recently worn items)
 final frequentlyWornItemsProvider = Provider<List<ClothingItem>>((ref) {
-  final items = ref.watch(closetProvider);
+  final asyncItems = ref.watch(closetProvider);
+  final items = asyncItems.value ?? [];
 
   // Get items that have been worn at least once, sorted by most recent wear
   final wornItems = items.where((item) => item.lastWornAt != null).toList()

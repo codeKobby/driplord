@@ -15,7 +15,8 @@ class NeglectedItemDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = ref.watch(closetProvider);
+    final asyncItems = ref.watch(closetProvider);
+    final items = asyncItems.value ?? [];
     final item = items.firstWhere(
       (item) => item.id == itemId,
       orElse: () => ClothingItem(

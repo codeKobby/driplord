@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'database_service.dart';
 
 /// Cache configuration for different data types
 class CacheConfig {
@@ -61,18 +62,23 @@ class CacheItem<T> {
   }
 
   Map<String, dynamic> toJson() => {
-        'data': data,
-        'timestamp': timestamp.toIso8601String(),
-        'expiry': expiry?.inMilliseconds,
-        'key': key,
-      };
+    'data': data,
+    'timestamp': timestamp.toIso8601String(),
+    'expiry': expiry?.inMilliseconds,
+    'key': key,
+  };
 
-  factory CacheItem.fromJson(Map<String, dynamic> json, T Function(dynamic) fromJson) => CacheItem<T>(
-        data: fromJson(json['data']),
-        timestamp: DateTime.parse(json['timestamp']),
-        expiry: json['expiry'] != null ? Duration(milliseconds: json['expiry']) : null,
-        key: json['key'],
-      );
+  factory CacheItem.fromJson(
+    Map<String, dynamic> json,
+    T Function(dynamic) fromJson,
+  ) => CacheItem<T>(
+    data: fromJson(json['data']),
+    timestamp: DateTime.parse(json['timestamp']),
+    expiry: json['expiry'] != null
+        ? Duration(milliseconds: json['expiry'])
+        : null,
+    key: json['key'],
+  );
 }
 
 /// Comprehensive caching service supporting multiple storage backends
@@ -136,14 +142,20 @@ class CacheService {
         final item = result.first;
         final timestamp = DateTime.parse(item['timestamp'] as String);
         final expiryMs = item['expiry'] as int?;
-        final expiry = expiryMs != null ? Duration(milliseconds: expiryMs) : null;
+        final expiry = expiryMs != null
+            ? Duration(milliseconds: expiryMs)
+            : null;
 
         if (!_isExpired(timestamp, expiry)) {
           final dataJson = jsonDecode(item['data'] as String);
           return dataJson as T;
         } else {
           // Remove expired item
-          await _database?.delete('cache_items', where: 'key = ?', whereArgs: [cacheKey]);
+          await _database?.delete(
+            'cache_items',
+            where: 'key = ?',
+            whereArgs: [cacheKey],
+          );
         }
       }
     }
@@ -185,17 +197,13 @@ class CacheService {
     };
 
     if (cacheConfig.storageType == 'sqflite') {
-      await _database?.insert(
-        'cache_items',
-        {
-          'key': cacheKey,
-          'data': jsonEncode(data),
-          'timestamp': timestamp.toIso8601String(),
-          'expiry': expiry.inMilliseconds,
-          'config': cacheConfig.storageType,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      await _database?.insert('cache_items', {
+        'key': cacheKey,
+        'data': jsonEncode(data),
+        'timestamp': timestamp.toIso8601String(),
+        'expiry': expiry.inMilliseconds,
+        'config': cacheConfig.storageType,
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     } else {
       // Use SharedPreferences
       final prefsKey = 'cache_$cacheKey';
@@ -213,7 +221,11 @@ class CacheService {
     final cacheKey = _generateCacheKey(key, config);
 
     if (config?.storageType == 'sqflite' || config == null) {
-      await _database?.delete('cache_items', where: 'key = ?', whereArgs: [cacheKey]);
+      await _database?.delete(
+        'cache_items',
+        where: 'key = ?',
+        whereArgs: [cacheKey],
+      );
     }
 
     final prefsKey = 'cache_$cacheKey';
@@ -229,7 +241,9 @@ class CacheService {
     }
 
     // Clear SharedPreferences cache items
-    final keys = _prefs?.getKeys().where((key) => key.startsWith('cache_')).toList() ?? [];
+    final keys =
+        _prefs?.getKeys().where((key) => key.startsWith('cache_')).toList() ??
+        [];
     for (final key in keys) {
       await _prefs?.remove(key);
     }
@@ -244,11 +258,14 @@ class CacheService {
   Future<Map<String, int>> getCacheStats() async {
     await _ensureInitialized();
 
-    final sqfliteCount = Sqflite.firstIntValue(
-      await _database?.rawQuery('SELECT COUNT(*) FROM cache_items') ?? [],
-    ) ?? 0;
+    final sqfliteCount =
+        Sqflite.firstIntValue(
+          await _database?.rawQuery('SELECT COUNT(*) FROM cache_items') ?? [],
+        ) ??
+        0;
 
-    final prefsKeys = _prefs?.getKeys().where((key) => key.startsWith('cache_')).length ?? 0;
+    final prefsKeys =
+        _prefs?.getKeys().where((key) => key.startsWith('cache_')).length ?? 0;
 
     return {
       'sqflite_entries': sqfliteCount,
@@ -269,9 +286,12 @@ class CacheService {
     );
 
     // SharedPreferences invalidation
-    final keysToRemove = _prefs?.getKeys()
-        .where((key) => key.startsWith('cache_') && key.contains(pattern))
-        .toList() ?? [];
+    final keysToRemove =
+        _prefs
+            ?.getKeys()
+            .where((key) => key.startsWith('cache_') && key.contains(pattern))
+            .toList() ??
+        [];
 
     for (final key in keysToRemove) {
       await _prefs?.remove(key);
@@ -285,7 +305,7 @@ class CacheService {
 
   /// Invalidate user-specific cache (useful on logout)
   Future<void> invalidateUserCache() async {
-    final userId = 'current_user'; // TODO: Get from auth service
+    final userId = DatabaseService().currentUserId ?? 'anonymous';
     await invalidateCache(userId);
   }
 
@@ -308,17 +328,26 @@ class CacheService {
     final fallbacks = <String, dynamic>{};
 
     // Try to get cached data for critical features
-    final closetData = await get<List>('closet_items', config: CacheConfig.userData);
+    final closetData = await get<List>(
+      'closet_items',
+      config: CacheConfig.userData,
+    );
     if (closetData != null) {
       fallbacks['closet_items'] = closetData;
     }
 
-    final profileData = await get<Map<String, dynamic>>('user_profile', config: CacheConfig.userData);
+    final profileData = await get<Map<String, dynamic>>(
+      'user_profile',
+      config: CacheConfig.userData,
+    );
     if (profileData != null) {
       fallbacks['user_profile'] = profileData;
     }
 
-    final historyData = await get<List>('outfit_history', config: CacheConfig.sessionData);
+    final historyData = await get<List>(
+      'outfit_history',
+      config: CacheConfig.sessionData,
+    );
     if (historyData != null) {
       fallbacks['outfit_history'] = historyData;
     }
@@ -348,7 +377,10 @@ class CacheService {
   }
 
   /// Get cache entry metadata
-  Future<Map<String, dynamic>?> getCacheMetadata(String key, {CacheConfig? config}) async {
+  Future<Map<String, dynamic>?> getCacheMetadata(
+    String key, {
+    CacheConfig? config,
+  }) async {
     await _ensureInitialized();
 
     final cacheKey = _generateCacheKey(key, config);
@@ -399,7 +431,7 @@ class CacheService {
 
   String _generateCacheKey(String key, CacheConfig? config) {
     // Add user-specific prefix for multi-user support
-    final userId = 'current_user'; // TODO: Get from auth service
+    final userId = DatabaseService().currentUserId ?? 'anonymous';
     return '${userId}_$key';
   }
 
@@ -416,19 +448,23 @@ class CacheService {
     // Clean SQLite
     await _database?.delete(
       'cache_items',
-      where: 'expiry IS NOT NULL AND (julianday(?) - julianday(timestamp)) * 86400000 > expiry',
+      where:
+          'expiry IS NOT NULL AND (julianday(?) - julianday(timestamp)) * 86400000 > expiry',
       whereArgs: [now.toIso8601String()],
     );
 
     // Clean SharedPreferences
-    final keys = _prefs?.getKeys().where((key) => key.startsWith('cache_')).toList() ?? [];
+    final keys =
+        _prefs?.getKeys().where((key) => key.startsWith('cache_')).toList() ??
+        [];
     for (final key in keys) {
       final cachedJson = _prefs?.getString(key);
       if (cachedJson != null) {
         final cached = jsonDecode(cachedJson);
         final timestamp = DateTime.parse(cached['timestamp']);
         final expiryMs = cached['expiry'];
-        if (expiryMs != null && _isExpired(timestamp, Duration(milliseconds: expiryMs))) {
+        if (expiryMs != null &&
+            _isExpired(timestamp, Duration(milliseconds: expiryMs))) {
           await _prefs?.remove(key);
         }
       }
@@ -437,14 +473,21 @@ class CacheService {
 
   Future<void> _enforceMaxEntries(CacheConfig config) async {
     if (config.storageType == 'sqflite') {
-      final count = Sqflite.firstIntValue(
-        await _database?.rawQuery('SELECT COUNT(*) FROM cache_items WHERE config = ?', [config.storageType]) ?? [],
-      ) ?? 0;
+      final count =
+          Sqflite.firstIntValue(
+            await _database?.rawQuery(
+                  'SELECT COUNT(*) FROM cache_items WHERE config = ?',
+                  [config.storageType],
+                ) ??
+                [],
+          ) ??
+          0;
 
       if (count > config.maxEntries) {
         // Remove oldest entries
         final excess = count - config.maxEntries;
-        await _database?.rawDelete('''
+        await _database?.rawDelete(
+          '''
           DELETE FROM cache_items
           WHERE key IN (
             SELECT key FROM cache_items
@@ -452,7 +495,9 @@ class CacheService {
             ORDER BY timestamp ASC
             LIMIT ?
           )
-        ''', [config.storageType, excess]);
+        ''',
+          [config.storageType, excess],
+        );
       }
     } else {
       // For SharedPreferences, we'd need to track entries differently
@@ -471,7 +516,10 @@ class CacheUtils {
     return 'user_${userId}_$dataType';
   }
 
-  static String generateApiResponseKey(String endpoint, Map<String, dynamic>? params) {
+  static String generateApiResponseKey(
+    String endpoint,
+    Map<String, dynamic>? params,
+  ) {
     final paramStr = params != null ? '_${params.toString()}' : '';
     return 'api_$endpoint$paramStr';
   }

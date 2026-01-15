@@ -9,6 +9,8 @@ import '../../../core/constants/app_dimensions.dart';
 import 'package:driplord/features/home/providers/recommendation_provider.dart';
 import '../providers/saved_outfits_provider.dart';
 import '../providers/weather_provider.dart';
+import '../providers/style_calendar_provider.dart';
+import '../models/scheduled_outfit.dart';
 import '../../closet/providers/closet_provider.dart';
 
 class DailyHubScreen extends ConsumerWidget {
@@ -54,13 +56,7 @@ class DailyHubScreen extends ConsumerWidget {
                 padding: const EdgeInsets.only(top: 12),
                 child: IconButton(
                   icon: const Icon(LucideIcons.calendar, size: 20),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Calendar styling coming soon..."),
-                      ),
-                    );
-                  },
+                  onPressed: () => context.push('/home/calendar'),
                 ),
               ),
               const SizedBox(width: 8),
@@ -81,7 +77,9 @@ class DailyHubScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildWeatherWidget(context, ref),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
+                  _buildTodaysStyleSection(context, ref),
+                  const SizedBox(height: 32),
                   Text(
                     "DAILY INSPO",
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -114,6 +112,227 @@ class DailyHubScreen extends ConsumerWidget {
                 ],
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTodaysStyleSection(BuildContext context, WidgetRef ref) {
+    final todaysOutfit = ref.watch(todaysOutfitProvider);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "TODAY'S STYLE",
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 2,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              GestureDetector(
+                onTap: () => context.push('/home/calendar'),
+                child: Row(
+                  children: [
+                    Text(
+                      "CALENDAR",
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      LucideIcons.chevronRight,
+                      size: 14,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (todaysOutfit != null)
+            _buildTodaysOutfitCard(context, ref, todaysOutfit)
+          else
+            _buildNoOutfitPlanned(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTodaysOutfitCard(
+    BuildContext context,
+    WidgetRef ref,
+    ScheduledOutfit outfit,
+  ) {
+    return Row(
+      children: [
+        // Outfit thumbnail
+        Container(
+          width: 80,
+          height: 100,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.2),
+            ),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Image.network(
+            outfit.outfitImageUrl,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Container(
+              color: Theme.of(context).colorScheme.surface,
+              child: Icon(
+                LucideIcons.shirt,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.3),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+        // Outfit info
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                outfit.outfitTitle.toUpperCase(),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                outfit.tags.join(' · '),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Set as daily outfit
+                    final recommendation = Recommendation(
+                      id: outfit.outfitId,
+                      title: outfit.outfitTitle,
+                      imageUrl: outfit.outfitImageUrl,
+                      personalImageUrl:
+                          outfit.personalImageUrl ?? outfit.outfitImageUrl,
+                      tags: outfit.tags,
+                      confidenceScore: 1.0,
+                      reasoning: outfit.notes ?? 'Your planned style for today',
+                      source: 'Calendar',
+                    );
+                    ref
+                        .read(dailyOutfitProvider.notifier)
+                        .setActive(recommendation);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '"${outfit.outfitTitle}" set as today\'s style!',
+                        ),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
+                  child: const Text('WEAR TODAY'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNoOutfitPlanned(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push(
+        '/try-on/compose',
+        extra: {
+          'scheduledDate': DateTime.now(),
+        },
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+            ),
+            child: Icon(
+              LucideIcons.calendarPlus,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'No style planned',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Tap to plan your outfit for today',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            LucideIcons.chevronRight,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.3),
           ),
         ],
       ),

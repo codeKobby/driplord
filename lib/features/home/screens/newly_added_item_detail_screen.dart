@@ -15,7 +15,8 @@ class NewlyAddedItemDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = ref.watch(closetProvider);
+    final asyncItems = ref.watch(closetProvider);
+    final items = asyncItems.value ?? [];
     final item = items.firstWhere(
       (item) => item.id == itemId,
       orElse: () => ClothingItem(
@@ -33,7 +34,10 @@ class NewlyAddedItemDetailScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(LucideIcons.arrowLeft, color: Theme.of(context).colorScheme.onSurface),
+          icon: Icon(
+            LucideIcons.arrowLeft,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -60,7 +64,9 @@ class NewlyAddedItemDetailScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.3),
                   width: 2,
                 ),
               ),
@@ -72,12 +78,13 @@ class NewlyAddedItemDetailScreen extends ConsumerWidget {
                       ? Image.network(
                           item.imageUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            color: Theme.of(context).colorScheme.surface,
-                            child: const Center(
-                              child: Icon(LucideIcons.imageOff, size: 48),
-                            ),
-                          ),
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                color: Theme.of(context).colorScheme.surface,
+                                child: const Center(
+                                  child: Icon(LucideIcons.imageOff, size: 48),
+                                ),
+                              ),
                         )
                       : Container(
                           color: Theme.of(context).colorScheme.surface,
@@ -91,7 +98,10 @@ class NewlyAddedItemDetailScreen extends ConsumerWidget {
                     top: 16,
                     right: 16,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.primary,
                         borderRadius: BorderRadius.circular(20),
@@ -99,7 +109,11 @@ class NewlyAddedItemDetailScreen extends ConsumerWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(LucideIcons.sparkles, color: Theme.of(context).colorScheme.onPrimary, size: 14),
+                          Icon(
+                            LucideIcons.sparkles,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            size: 14,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             "NEW",
@@ -140,7 +154,9 @@ class NewlyAddedItemDetailScreen extends ConsumerWidget {
             Text(
               "Added ${_getRelativeTime(item.addedDate)}",
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
 
@@ -233,7 +249,9 @@ class NewlyAddedItemDetailScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -258,7 +276,9 @@ class NewlyAddedItemDetailScreen extends ConsumerWidget {
                   Text(
                     subtitle,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                 ],
@@ -266,7 +286,9 @@ class NewlyAddedItemDetailScreen extends ConsumerWidget {
             ),
             Icon(
               LucideIcons.chevronRight,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.4),
               size: 20,
             ),
           ],
@@ -290,8 +312,6 @@ class NewlyAddedItemDetailScreen extends ConsumerWidget {
       SnackBar(content: Text('Starting outfit creation with ${item.name}')),
     );
   }
-
-
 
   void _suggestComplementaryItems(BuildContext context, ClothingItem item) {
     // Show complementary items suggestion
@@ -328,7 +348,9 @@ class NewlyAddedItemDetailScreen extends ConsumerWidget {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -358,7 +380,11 @@ class NewlyAddedItemDetailScreen extends ConsumerWidget {
             ],
             if (item.purchasePrice != null) ...[
               const SizedBox(height: 8),
-              _buildDetailRow(context, 'Purchase Price', '\$${item.purchasePrice}'),
+              _buildDetailRow(
+                context,
+                'Purchase Price',
+                '\$${item.purchasePrice}',
+              ),
             ],
             const SizedBox(height: 8),
             _buildDetailRow(context, 'Added', _getRelativeTime(item.addedDate)),
@@ -373,14 +399,18 @@ class NewlyAddedItemDetailScreen extends ConsumerWidget {
                   Navigator.pop(context);
                   // TODO: Navigate to full edit screen
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Edit functionality coming soon')),
+                    const SnackBar(
+                      content: Text('Edit functionality coming soon'),
+                    ),
                   );
                 },
                 icon: const Icon(LucideIcons.edit3),
                 label: const Text('EDIT ITEM'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: BorderSide(color: Theme.of(context).colorScheme.outline),
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                   ),
@@ -400,7 +430,9 @@ class NewlyAddedItemDetailScreen extends ConsumerWidget {
         Text(
           label.toUpperCase(),
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         Text(

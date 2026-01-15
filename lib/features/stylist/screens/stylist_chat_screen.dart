@@ -30,23 +30,17 @@ class _StylistChatColors {
       ? AppColors.glassBorder
       : AppColors.glassBorderDark;
 
-  static Color getTransparent(BuildContext context) =>
-      AppColors.transparent;
+  static Color getTransparent(BuildContext context) => AppColors.transparent;
 
-  static Color getPureBlack(BuildContext context) =>
-      AppColors.pureBlack;
+  static Color getPureBlack(BuildContext context) => AppColors.pureBlack;
 
-  static Color getPureWhite(BuildContext context) =>
-      AppColors.pureWhite;
+  static Color getPureWhite(BuildContext context) => AppColors.pureWhite;
 
-  static Color getSuccess(BuildContext context) =>
-      AppColors.success;
+  static Color getSuccess(BuildContext context) => AppColors.success;
 
-  static Color getWarning(BuildContext context) =>
-      AppColors.warning;
+  static Color getWarning(BuildContext context) => AppColors.warning;
 
-  static Color getInfo(BuildContext context) =>
-      AppColors.info;
+  static Color getInfo(BuildContext context) => AppColors.info;
 }
 
 class StylistChatScreen extends ConsumerStatefulWidget {
@@ -103,7 +97,9 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: _StylistChatColors.getTextSecondary(context).withValues(alpha: 0.2),
+              color: _StylistChatColors.getTextSecondary(
+                context,
+              ).withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -169,9 +165,15 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
               decoration: BoxDecoration(
                 color: _StylistChatColors.getSurface(context),
                 shape: BoxShape.circle,
-                border: Border.all(color: _StylistChatColors.getGlassBorder(context)),
+                border: Border.all(
+                  color: _StylistChatColors.getGlassBorder(context),
+                ),
               ),
-              child: Icon(icon, color: _StylistChatColors.getTextPrimary(context), size: 24),
+              child: Icon(
+                icon,
+                color: _StylistChatColors.getTextPrimary(context),
+                size: 24,
+              ),
             ),
             const SizedBox(height: 12),
             Text(
@@ -216,7 +218,9 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                         width: 40,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: _StylistChatColors.getTextSecondary(context).withValues(alpha: 0.2),
+                          color: _StylistChatColors.getTextSecondary(
+                            context,
+                          ).withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -242,9 +246,9 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                                 mainAxisSpacing: 12,
                                 childAspectRatio: 0.8,
                               ),
-                          itemCount: closet.length,
+                          itemCount: (closet.value ?? []).length,
                           itemBuilder: (context, index) {
-                            final item = closet[index];
+                            final item = (closet.value ?? [])[index];
                             return InkWell(
                               onTap: () {
                                 ref
@@ -257,7 +261,9 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                                   Expanded(
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: _StylistChatColors.getSurface(context),
+                                        color: _StylistChatColors.getSurface(
+                                          context,
+                                        ),
                                         borderRadius: BorderRadius.circular(16),
                                         image: DecorationImage(
                                           image: NetworkImage(item.imageUrl),
@@ -271,7 +277,10 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                                     item.name,
                                     style: GoogleFonts.inter(
                                       fontSize: 10,
-                                      color: _StylistChatColors.getTextSecondary(context),
+                                      color:
+                                          _StylistChatColors.getTextSecondary(
+                                            context,
+                                          ),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -321,7 +330,9 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                         width: 40,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: _StylistChatColors.getTextSecondary(context).withValues(alpha: 0.2),
+                          color: _StylistChatColors.getTextSecondary(
+                            context,
+                          ).withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -366,7 +377,9 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                                   Expanded(
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: _StylistChatColors.getSurface(context),
+                                        color: _StylistChatColors.getSurface(
+                                          context,
+                                        ),
                                         borderRadius: BorderRadius.circular(20),
                                         image: DecorationImage(
                                           image: NetworkImage(
@@ -383,7 +396,9 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                                     style: GoogleFonts.outfit(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
-                                      color: _StylistChatColors.getTextPrimary(context),
+                                      color: _StylistChatColors.getTextPrimary(
+                                        context,
+                                      ),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -447,7 +462,10 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
       elevation: 0,
       centerTitle: true,
       leading: IconButton(
-        icon: Icon(LucideIcons.chevronLeft, color: _StylistChatColors.getTextPrimary(context)),
+        icon: Icon(
+          LucideIcons.chevronLeft,
+          color: _StylistChatColors.getTextPrimary(context),
+        ),
         onPressed: () => context.pop(),
       ),
       title: Column(
@@ -485,7 +503,10 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
       ),
       actions: [
         IconButton(
-          icon: Icon(LucideIcons.moreVertical, color: _StylistChatColors.getTextPrimary(context)),
+          icon: Icon(
+            LucideIcons.moreVertical,
+            color: _StylistChatColors.getTextPrimary(context),
+          ),
           onPressed: () {},
         ),
       ],
@@ -520,20 +541,26 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isUser ? _StylistChatColors.getPureBlack(context) : _StylistChatColors.getSurface(context),
+        color: isUser
+            ? _StylistChatColors.getPureBlack(context)
+            : _StylistChatColors.getSurface(context),
         borderRadius: BorderRadius.only(
           topLeft: const Radius.circular(20),
           topRight: const Radius.circular(20),
           bottomLeft: Radius.circular(isUser ? 20 : 4),
           bottomRight: Radius.circular(isUser ? 4 : 20),
         ),
-        border: isUser ? null : Border.all(color: _StylistChatColors.getGlassBorder(context)),
+        border: isUser
+            ? null
+            : Border.all(color: _StylistChatColors.getGlassBorder(context)),
       ),
       child: Text(
         text,
         style: GoogleFonts.inter(
           fontSize: 14,
-          color: isUser ? _StylistChatColors.getPureWhite(context) : _StylistChatColors.getTextPrimary(context),
+          color: isUser
+              ? _StylistChatColors.getPureWhite(context)
+              : _StylistChatColors.getTextPrimary(context),
           height: 1.4,
         ),
       ),
@@ -677,7 +704,9 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                   decoration: BoxDecoration(
                     color: _StylistChatColors.getBackground(context),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: _StylistChatColors.getGlassBorder(context)),
+                    border: Border.all(
+                      color: _StylistChatColors.getGlassBorder(context),
+                    ),
                   ),
                   child: Icon(
                     LucideIcons.heart,
@@ -705,7 +734,10 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
         child: SizedBox(
           width: 20,
           height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2, color: _StylistChatColors.getInfo(context)),
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: _StylistChatColors.getInfo(context),
+          ),
         ),
       ),
     );
@@ -721,7 +753,9 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
       ),
       decoration: BoxDecoration(
         color: _StylistChatColors.getBackground(context),
-        border: Border(top: BorderSide(color: _StylistChatColors.getGlassBorder(context))),
+        border: Border(
+          top: BorderSide(color: _StylistChatColors.getGlassBorder(context)),
+        ),
       ),
       child: Row(
         children: [
@@ -745,7 +779,9 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                 color: _StylistChatColors.getSurface(context),
                 borderRadius: BorderRadius.circular(26),
                 border: Border.all(
-                  color: _StylistChatColors.getGlassBorder(context).withValues(alpha: 0.5),
+                  color: _StylistChatColors.getGlassBorder(
+                    context,
+                  ).withValues(alpha: 0.5),
                 ),
               ),
               child: TextField(
@@ -757,7 +793,9 @@ class _StylistChatScreenState extends ConsumerState<StylistChatScreen> {
                 decoration: InputDecoration(
                   hintText: "Ask your stylist...",
                   hintStyle: GoogleFonts.inter(
-                    color: _StylistChatColors.getTextSecondary(context).withValues(alpha: 0.6),
+                    color: _StylistChatColors.getTextSecondary(
+                      context,
+                    ).withValues(alpha: 0.6),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 20,

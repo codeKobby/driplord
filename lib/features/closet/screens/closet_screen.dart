@@ -74,7 +74,6 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
   @override
   Widget build(BuildContext context) {
     _syncSearchState();
-    final filteredItems = ref.watch(filteredClosetProvider);
 
     return Scaffold(
       backgroundColor: _AppColors.getBackground(context),
@@ -110,12 +109,84 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      body: SafeArea(
-        child: filteredItems.isEmpty && !_isSearching
-            ? _buildEmptyState()
-            : _buildClosetContent(filteredItems),
-      ),
+      body: SafeArea(child: _buildBody()),
     );
+  }
+
+  Widget _buildBody() {
+    final loadState = ref.watch(closetLoadStateProvider);
+    final errorMessage = ref.watch(closetErrorProvider);
+    final filteredItems = ref.watch(filteredClosetProvider);
+
+    // Show loading state
+    if (loadState == ClosetLoadState.loading) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(
+              "Syncing your closet...",
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: _AppColors.getTextSecondary(context),
+              ),
+            ),
+          ],
+        ).animate().fadeIn(),
+      );
+    }
+
+    // Show error state
+    if (loadState == ClosetLoadState.error) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppDimensions.paddingLg),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                LucideIcons.wifiOff,
+                size: 64,
+                color: _AppColors.getTextSecondary(
+                  context,
+                ).withValues(alpha: 0.5),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                "Connection Error",
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: _AppColors.getTextPrimary(context),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                errorMessage ?? "Failed to load your closet",
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: _AppColors.getTextSecondary(context),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              PrimaryButton(
+                text: "Try Again",
+                onPressed: () {
+                  ref.invalidate(closetProvider);
+                },
+                icon: LucideIcons.refreshCw,
+              ),
+            ],
+          ).animate().fadeIn(),
+        ),
+      );
+    }
+
+    // Loaded state - show content or empty
+    if (filteredItems.isEmpty && !_isSearching) {
+      return _buildEmptyState();
+    }
+    return _buildClosetContent(filteredItems);
   }
 
   Widget _buildAnimatedSearch() {
@@ -180,8 +251,6 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
       ],
     );
   }
-
-
 
   Widget _buildEmptyState() {
     return Padding(
@@ -486,6 +555,4 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
         .fadeIn(delay: (100 + index * 30).ms)
         .scale(begin: const Offset(0.95, 0.95), curve: Curves.easeOutBack);
   }
-
-
 }

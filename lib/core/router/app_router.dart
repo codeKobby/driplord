@@ -17,6 +17,7 @@ import '../../features/profile/screens/profile_screen.dart';
 import '../components/common/fixed_app_bar.dart';
 
 import '../../features/home/screens/daily_hub_screen.dart';
+import '../../features/home/screens/style_calendar_screen.dart';
 import '../../features/home/screens/main_scaffold.dart';
 import '../../features/home/screens/frequently_worn_screen.dart';
 import '../../features/home/screens/newly_added_screen.dart';
@@ -109,8 +110,6 @@ class RecentItemsScreen extends StatelessWidget {
   }
 }
 
-
-
 // =============================================================================
 // ROUTER CONFIGURATION
 // =============================================================================
@@ -118,7 +117,8 @@ class RecentItemsScreen extends StatelessWidget {
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
   redirect: (BuildContext context, GoRouterState state) {
-    final bool isAuthenticated = Supabase.instance.client.auth.currentSession != null;
+    final bool isAuthenticated =
+        Supabase.instance.client.auth.currentSession != null;
 
     // If authenticated and on welcome screen, redirect to home
     if (isAuthenticated && state.uri.path == '/') {
@@ -135,7 +135,9 @@ final GoRouter appRouter = GoRouter(
     ];
 
     // Check if current location is a protected route
-    final isProtectedRoute = protectedRoutes.any((route) => state.uri.path.startsWith(route));
+    final isProtectedRoute = protectedRoutes.any(
+      (route) => state.uri.path.startsWith(route),
+    );
 
     // If trying to access protected route without authentication, redirect to sign in
     if (isProtectedRoute && !isAuthenticated) {
@@ -153,10 +155,7 @@ final GoRouter appRouter = GoRouter(
     // =========================================================================
     // WELCOME SCREEN (Intro page - no nav bar)
     // =========================================================================
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const WelcomeScreen(),
-    ),
+    GoRoute(path: '/', builder: (context, state) => const WelcomeScreen()),
 
     // =========================================================================
     // AUTH ROUTES (Fullscreen, no nav bar)
@@ -252,7 +251,10 @@ final GoRouter appRouter = GoRouter(
       path: '/home/vibes/customize',
       builder: (context, state) => const VibeCustomizationScreen(),
     ),
-
+    GoRoute(
+      path: '/home/calendar',
+      builder: (context, state) => const StyleCalendarScreen(),
+    ),
 
     GoRoute(
       path: '/closet/add',
@@ -282,7 +284,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/closet/item/:id',
       builder: (context, state) =>
-         ClosetItemDetailScreen(itemId: state.pathParameters['id']!),
+          ClosetItemDetailScreen(itemId: state.pathParameters['id']!),
     ),
     GoRoute(
       path: '/closet/insights',
@@ -311,17 +313,17 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/home/newly-added/item/:id',
       builder: (context, state) =>
-         NewlyAddedItemDetailScreen(itemId: state.pathParameters['id']!),
+          NewlyAddedItemDetailScreen(itemId: state.pathParameters['id']!),
     ),
     GoRoute(
       path: '/home/neglected/item/:id',
       builder: (context, state) =>
-         NeglectedItemDetailScreen(itemId: state.pathParameters['id']!),
+          NeglectedItemDetailScreen(itemId: state.pathParameters['id']!),
     ),
     GoRoute(
       path: '/home/frequently-worn/item/:id',
       builder: (context, state) =>
-         FrequentlyWornItemDetailScreen(itemId: state.pathParameters['id']!),
+          FrequentlyWornItemDetailScreen(itemId: state.pathParameters['id']!),
     ),
 
     // --- Outfits Subpages ---
@@ -372,8 +374,14 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/try-on/compose',
-      builder: (context, state) =>
-          const ProfessionalCanvasScreen(mode: ComposerMode.manual),
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return ProfessionalCanvasScreen(
+          mode: ComposerMode.manual,
+          scheduledDate: extra?['scheduledDate'] as DateTime?,
+          eventTitle: extra?['eventTitle'] as String?,
+        );
+      },
     ),
     GoRoute(
       path: '/try-on/ai/:vibe',

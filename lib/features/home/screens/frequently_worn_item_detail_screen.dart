@@ -16,7 +16,8 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = ref.watch(closetProvider);
+    final asyncItems = ref.watch(closetProvider);
+    final items = asyncItems.value ?? [];
     final history = ref.watch(historyProvider);
 
     final item = items.firstWhere(
