@@ -1,7 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../home/providers/recommendation_provider.dart';
-import '../../../core/services/database_service.dart';
 import '../../../core/services/cache_service.dart';
+import '../../../core/providers/database_providers.dart';
 
 class HistoryEntry {
   final Recommendation outfit;
@@ -10,16 +11,13 @@ class HistoryEntry {
   HistoryEntry({required this.outfit, required this.wornAt});
 }
 
-class HistoryNotifier extends Notifier<List<HistoryEntry>> {
+class HistoryNotifier extends AsyncNotifier<List<HistoryEntry>> {
   final CacheService _cacheService = CacheService();
 
   @override
-  List<HistoryEntry> build() {
-    _loadHistory();
-    return [];
-  }
+  Future<List<HistoryEntry>> build() async {
+    final dbService = ref.watch(databaseServiceProvider);
 
-  Future<void> _loadHistory() async {
     try {
       // Check cache first
       final cachedHistory = await _cacheService.get<List>(
@@ -27,56 +25,50 @@ class HistoryNotifier extends Notifier<List<HistoryEntry>> {
         config: CacheConfig.sessionData,
       );
       if (cachedHistory != null && cachedHistory.isNotEmpty) {
-        state = cachedHistory
-            .map((entry) => _historyEntryFromJson(entry))
-            .toList();
         // Refresh from server in background
         _refreshFromServer();
-        return;
+        return cachedHistory
+            .map((entry) => _historyEntryFromJson(entry))
+            .toList();
       }
 
       // If not in cache, fetch from server
-      final history = await DatabaseService().getHistory();
+      final history = await dbService.getHistory();
 
       if (history.isNotEmpty) {
-        state = history;
         // Cache the fetched history
         await _cacheService.set(
           'outfit_history',
           history.map((entry) => _historyEntryToJson(entry)).toList(),
           config: CacheConfig.sessionData,
         );
+        return history;
       } else {
         // Use mock data for new users
-        state = _mockHistory;
-        // Cache mock history
-        await _cacheService.set(
-          'outfit_history',
-          _mockHistory.map((entry) => _historyEntryToJson(entry)).toList(),
-          config: CacheConfig.sessionData,
-        );
+        return _mockHistory;
       }
     } catch (e) {
-      // Fall back to cache if available, otherwise mock data
+      debugPrint('Error loading history: $e');
+      // Fall back to cache if available
       final cachedHistory = await _cacheService.get<List>(
         'outfit_history',
         config: CacheConfig.sessionData,
       );
       if (cachedHistory != null && cachedHistory.isNotEmpty) {
-        state = cachedHistory
+        return cachedHistory
             .map((entry) => _historyEntryFromJson(entry))
             .toList();
-      } else {
-        state = _mockHistory;
       }
+      return _mockHistory;
     }
   }
 
   Future<void> _refreshFromServer() async {
     try {
-      final history = await DatabaseService().getHistory();
+      final dbService = ref.read(databaseServiceProvider);
+      final history = await dbService.getHistory();
       if (history.isNotEmpty) {
-        state = history;
+        state = AsyncValue.data(history);
         // Update cache with fresh data
         await _cacheService.set(
           'outfit_history',
@@ -128,25 +120,29 @@ class HistoryNotifier extends Notifier<List<HistoryEntry>> {
   ];
 
   Future<void> addEntry(Recommendation reco) async {
-    // Add to local state immediately for UI responsiveness
-    final newEntry = HistoryEntry(outfit: reco, wornAt: DateTime.now());
-    state = [newEntry, ...state];
-
-    // Update cache
-    await _updateCache();
-
-    // Save to Supabase in background
     try {
-      await DatabaseService().addToHistory(reco);
+      final dbService = ref.read(databaseServiceProvider);
+      if (dbService.isAuthenticated) {
+        await dbService.addToHistory(reco);
+      }
+
+      // Add to local state immediately for UI responsiveness
+      final newEntry = HistoryEntry(outfit: reco, wornAt: DateTime.now());
+      final currentHistory = state.value ?? [];
+      state = AsyncValue.data([newEntry, ...currentHistory]);
+
+      // Update cache
+      await _updateCache();
     } catch (e) {
-      // If Supabase fails, the local state will still be updated
-      // In a production app, you might want to show an error or retry
+      debugPrint('Error adding to history: $e');
+      // If Supabase fails, the local state will still be updated locally unless we want to roll back
     }
   }
 
   Future<void> _updateCache() async {
     try {
-      final historyJson = state
+      final history = state.value ?? [];
+      final historyJson = history
           .map((entry) => _historyEntryToJson(entry))
           .toList();
       await _cacheService.set(
@@ -205,8 +201,7 @@ class HistoryNotifier extends Notifier<List<HistoryEntry>> {
   }
 }
 
-final historyProvider = NotifierProvider<HistoryNotifier, List<HistoryEntry>>(
-  () {
-    return HistoryNotifier();
-  },
-);
+final historyProvider =
+    AsyncNotifierProvider<HistoryNotifier, List<HistoryEntry>>(() {
+      return HistoryNotifier();
+    });

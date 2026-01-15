@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/services/database_service.dart';
 import '../../../core/services/cache_service.dart';
+import '../../../core/providers/database_providers.dart';
 
 class UserProfile {
   final String id;
@@ -24,9 +24,15 @@ class UserProfile {
       id: json['id'],
       username: json['username'],
       avatarUrl: json['avatar_url'],
-      styleVibes: json['style_vibes'] != null ? List<String>.from(json['style_vibes']) : null,
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
+      styleVibes: json['style_vibes'] != null
+          ? List<String>.from(json['style_vibes'])
+          : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'])
+          : null,
     );
   }
 
@@ -58,58 +64,66 @@ class UserProfile {
   }
 }
 
-class ProfileNotifier extends Notifier<AsyncValue<UserProfile?>> {
+class ProfileNotifier extends AsyncNotifier<UserProfile?> {
   final CacheService _cacheService = CacheService();
 
   @override
-  AsyncValue<UserProfile?> build() {
-    _loadProfile();
-    return const AsyncValue.loading();
-  }
+  Future<UserProfile?> build() async {
+    final dbService = ref.watch(databaseServiceProvider);
 
-  Future<void> _loadProfile() async {
     try {
       // Check cache first
-      final cachedProfile = await _cacheService.get<Map<String, dynamic>>('user_profile', config: CacheConfig.userData);
+      final cachedProfile = await _cacheService.get<Map<String, dynamic>>(
+        'user_profile',
+        config: CacheConfig.userData,
+      );
       if (cachedProfile != null) {
-        final profile = UserProfile.fromJson(cachedProfile);
-        state = AsyncValue.data(profile);
         // Refresh from server in background
         _refreshFromServer();
-        return;
+        return UserProfile.fromJson(cachedProfile);
       }
 
       // If not in cache, fetch from server
-      final profileData = await DatabaseService().getUserProfile();
+      final profileData = await dbService.getUserProfile();
 
       if (profileData != null) {
         final profile = UserProfile.fromJson(profileData);
-        state = AsyncValue.data(profile);
         // Cache the fetched profile
-        await _cacheService.set('user_profile', profile.toJson(), config: CacheConfig.userData);
+        await _cacheService.set(
+          'user_profile',
+          profile.toJson(),
+          config: CacheConfig.userData,
+        );
+        return profile;
       } else {
-        state = const AsyncValue.data(null);
+        return null;
       }
     } catch (e) {
-      // Fall back to cache if available, otherwise error
-      final cachedProfile = await _cacheService.get<Map<String, dynamic>>('user_profile', config: CacheConfig.userData);
+      // Fall back to cache if available
+      final cachedProfile = await _cacheService.get<Map<String, dynamic>>(
+        'user_profile',
+        config: CacheConfig.userData,
+      );
       if (cachedProfile != null) {
-        final profile = UserProfile.fromJson(cachedProfile);
-        state = AsyncValue.data(profile);
-      } else {
-        state = AsyncValue.error(e, StackTrace.current);
+        return UserProfile.fromJson(cachedProfile);
       }
+      rethrow;
     }
   }
 
   Future<void> _refreshFromServer() async {
     try {
-      final profileData = await DatabaseService().getUserProfile();
+      final dbService = ref.read(databaseServiceProvider);
+      final profileData = await dbService.getUserProfile();
       if (profileData != null) {
         final profile = UserProfile.fromJson(profileData);
         state = AsyncValue.data(profile);
         // Update cache with fresh data
-        await _cacheService.set('user_profile', profile.toJson(), config: CacheConfig.userData);
+        await _cacheService.set(
+          'user_profile',
+          profile.toJson(),
+          config: CacheConfig.userData,
+        );
       }
     } catch (e) {
       // Silently fail - we already have cached data
@@ -125,8 +139,9 @@ class ProfileNotifier extends Notifier<AsyncValue<UserProfile?>> {
     if (currentProfile == null) return;
 
     try {
+      final dbService = ref.read(databaseServiceProvider);
       // Update on server
-      await DatabaseService().updateUserProfile(
+      await dbService.updateUserProfile(
         username: username,
         avatarUrl: avatarUrl,
         styleVibes: styleVibes,
@@ -142,7 +157,11 @@ class ProfileNotifier extends Notifier<AsyncValue<UserProfile?>> {
       state = AsyncValue.data(updatedProfile);
 
       // Update cache
-      await _cacheService.set('user_profile', updatedProfile.toJson(), config: CacheConfig.userData);
+      await _cacheService.set(
+        'user_profile',
+        updatedProfile.toJson(),
+        config: CacheConfig.userData,
+      );
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);
     }
@@ -150,10 +169,10 @@ class ProfileNotifier extends Notifier<AsyncValue<UserProfile?>> {
 
   Future<void> refreshProfile() async {
     state = const AsyncValue.loading();
-    await _loadProfile();
+    ref.invalidateSelf();
   }
 }
 
-final profileProvider = NotifierProvider<ProfileNotifier, AsyncValue<UserProfile?>>(
+final profileProvider = AsyncNotifierProvider<ProfileNotifier, UserProfile?>(
   () => ProfileNotifier(),
 );

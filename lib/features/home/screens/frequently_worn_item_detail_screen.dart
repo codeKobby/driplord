@@ -32,7 +32,7 @@ class FrequentlyWornItemDetailScreen extends ConsumerWidget {
     );
 
     // Calculate wear frequency
-    final wearCount = _calculateWearCount(history, item.id);
+    final wearCount = _calculateWearCount(history.value ?? [], item.id);
     final lastWornDate = item.lastWornAt;
 
     return Scaffold(

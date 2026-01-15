@@ -7,7 +7,8 @@ import 'package:crypto/crypto.dart';
 import '../../../core/constants/app_constants.dart';
 
 class AuthService {
-  final SupabaseClient _supabase = Supabase.instance.client;
+  final SupabaseClient _supabase;
+  AuthService(this._supabase);
 
   Future<AuthResponse> signInWithGoogle() async {
     // Basic verification is fine, but we'll try to sign in regardless since user says it's set up

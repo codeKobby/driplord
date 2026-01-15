@@ -66,9 +66,14 @@ class OutfitsScreen extends ConsumerWidget {
         ],
       ),
       body: SafeArea(
-        child: savedOutfits.isEmpty && history.isEmpty
+        child: savedOutfits.isEmpty && (history.value ?? []).isEmpty
             ? _buildEmptyState(context)
-            : _buildOutfitsContent(context, ref, savedOutfits, history),
+            : _buildOutfitsContent(
+                context,
+                ref,
+                savedOutfits,
+                history.value ?? [],
+              ),
       ),
     );
   }

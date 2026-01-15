@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/components/common/driplord_scaffold.dart';
-import '../services/auth_service.dart';
+import '../../../core/providers/database_providers.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   final bool initialIsLogin;
@@ -22,7 +22,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _authService = AuthService();
 
   bool _isLoading = false;
   bool _isGoogleLoading = false;
@@ -47,13 +46,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
     setState(() => _isLoading = true);
     try {
+      final authService = ref.read(authServiceProvider);
       if (_isLogin) {
-        await _authService.signInWithEmail(
+        await authService.signInWithEmail(
           _emailController.text.trim(),
           _passwordController.text,
         );
       } else {
-        await _authService.signUpWithEmail(
+        await authService.signUpWithEmail(
           _emailController.text.trim(),
           _passwordController.text,
         );
@@ -80,7 +80,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   Future<void> _handleGoogleSignIn() async {
     setState(() => _isGoogleLoading = true);
     try {
-      await _authService.signInWithGoogle();
+      await ref.read(authServiceProvider).signInWithGoogle();
       if (mounted) {
         _navigateBasedOnCloset();
       }
@@ -102,7 +102,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   Future<void> _handleAppleSignIn() async {
     setState(() => _isAppleLoading = true);
     try {
-      await _authService.signInWithApple();
+      await ref.read(authServiceProvider).signInWithApple();
       if (mounted) {
         _navigateBasedOnCloset();
       }

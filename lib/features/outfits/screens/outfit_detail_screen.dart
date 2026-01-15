@@ -16,7 +16,7 @@ class OutfitDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Find the outfit from saved outfits or history
     final savedOutfits = ref.watch(savedOutfitsProvider);
-    final history = ref.watch(historyProvider);
+    final history = ref.watch(historyProvider).value ?? [];
 
     // First try to find in saved outfits
     Recommendation outfit;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -8,22 +9,21 @@ import '../../../core/components/buttons/primary_button.dart';
 import '../../../core/components/buttons/oauth_button.dart';
 import '../../../core/components/cards/glass_card.dart';
 import '../../../core/components/common/auth_divider.dart';
-import '../services/auth_service.dart';
+import '../../../core/providers/database_providers.dart';
 
-class SignUpScreen extends StatefulWidget {
+class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _authService = AuthService();
   bool _isLoading = false;
   bool _isGoogleLoading = false;
   bool _isAppleLoading = false;
@@ -52,14 +52,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     setState(() => _isLoading = true);
     try {
-      await Supabase.instance.client.auth.signUp(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-        data: {
-          'first_name': _firstNameController.text.trim(),
-          'last_name': _lastNameController.text.trim(),
-        },
+      await ref
+          .read(authServiceProvider)
+          .signUpWithEmail(
+            _emailController.text.trim(),
+            _passwordController.text.trim(),
+          );
+
+      // Update user metadata
+      await Supabase.instance.client.auth.updateUser(
+        UserAttributes(
+          data: {
+            'first_name': _firstNameController.text.trim(),
+            'last_name': _lastNameController.text.trim(),
+          },
+        ),
       );
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -89,7 +98,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void> _handleGoogleSignIn() async {
     setState(() => _isGoogleLoading = true);
     try {
-      await _authService.signInWithGoogle();
+      await ref.read(authServiceProvider).signInWithGoogle();
       if (mounted) {
         context.go('/onboarding');
       }
@@ -110,7 +119,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void> _handleAppleSignIn() async {
     setState(() => _isAppleLoading = true);
     try {
-      await _authService.signInWithApple();
+      await ref.read(authServiceProvider).signInWithApple();
       if (mounted) {
         context.go('/onboarding');
       }

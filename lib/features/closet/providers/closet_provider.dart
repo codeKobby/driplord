@@ -1,19 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
-import '../../../core/services/database_service.dart';
 import '../../../core/services/cache_service.dart';
-
-/// State for tracking closet loading progress
-enum ClosetLoadState { loading, loaded, error }
-
-/// Tracks the loading state of the closet
-final closetLoadStateProvider = StateProvider<ClosetLoadState>((ref) {
-  return ClosetLoadState.loading;
-});
-
-/// Stores any error message from loading
-final closetErrorProvider = StateProvider<String?>((ref) => null);
+import '../../../core/providers/database_providers.dart';
 
 class ClothingItem {
   final String id;
@@ -81,7 +69,7 @@ class ClosetNotifier extends AsyncNotifier<List<ClothingItem>> {
 
   @override
   Future<List<ClothingItem>> build() async {
-    final dbService = DatabaseService();
+    final dbService = ref.watch(databaseServiceProvider);
 
     // If unauthenticated, use mock data for demo/preview mode
     if (!dbService.isAuthenticated) {
@@ -130,7 +118,8 @@ class ClosetNotifier extends AsyncNotifier<List<ClothingItem>> {
 
   Future<void> _refreshFromServer() async {
     try {
-      final items = await DatabaseService().getClosetItems();
+      final dbService = ref.read(databaseServiceProvider);
+      final items = await dbService.getClosetItems();
       if (items.isNotEmpty) {
         state = AsyncValue.data(items);
         // Update cache with fresh data
@@ -266,9 +255,18 @@ class ClosetNotifier extends AsyncNotifier<List<ClothingItem>> {
   ];
 
   Future<void> addItem(ClothingItem item) async {
-    final currentItems = state.value ?? [];
-    state = AsyncValue.data([...currentItems, item]);
-    await _updateCache();
+    try {
+      final dbService = ref.read(databaseServiceProvider);
+      if (dbService.isAuthenticated) {
+        await dbService.addClosetItem(item);
+      }
+      final currentItems = state.value ?? [];
+      state = AsyncValue.data([...currentItems, item]);
+      await _updateCache();
+    } catch (e) {
+      debugPrint('Error adding closet item: $e');
+      rethrow;
+    }
   }
 
   Future<void> addItems(List<ClothingItem> items) async {
@@ -278,17 +276,39 @@ class ClosetNotifier extends AsyncNotifier<List<ClothingItem>> {
   }
 
   Future<void> removeItem(String id) async {
-    final currentItems = state.value ?? [];
-    state = AsyncValue.data(currentItems.where((item) => item.id != id).toList());
-    await _updateCache();
+    try {
+      final dbService = ref.read(databaseServiceProvider);
+      if (dbService.isAuthenticated) {
+        await dbService.deleteClosetItem(id);
+      }
+      final currentItems = state.value ?? [];
+      state = AsyncValue.data(
+        currentItems.where((item) => item.id != id).toList(),
+      );
+      await _updateCache();
+    } catch (e) {
+      debugPrint('Error removing closet item: $e');
+      rethrow;
+    }
   }
 
   Future<void> updateItem(ClothingItem updatedItem) async {
-    final currentItems = state.value ?? [];
-    state = AsyncValue.data(
-      currentItems.map((item) => item.id == updatedItem.id ? updatedItem : item).toList(),
-    );
-    await _updateCache();
+    try {
+      final dbService = ref.read(databaseServiceProvider);
+      if (dbService.isAuthenticated) {
+        await dbService.updateClosetItem(updatedItem);
+      }
+      final currentItems = state.value ?? [];
+      state = AsyncValue.data(
+        currentItems
+            .map((item) => item.id == updatedItem.id ? updatedItem : item)
+            .toList(),
+      );
+      await _updateCache();
+    } catch (e) {
+      debugPrint('Error updating closet item: $e');
+      rethrow;
+    }
   }
 
   Future<void> _updateCache() async {

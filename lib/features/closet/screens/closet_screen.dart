@@ -114,12 +114,11 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
   }
 
   Widget _buildBody() {
-    final loadState = ref.watch(closetLoadStateProvider);
-    final errorMessage = ref.watch(closetErrorProvider);
+    final closetAsync = ref.watch(closetProvider);
     final filteredItems = ref.watch(filteredClosetProvider);
 
     // Show loading state
-    if (loadState == ClosetLoadState.loading) {
+    if (closetAsync.isLoading && !closetAsync.hasValue) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -138,7 +137,7 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
     }
 
     // Show error state
-    if (loadState == ClosetLoadState.error) {
+    if (closetAsync.hasError && !closetAsync.hasValue) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(AppDimensions.paddingLg),
@@ -162,7 +161,7 @@ class _ClosetScreenState extends ConsumerState<ClosetScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                errorMessage ?? "Failed to load your closet",
+                (closetAsync.error ?? "Failed to load your closet").toString(),
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: _AppColors.getTextSecondary(context),
                 ),

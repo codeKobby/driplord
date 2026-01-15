@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-import 'database_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Cache configuration for different data types
 class CacheConfig {
@@ -305,7 +305,7 @@ class CacheService {
 
   /// Invalidate user-specific cache (useful on logout)
   Future<void> invalidateUserCache() async {
-    final userId = DatabaseService().currentUserId ?? 'anonymous';
+    final userId = Supabase.instance.client.auth.currentUser?.id ?? 'anonymous';
     await invalidateCache(userId);
   }
 
@@ -431,7 +431,7 @@ class CacheService {
 
   String _generateCacheKey(String key, CacheConfig? config) {
     // Add user-specific prefix for multi-user support
-    final userId = DatabaseService().currentUserId ?? 'anonymous';
+    final userId = Supabase.instance.client.auth.currentUser?.id ?? 'anonymous';
     return '${userId}_$key';
   }
 

@@ -169,6 +169,7 @@ class _ProfessionalClosetPanelState extends ConsumerState<ProfessionalClosetPane
               color: colorScheme.onSurface,
             ),
           ),
+          const Spacer(),
           IconButton(
             icon: Icon(
               LucideIcons.search,

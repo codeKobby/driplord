@@ -4,11 +4,8 @@ import '../../features/home/providers/recommendation_provider.dart';
 import '../../features/outfits/providers/history_provider.dart';
 
 class DatabaseService {
-  static final DatabaseService _instance = DatabaseService._internal();
-  factory DatabaseService() => _instance;
-  DatabaseService._internal();
-
-  final SupabaseClient _supabase = Supabase.instance.client;
+  final SupabaseClient _supabase;
+  DatabaseService(this._supabase);
 
   // ===========================================================================
   // AUTH HELPERS
