@@ -14,6 +14,7 @@ class AppConstants {
     'SUPABASE_ANON_KEY',
     defaultValue: 'sb_publishable_IJsRSu1TzXmh8YSUVpGrCw_ZgomfCc-',
   );
+  static const String storageBucket = 'closet_items';
 
   // ==========================================================================
   // AI Service API Keys (Required for production)

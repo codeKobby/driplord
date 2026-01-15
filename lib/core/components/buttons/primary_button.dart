@@ -24,10 +24,26 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
+
     return SizedBox(
       width: fullWidth ? double.infinity : width,
       height: height,
       child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          elevation: isLightMode ? 4 : 0,
+          shadowColor: isLightMode
+              ? Colors.black.withValues(alpha: 0.25)
+              : null,
+          side: isLightMode
+              ? BorderSide(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.3),
+                  width: 1,
+                )
+              : null,
+        ),
         onPressed: isLoading ? null : onPressed,
         child: isLoading
             ? SizedBox(

@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../features/closet/providers/closet_provider.dart';
+import '../constants/app_constants.dart';
 import '../../features/home/providers/recommendation_provider.dart';
 import '../../features/outfits/providers/history_provider.dart';
 
@@ -16,6 +18,28 @@ class DatabaseService {
 
   /// Returns the current user's ID, or null if not authenticated
   String? get currentUserId => _supabase.auth.currentUser?.id;
+
+  // ===========================================================================
+  // STORAGE
+  // ===========================================================================
+
+  Future<String> uploadImage(File file, String path) async {
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+
+    final fullPath = '$userId/$path';
+    await _supabase.storage
+        .from(AppConstants.storageBucket)
+        .upload(
+          fullPath,
+          file,
+          fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+        );
+
+    return _supabase.storage
+        .from(AppConstants.storageBucket)
+        .getPublicUrl(fullPath);
+  }
 
   // ===========================================================================
   // CLOSET ITEMS

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +9,12 @@ import '../../../core/components/common/driplord_scaffold.dart';
 import '../../../core/components/cards/glass_card.dart';
 import '../../../core/components/buttons/primary_button.dart';
 import '../../../core/components/buttons/secondary_button.dart';
+import '../../../core/components/buttons/primary_button.dart';
+import '../../../core/components/buttons/secondary_button.dart';
 import '../../../core/services/ai_image_service.dart';
+import '../../../core/services/database_service.dart';
+import '../../../core/providers/database_providers.dart';
+import '../../closet/providers/closet_provider.dart';
 
 /// Screen for reviewing AI-detected clothing items before adding to closet
 class SegmentedItemsReviewScreen extends ConsumerStatefulWidget {
@@ -66,7 +72,9 @@ class _SegmentedItemsReviewScreenState
         .toList();
   }
 
-  void _addApprovedItems() {
+  bool _isSaving = false;
+
+  Future<void> _addApprovedItems() async {
     final approvedItems = _approvedItems;
 
     if (approvedItems.isEmpty) {
@@ -79,17 +87,82 @@ class _SegmentedItemsReviewScreenState
       return;
     }
 
-    // For now, just show success message
-    // In the future, this will save to Supabase and add to closet provider
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Successfully added ${approvedItems.length} item(s) to closet!'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-      ),
-    );
+    setState(() {
+      _isSaving = true;
+    });
 
-    // Navigate back to closet
-    context.go('/closet');
+    try {
+      final dbService = ref.read(databaseServiceProvider);
+      // Determine if we need to upload the image
+      // If widget.imageUrl matches widget.source path, it's local.
+      // If widget.imageUrl starts with http, it is already a URL (e.g. pasted URL or re-edit)
+
+      String finalImageUrl = widget.imageUrl;
+
+      if (!widget.imageUrl.startsWith('http')) {
+        // It is a local file path
+        final file = File(widget.imageUrl);
+        if (await file.exists()) {
+          // Create a unique path: closet_items/{timestamp}_{uuid}.jpg
+          final timestamp = DateTime.now().millisecondsSinceEpoch;
+          // Simple uuid-like suffix
+          final randomSuffix = timestamp % 10000;
+          final fileName = 'upload_${timestamp}_$randomSuffix.jpg';
+
+          finalImageUrl = await dbService.uploadImage(file, fileName);
+        }
+      }
+
+      // Save all approved items
+      final List<ClothingItem> newItems = [];
+
+      for (final detected in approvedItems) {
+        final newItem = ClothingItem(
+          id:
+              DateTime.now().millisecondsSinceEpoch.toString() +
+              detected.id, // Ensure unique ID
+          name: detected.name,
+          category: detected.category,
+          imageUrl: finalImageUrl,
+          color: detected.color,
+          brand: detected.brand,
+          addedDate: DateTime.now(),
+          isAutoAdded: false, // User explicitly approved it
+        );
+        newItems.add(newItem);
+
+        // Add to database via provider wrapper if available, or direct calls
+        // The closetProvider.notifier.addItem handles DB call if authenticated
+        await ref.read(closetProvider.notifier).addItem(newItem);
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Successfully added ${newItems.length} item(s) to closet!',
+            ),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+          ),
+        );
+        context.go('/closet');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save items: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
   }
 
   @override
@@ -105,7 +178,7 @@ class _SegmentedItemsReviewScreenState
                 LucideIcons.x,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
-              onPressed: () => context.pop(),
+              onPressed: () => context.go('/closet'),
             ),
             title: Text(
               "Review Items",
@@ -191,29 +264,43 @@ class _SegmentedItemsReviewScreenState
           const SizedBox(height: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: CachedNetworkImage(
-              imageUrl: widget.imageUrl,
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              placeholder: (context, url) => Container(
-                height: 200,
-                color: Colors.grey[300],
-                child: const Center(child: CircularProgressIndicator()),
-              ),
-              errorWidget: (context, url, error) => Container(
-                height: 200,
-                color: Colors.grey[300],
-                child: const Icon(LucideIcons.imageOff, size: 48),
-              ),
-            ),
+            child: widget.imageUrl.startsWith('http')
+                ? CachedNetworkImage(
+                    imageUrl: widget.imageUrl,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      height: 200,
+                      color: Colors.grey[300],
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      height: 200,
+                      color: Colors.grey[300],
+                      child: const Icon(LucideIcons.imageOff, size: 48),
+                    ),
+                  )
+                : Image.file(
+                    File(widget.imageUrl),
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 200,
+                      color: Colors.grey[300],
+                      child: const Icon(LucideIcons.imageOff, size: 48),
+                    ),
+                  ),
           ),
           const SizedBox(height: 8),
           Text(
             "AI detected ${widget.detectedItems.length} item(s)",
             style: GoogleFonts.outfit(
               fontSize: 14,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
         ],
@@ -239,7 +326,9 @@ class _SegmentedItemsReviewScreenState
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: approvedCount > 0 ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
+            color: approvedCount > 0
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                : Colors.grey.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
@@ -247,7 +336,9 @@ class _SegmentedItemsReviewScreenState
             style: GoogleFonts.outfit(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: approvedCount > 0 ? Theme.of(context).colorScheme.primary : Colors.grey,
+              color: approvedCount > 0
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey,
             ),
           ),
         ),
@@ -262,18 +353,11 @@ class _SegmentedItemsReviewScreenState
           padding: const EdgeInsets.all(32),
           child: Column(
             children: [
-              Icon(
-                LucideIcons.shirt,
-                size: 48,
-                color: Colors.grey,
-              ),
+              Icon(LucideIcons.shirt, size: 48, color: Colors.grey),
               const SizedBox(height: 16),
               Text(
                 "No clothing items detected",
-                style: GoogleFonts.outfit(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+                style: GoogleFonts.outfit(fontSize: 16, color: Colors.grey),
               ),
             ],
           ),
@@ -288,7 +372,7 @@ class _SegmentedItemsReviewScreenState
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.8,
+        childAspectRatio: 0.65,
       ),
       itemCount: widget.detectedItems.length,
       itemBuilder: (context, index) {
@@ -342,7 +426,9 @@ class _SegmentedItemsReviewScreenState
                   "${item.category} • ${item.color}",
                   style: GoogleFonts.outfit(
                     fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
 
@@ -369,15 +455,17 @@ class _SegmentedItemsReviewScreenState
                       color: item.confidence > 0.8
                           ? Theme.of(context).colorScheme.primary
                           : item.confidence > 0.6
-                              ? Colors.orange
-                              : Theme.of(context).colorScheme.error,
+                          ? Colors.orange
+                          : Theme.of(context).colorScheme.error,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       "${(item.confidence * 100).round()}%",
                       style: GoogleFonts.outfit(
                         fontSize: 11,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -394,11 +482,15 @@ class _SegmentedItemsReviewScreenState
                 height: 24,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isSelected ? Theme.of(context).colorScheme.primary : Colors.white,
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.white,
                   border: Border.all(
                     color: isSelected
                         ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                        : Theme.of(
+                            context,
+                          ).colorScheme.outline.withValues(alpha: 0.3),
                     width: 2,
                   ),
                 ),
@@ -419,9 +511,10 @@ class _SegmentedItemsReviewScreenState
     return Column(
       children: [
         PrimaryButton(
-          text: "Add Selected Items (${_approvedItems.length})",
-          onPressed: _approvedItems.isNotEmpty ? _addApprovedItems : null,
-          icon: LucideIcons.plus,
+          text: _isSaving ? "Saving..." : "Add Selected Items (${_approvedItems.length})",
+          onPressed: _isSaving || _approvedItems.isEmpty ? null : _addApprovedItems,
+          isLoading: _isSaving,
+          icon: _isSaving ? null : LucideIcons.plus,
         ),
         const SizedBox(height: 12),
         SecondaryButton(

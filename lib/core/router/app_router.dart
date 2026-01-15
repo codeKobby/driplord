@@ -29,6 +29,8 @@ import '../../features/try_on/models/outfit_item.dart';
 import '../../features/home/screens/newly_added_item_detail_screen.dart';
 import '../../features/home/screens/neglected_item_detail_screen.dart';
 import '../../features/home/screens/frequently_worn_item_detail_screen.dart';
+import '../../features/closet/screens/segmented_items_review_screen.dart';
+import '../services/ai_image_service.dart';
 // =============================================================================
 // PLACEHOLDER SCREENS (Simple - no nav bar needed since outside shell route)
 // =============================================================================
@@ -279,6 +281,17 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) {
         final url = Uri.decodeComponent(state.pathParameters['url']!);
         return AddItemScreen(initialUrl: url);
+      },
+    ),
+    GoRoute(
+      path: '/closet/review',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return SegmentedItemsReviewScreen(
+          imageUrl: extra?['imageUrl'] as String? ?? '',
+          detectedItems: extra?['detectedItems'] as List<DetectedClothingItem>? ?? [],
+          source: extra?['source'] as String? ?? 'unknown',
+        );
       },
     ),
     GoRoute(

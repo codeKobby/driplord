@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/components/common/driplord_scaffold.dart';
 import '../../../core/components/cards/glass_card.dart';
 import '../../../core/components/buttons/primary_button.dart';
@@ -75,7 +76,13 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 LucideIcons.x,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
-              onPressed: () => _resetToSelection(),
+              onPressed: () {
+                if (_currentPhase == AddItemPhase.selection) {
+                  context.pop();
+                } else {
+                  _resetToSelection();
+                }
+              },
             ),
             title: Text(
               _getTitleForPhase(),
@@ -291,7 +298,10 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
   Future<void> _takePhoto() async {
     try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.rear,
+      );
       if (image != null) {
         setState(() {
           _selectedImage = image;
@@ -404,20 +414,14 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
       // Navigate to review screen
       if (mounted) {
-        Navigator.of(context)
-            .push(
-              MaterialPageRoute(
-                builder: (context) => SegmentedItemsReviewScreen(
-                  imageUrl: _imageUrl ?? _selectedImage?.path ?? '',
-                  detectedItems: detectedItems,
-                  source: _selectedImage != null ? 'camera' : 'url',
-                ),
-              ),
-            )
-            .then((_) {
-              // When returning from review screen, reset to selection
-              _resetToSelection();
-            });
+        context.go(
+          '/closet/review',
+          extra: {
+            'imageUrl': _imageUrl ?? _selectedImage?.path ?? '',
+            'detectedItems': detectedItems,
+            'source': _selectedImage != null ? 'camera' : 'url',
+          },
+        );
       }
     } catch (e) {
       setState(() {
