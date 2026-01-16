@@ -1,0 +1,5 @@
+## 2024-07-23 - `GestureDetector` Accessibility Anti-Pattern
+
+**Learning:** Using `GestureDetector` for custom interactive widgets like buttons or selectable cards is an accessibility anti-pattern. While it captures gestures, it provides no semantic information for screen readers like TalkBack or VoiceOver. Users who rely on these services cannot interact with these elements, as they are not announced as buttons and their state (e.g., selected, disabled) is not communicated.
+
+**Action:** For any custom tappable element, replace `GestureDetector` with a `Material` widget containing an `InkWell`. The `Material` provides visual touch feedback (ripple effect), and the `InkWell` handles the tap. Most importantly, wrap the entire widget in a `Semantics` widget. Configure the `Semantics` widget with `button: true`, a descriptive `label`, and its current state (e.g., `isSelected: true`) to ensure screen readers can properly interpret and interact with the element. To avoid double announcements, the child of the `Semantics` widget should be wrapped in `ExcludeSemantics`.
