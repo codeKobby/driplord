@@ -123,88 +123,103 @@ class _StylePreferenceScreenState extends State<StylePreferenceScreen> {
                     final styleImage = style["image"]!;
                     final isSelected = _selectedStyles.contains(styleName);
 
-                    return GestureDetector(
-                          onTap: () => _toggleStyle(styleName),
-                          child: AnimatedScale(
-                            duration: const Duration(milliseconds: 200),
-                            scale: isSelected ? 0.95 : 1.0,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surface,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? Theme.of(context).colorScheme.primary
-                                      : Theme.of(context).colorScheme.outline
-                                            .withValues(alpha: 0.2),
-                                  width: isSelected ? 2 : 1,
-                                ),
+                    return Semantics(
+                      button: true,
+                      label: 'Style: $styleName',
+                      selected: isSelected,
+                      child: ExcludeSemantics(
+                        child: AnimatedScale(
+                          duration: const Duration(milliseconds: 200),
+                          scale: isSelected ? 0.95 : 1.0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: isSelected
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .outline
+                                        .withValues(alpha: 0.2),
+                                width: isSelected ? 2 : 1,
                               ),
-                              child: ClipRRect(
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(15),
+                              child: InkWell(
+                                onTap: () => _toggleStyle(styleName),
                                 borderRadius: BorderRadius.circular(15),
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    Image.network(
-                                      styleImage,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            Colors.transparent,
-                                            Colors.black.withValues(alpha: 0.7),
-                                          ],
-                                          stops: const [0.6, 1.0],
-                                        ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      Image.network(
+                                        styleImage,
+                                        fit: BoxFit.cover,
                                       ),
-                                    ),
-                                    if (isSelected)
-                                      Positioned(
-                                        top: 12,
-                                        right: 12,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.primary,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Icon(
-                                            Icons.check,
-                                            size: 14,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onPrimary,
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: [
+                                              Colors.transparent,
+                                              Colors.black
+                                                  .withValues(alpha: 0.7),
+                                            ],
+                                            stops: const [0.6, 1.0],
                                           ),
                                         ),
                                       ),
-                                    Positioned(
-                                      bottom: 16,
-                                      left: 16,
-                                      right: 16,
-                                      child: Text(
-                                        styleName,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelLarge
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.w900,
-                                              color: Colors.white,
-                                              letterSpacing: 1,
+                                      if (isSelected)
+                                        Positioned(
+                                          top: 12,
+                                          right: 12,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(4),
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                              shape: BoxShape.circle,
                                             ),
+                                            child: Icon(
+                                              Icons.check,
+                                              size: 14,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onPrimary,
+                                            ),
+                                          ),
+                                        ),
+                                      Positioned(
+                                        bottom: 16,
+                                        left: 16,
+                                        right: 16,
+                                        child: Text(
+                                          styleName,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelLarge
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w900,
+                                                color: Colors.white,
+                                                letterSpacing: 1,
+                                              ),
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        )
+                        ),
+                      ),
+                    )
                         .animate()
                         .fadeIn(delay: (index * 40).ms)
                         .scale(begin: const Offset(0.9, 0.9));
